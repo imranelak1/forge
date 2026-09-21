@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1>Page not found</h1>
       <p>This page does not exist in the current Forge build.</p>
       <Button asChild variant="outline">
-        <Link href="/">Return to overview</Link>
+        <Link href="/app">Return to overview</Link>
       </Button>
     </section>
   );

@@ -30,6 +30,8 @@ Phase 0 was approved with the user's “go” instruction. Implement Phase 1 onl
 
 Forge. Dark-first, professional developer-tool interface; subtle borders, dense readable data layouts, excellent spacing, color mainly for state. These constraints are explicit in the user's brief.
 
+The user subsequently authorized a public landing page at `/`, with a circuit board assembling on scroll to explain planned capabilities. The working foundation lives at `/app`. The marketing surface extends the neutral palette with graphite/olive board materials and amber traces, while the application keeps its existing design. Use the simple wordmark for now; a future 3D logo is deferred to a separate discussion. This frontend extension does not authorize Phase 2 backend work.
+
 ## Evidence on Hand
 
 The approved architecture and milestone contracts live in docs/. No customer history, identities, commercial claims or production deployment exists.

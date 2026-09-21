@@ -18,7 +18,8 @@ docker compose ps
 
 The helper generates three independent local database passwords in ignored `.env`, refusing to overwrite an existing file. Alternatively, copy `.env.example` to `.env` and configure all password fields with distinct random values of at least 20 characters. Docker builds missing images automatically; after source changes use `docker compose up -d --build`.
 
-- Application: [localhost:3000](http://localhost:3000)
+- Landing page: [localhost:3000](http://localhost:3000)
+- Application: [localhost:3000/app](http://localhost:3000/app)
 - System checks: [localhost:3000/system](http://localhost:3000/system)
 - API documentation (development): [localhost:8000/docs](http://localhost:8000/docs)
 - Liveness: [localhost:8000/api/v1/health/live](http://localhost:8000/api/v1/health/live)
@@ -58,6 +59,8 @@ docs/                 Architecture, contracts, ADRs and milestone handoffs
 Recharts is pinned for later database-backed analytics; no charts are rendered without data. Lucide supplies interface icons; Geist is served from the bundled font package.
 
 ## Documentation
+
+The [landing-page handoff](docs/landing-page.md) covers the animated circuit tour and its accessibility fallbacks.
 
 The [frontend design reference](apps/web/DESIGN.md) records the implemented typography, colors, components and responsive behavior.
 

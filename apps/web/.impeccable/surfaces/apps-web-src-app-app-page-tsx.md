@@ -1,13 +1,13 @@
 ---
 version: 1
-slug: "apps-web-src-app-page-tsx"
-primary_target: "apps/web/src/app/page.tsx"
+slug: "apps-web-src-app-app-page-tsx"
+primary_target: "apps/web/src/app/app/page.tsx"
 related_targets: ["apps/web/src/app/system/page.tsx","apps/web/src/app/guide/page.tsx"]
 ---
 
 # Foundation surface
 
-Scope: /, /system, /guide in apps/web. Mode: Operate, with Read for the guide.
+Scope: /app, /system, /guide in apps/web. Mode: Operate, with Read for the guide.
 Use the user's approved dark developer-tool brief directly; no separate image comp or invented demo data. This is a session implementation choice, not a stored workflow preference.
 
 ## Direction contract

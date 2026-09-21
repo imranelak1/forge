@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/app", label: "Overview", icon: LayoutDashboard },
   { href: "/system", label: "System status", icon: Activity },
   { href: "/guide", label: "Setup guide", icon: BookOpen },
 ];
@@ -28,6 +28,7 @@ const navigation = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const current = navigation.find((item) => item.href === pathname)?.label ?? "Forge";
+  if (pathname === "/") return <>{children}</>;
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
