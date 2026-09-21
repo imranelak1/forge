@@ -1,42 +1,28 @@
-/** The same parts become a source map, a delivery path, and an opened evidence module. */
+/** One optical payload becomes a complete observation satellite; no unrelated stage spins. */
 export function createChoreography() {
   const motion = {
-    lift: -2.12,
-    scale: 0.9,
-    open: 0,
-    inspect: 0,
-    chain: 0,
+    lift: -2.1,
+    scale: 1.42,
     reveal: 0,
+    assembly: 0,
+    spread: 0,
+    deploy: 0,
+    inspect: 0,
     signal: 0,
-    links: 0,
+    aperture: 0.25,
   };
   const parts = Array.from({ length: 5 }, (_, i) => ({
     x: 0,
-    y: (i - 2) * 0.36,
+    y: 0,
     z: 0,
-    size: 1,
-    tilt: 0,
+    size: i === 2 ? 1 : 0.001,
   }));
-  const map = [
-    [-1.15, 1.4, 0.52],
-    [1.15, 1.4, 0.52],
-    [-1.15, -1.4, 0.52],
-    [1.15, -1.4, 0.52],
-    [0, 0, 0.45],
-  ];
-  const path = [
-    [-0.65, 2.5, 0.43],
-    [0.65, 0.84, 0.43],
-    [-0.65, -0.84, 0.43],
-    [0.65, -2.5, 0.43],
-    [1.45, 0, 0.24],
-  ];
-  const inspection = [
-    [-1.1, 2.75, 0.28],
-    [1.1, 2.75, 0.28],
-    [-1.1, -2.75, 0.28],
-    [1.1, -2.75, 0.28],
-    [0, 0, 0.8],
-  ];
-  return { motion, parts, map, path, inspection };
+  const stack = (gap: number) => Array.from({ length: 5 }, (_, i) => [0, (i - 2) * gap, 0, 1]);
+  const connect = stack(1.15);
+  const trace = stack(0.73);
+  const understand = stack(1.05);
+  const investigate = stack(0.9);
+  investigate[2] = [0, 0.15, 1.45, 1.12];
+  const complete = stack(0.48);
+  return { motion, parts, connect, trace, understand, investigate, complete };
 }

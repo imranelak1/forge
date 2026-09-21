@@ -132,61 +132,51 @@ export function CoreScene({
       scene.add(core.root);
       disposables.push(core);
 
-      const { motion, parts, map, path, inspection } = createChoreography();
+      const { motion, parts, connect, trace, understand, investigate, complete } =
+        createChoreography();
       const timeline = createTimeline({
         autoplay: false,
         defaults: { duration: 650, ease: "inOut(3)" },
       });
-      const arrange = (layout: number[][], start: number, duration = 650) => {
+      const arrange = (layout: number[][], start: number, duration = 600) => {
         parts.forEach((part, i) =>
           timeline.add(
             part,
             {
               x: layout[i][0],
               y: layout[i][1],
-              z: 0,
-              size: layout[i][2],
-              tilt: 1.32,
+              z: layout[i][2],
+              size: layout[i][3],
               duration,
             },
             start + i * 35,
           ),
         );
       };
-      // Connect: withdraw the housing, then unfold the same five parts into a source map.
-      timeline.add(motion, { open: 1, lift: 0.25, scale: 1.16, reveal: 1, duration: 800 }, 0);
-      arrange(map, 180);
-      timeline.add(motion, { links: 1, duration: 260 }, 740);
-      // Trace: source modules become an ordered path; the signal follows its connections.
-      arrange(path, 1000, 500);
-      timeline.add(motion, { chain: 1, duration: 500 }, 1000);
-      timeline.add(motion, { signal: 4, duration: 470, ease: "linear" }, 1530);
-      // Understand: park the sources and physically open the evidence housing.
-      arrange(inspection, 2000, 450);
-      timeline.add(motion, { chain: 0, duration: 450 }, 2000);
-      timeline.add(motion, { inspect: 1, duration: 450 }, 2500);
-      // Investigate: close the inspected part, restore the path, follow it back to code.
-      timeline.add(motion, { inspect: 0, duration: 250 }, 3000);
-      arrange(path, 3230, 280);
-      timeline.add(motion, { chain: 1, duration: 400 }, 3200);
-      timeline.add(motion, { signal: 0, duration: 430, ease: "linear" }, 3570);
-      // Automate: sources return to their original slots before the covers close.
-      timeline.add(motion, { links: 0, duration: 220 }, 4000);
-      parts.forEach((part, i) =>
-        timeline.add(
-          part,
-          {
-            x: 0,
-            y: (i - 2) * 0.36,
-            z: 0,
-            size: 1,
-            tilt: 0,
-            duration: 500,
-          },
-          4120 + i * 65,
-        ),
+      // The optical payload stays identifiable while electronics and frame assemble around it.
+      arrange(connect, 80, 650);
+      timeline.add(
+        motion,
+        { reveal: 1, assembly: 0.65, spread: 1, lift: 0, scale: 0.95, duration: 900 },
+        0,
       );
-      timeline.add(motion, { open: 0, scale: 1.3, duration: 380 }, 4620);
+      arrange(trace, 1080, 600);
+      timeline.add(motion, { assembly: 0.82, spread: 0.4, signal: 1, duration: 850 }, 1100);
+      arrange(understand, 2050, 500);
+      timeline.add(
+        motion,
+        { spread: 0.9, inspect: 0.85, aperture: 1, signal: 0.5, duration: 800 },
+        2100,
+      );
+      arrange(investigate, 3060, 620);
+      timeline.add(motion, { spread: 0.65, inspect: 1, signal: 0, duration: 850 }, 3100);
+      arrange(complete, 4020, 600);
+      timeline.add(
+        motion,
+        { spread: 0, inspect: 0, assembly: 1, aperture: 0.3, scale: 0.86, duration: 650 },
+        4100,
+      );
+      timeline.add(motion, { deploy: 1, signal: 1, duration: 330 }, 4670);
       let frame = 0,
         lastTime = 0,
         target = 0,
@@ -209,10 +199,6 @@ export function CoreScene({
         lastX = 0,
         lastY = 0;
       const projected = new THREE.Vector3();
-      const from = new THREE.Vector3();
-      const to = new THREE.Vector3();
-      const axis = new THREE.Vector3(0, 1, 0);
-      const direction = new THREE.Vector3();
       renderer.debug.onShaderError = () => {
         shaderFailed = true;
         element!.dataset.renderer = "fallback";
@@ -276,97 +262,35 @@ export function CoreScene({
             : motion.scale;
         core.root.position.set(0, lift, 0);
         core.root.scale.setScalar(scale);
-        // Orientation only changes when the housing unfolds. Chapters never spin the object.
-        core.root.rotation.set(
-          0.64 * (1 - motion.open) + rotationY,
-          rotationX,
-          -0.24 * (1 - motion.open),
-        );
-        core.layers.forEach(({ group, rotor, faceMaterial }, i) => {
+        // One fixed technical view; rotation is exclusively a direct user action.
+        core.root.rotation.set(0.58 + rotationY, 0.48 + rotationX, -0.12);
+        core.layers.forEach(({ group }, i) => {
           const part = parts[i];
           group.position.set(part.x, part.y, part.z);
-          group.rotation.set(part.tilt, 0, 0);
           group.scale.setScalar(part.size);
-          rotor.position.y = i === 4 ? motion.inspect * 0.55 : 0;
-          faceMaterial.emissiveIntensity = focusRef.current === i ? 0.22 : 0;
         });
-        core.housing.forEach((piece) => {
-          piece.visible = motion.inspect < 0.001;
-        });
-        core.panels.forEach((panel, i) => {
-          const angle = ((i + 0.5) * Math.PI) / 2;
-          panel.visible = motion.inspect >= 0.001;
-          panel.position.set(
-            Math.cos(angle) * motion.inspect * 0.9,
-            motion.inspect * 0.1,
-            Math.sin(angle) * motion.inspect * 0.9,
-          );
-        });
-        core.caps.forEach((cap, i) => {
-          cap.position.set(0, (i ? 1 : -1) * (1.01 + motion.open * 2.3), -motion.open * 1.5);
-          cap.scale.setScalar(Math.max(0.001, 1 - motion.open));
-        });
-        core.shaft.scale.setScalar(Math.max(0.001, 1 - motion.open));
-        core.links.forEach((link, i) => {
-          const source = parts[i];
-          const hub = parts[4];
-          const next = parts[Math.min(4, i + 1)];
-          from.set(source.x, source.y, -0.08);
-          to.set(
-            THREE.MathUtils.lerp(hub.x, next.x, motion.chain),
-            THREE.MathUtils.lerp(hub.y, next.y, motion.chain),
-            -0.08,
-          );
-          direction.subVectors(to, from).normalize();
-          const distance = from.distanceTo(to);
-          const sourceRadius = Math.min(source.size * 1.62, distance * 0.45);
-          const targetSize = THREE.MathUtils.lerp(hub.size, next.size, motion.chain);
-          const targetRadius = Math.min(targetSize * 1.62, distance * 0.45);
-          from.addScaledVector(direction, sourceRadius);
-          to.addScaledVector(direction, -targetRadius);
-          direction.subVectors(to, from);
-          link.position.copy(from).add(to).multiplyScalar(0.5);
-          link.scale.y = direction.length();
-          link.quaternion.setFromUnitVectors(axis, direction.normalize());
-          link.material.uniforms.uOpacity.value = motion.links;
-          link.material.uniforms.uProgress.value = motion.signal;
-          link.visible = motion.links > 0.001;
-          if (Math.min(3, Math.floor(motion.signal)) === i) {
-            core.marker.position.copy(from).lerp(to, Math.min(1, motion.signal - i));
-            core.marker.position.z = 0.2;
-          }
-        });
-        core.marker.visible = motion.links > 0.95 && motion.chain > 0.95;
+        core.update(motion, focusRef.current);
         renderer.render(scene, camera);
-        // Derive caption/control clearance from the rendered parts, at every screen size.
-        const bottomOf = (object: InstanceType<typeof THREE.Object3D>, radius: number) => {
-          let bottom = 0;
-          for (let j = 0; j < 16; j++) {
-            const angle = (j * Math.PI) / 8;
-            projected.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-            object.localToWorld(projected).project(camera);
-            bottom = Math.max(bottom, (-projected.y * 0.5 + 0.5) * height);
-          }
-          return bottom;
-        };
-        const moduleBottoms = core.layers.map(({ group }) => bottomOf(group, 1.7));
         // DOM logos share scene coordinates, preserving crisp, undistorted source marks.
         ports.forEach((port, i) => {
           const side = i % 2 ? 1 : -1;
           const x = side * (mobile ? 2.2 : 3.3 - reveal * 0.32);
           const y = lift + (i < 2 ? 0.85 : -0.82) * (mobile ? 1 : 1.25);
           projected.set(x, y, 0);
-          if (motion.open > 0.98) {
+          if (motion.reveal > 0.98) {
             projected.set(0, 0, 0);
-            core.layers[i].group.localToWorld(projected);
+            core.layers[i].port.localToWorld(projected);
           }
           projected.project(camera);
-          const centerY = (-projected.y * 0.5 + 0.5) * height;
-          port.style.transform = `translate(${(projected.x * 0.5 + 0.5) * width}px,${(-projected.y * 0.5 + 0.5) * height}px) translate(-50%,-50%)`;
-          port.style.setProperty("--port-label-offset", `${moduleBottoms[i] - centerY + 8}px`);
-          port.style.opacity = String(progress < 0.1 ? 1 : motion.open);
+          const labelX =
+            motion.reveal > 0.98
+              ? width / 2 + side * (mobile ? 126 : Math.min(185, width * 0.135))
+              : (projected.x * 0.5 + 0.5) * width;
+          port.style.transform = `translate(${labelX}px,${(-projected.y * 0.5 + 0.5) * height}px) translate(-50%,-50%)`;
+          port.style.setProperty("--port-label-offset", "27px");
+          port.style.opacity = String(progress < 0.1 ? 1 : motion.reveal);
         });
-        stage.dataset.unfolded = String(motion.open > 0.98);
+        stage.dataset.unfolded = String(motion.reveal > 0.98);
         projected.set(0, 0, 0);
         core.layers[4].group.localToWorld(projected).project(camera);
         evidenceLabel.style.transform = `translate(${(projected.x * 0.5 + 0.5) * width}px,${(-projected.y * 0.5 + 0.5) * height}px) translate(-50%,-50%)`;
@@ -375,13 +299,17 @@ export function CoreScene({
         element!.dataset.progress = progress.toFixed(3);
         element!.dataset.rotation = rotationX.toFixed(3);
         element!.dataset.configuration =
-          motion.inspect > 0.95
-            ? "inspection"
-            : motion.open < 0.05
-              ? "assembled"
-              : motion.chain > 0.95
-                ? "path"
-                : "map";
+          progress < 0.5
+            ? "optical-payload"
+            : progress < 1.5
+              ? "connected-stack"
+              : progress < 2.5
+                ? "signal-bus"
+                : progress < 3.5
+                  ? "sensor-inspection"
+                  : progress < 4.5
+                    ? "payload-exploded"
+                    : "satellite";
         element!.dataset.renderer = shaderFailed ? "fallback" : "webgl";
         const moving =
           Math.abs(target - progress) > 0.001 ||
@@ -472,6 +400,8 @@ export function CoreScene({
       observer.observe(root!);
       const resize = new ResizeObserver(onResize);
       resize.observe(element!);
+      // Source previews have different heights; their layout changes move every later chapter.
+      resize.observe(root!);
       window.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("resize", onResize);
       document.addEventListener("visibilitychange", onVisibility);
@@ -530,21 +460,46 @@ export function CoreScene({
   return (
     <div className="core-renderer" ref={host} data-renderer="static">
       <svg className="core-fallback" viewBox="0 0 500 440" fill="none" aria-hidden="true">
-        <path d="M250 95v255" stroke="#615e5b" strokeWidth="32" />
+        <path
+          d="M155 115 290 90 347 135 347 310 215 345 155 300Z"
+          fill="#292725"
+          stroke="#93908d"
+          strokeWidth="5"
+        />
+        <path
+          d="m155 115 60 45 132-25M215 160v185M290 90v180l57 40"
+          stroke="#615e5b"
+          strokeWidth="4"
+        />
+        <path
+          d="m155 160-120 30 3 110 117-30m192-91 116-30 2 110-118 31"
+          fill="#233f57"
+          stroke="#93908d"
+          strokeWidth="3"
+        />
+        <path
+          d="m76 180 2 108m39-119 1 108m266-108 1 110m39-120 1 110M36 226l119-29m192 20 117-31M37 264l118-29m192 18 118-30"
+          stroke="#4d9cff"
+        />
         {[0, 1, 2, 3, 4].map((i) => (
-          <g key={i} transform={`translate(250 ${110 + i * 50}) rotate(-16)`}>
-            <ellipse cy="12" rx="125" ry="42" fill="#171615" stroke="#101010" />
-            <ellipse
-              rx="125"
-              ry="42"
-              fill={i % 2 ? "#353432" : "#423d3d"}
-              stroke={`#${coreColors[i].toString(16).padStart(6, "0")}`}
-              strokeWidth="2"
-            />
-            <ellipse rx="110" ry="35" stroke="#93908d" strokeDasharray="2 5" />
-            <ellipse rx="43" ry="15" fill="#252423" stroke="#101010" />
-          </g>
+          <path
+            key={i}
+            d={"M164 " + (155 + i * 32) + " 217 " + (190 + i * 32) + " 337 " + (163 + i * 32)}
+            stroke={"#" + coreColors[i].toString(16).padStart(6, "0")}
+            strokeWidth="3"
+          />
         ))}
+        <ellipse
+          cx="247"
+          cy="121"
+          rx="39"
+          ry="19"
+          fill="#171615"
+          stroke="#a39b91"
+          strokeWidth="9"
+        />
+        <ellipse cx="247" cy="121" rx="22" ry="10" fill="#073b45" stroke="#05dbe9" />
+        <path d="m247 100 0-45m0 12L116 47m131 20 129-34" stroke="#b18754" strokeWidth="3" />
       </svg>
       <button
         type="button"

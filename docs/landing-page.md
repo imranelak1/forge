@@ -1,49 +1,33 @@
-﻿# Precision-core landing page
+# Landing page: optical payload to satellite
 
-The public home page uses a centered, procedural mechanism to explain Forge. The user selected this replacement for the rejected circuit and cable designs after a browser study of Anime.js. The latest user direction adopts the [Anime.js landing palette](https://animejs.com/), inspected on 2026-09-21: warm charcoal (#252423), off-white (#f6f4f2), coral controls (#ff4b4b) and a warm stone integrations section (#dad5d0). Red, orange, lime, cyan and blue rims preserve module identity during transformations. The existing application remains at `/app`; `/guide`, `/system` and API URLs are unchanged. A future 3D logo is deferred.
+The public home page explains Forge with a persistent optical payload that assembles into an observation satellite. The user's [Conceptzilla reference](https://dribbble.com/shots/16467758-Satellite-Landing-Page-Animation) informs the exploded hardware, shared assembly axis and part callouts. All shipping geometry is authored procedurally; the reference video is not a shipping asset. The [Anime.js palette](https://animejs.com/) remains warm charcoal, off-white, coral controls and warm stone integrations.
 
-## Experience
+## Story and examples
 
-Four source modules and one evidence module retain their identities through five chapters. Connect withdraws the covers and unfolds the stack into a source map. Trace arranges those parts into a code/build/tests/production/evidence path, then passes a signal along its connections. Understand parks the sources and opens the evidence housing into four physical quadrants. Investigate closes the housing, restores the path and retraces it to code. Automate returns the modules to their slots before closing the covers. Orientation stays fixed through the open stages; the object only tilts as it unfolds or in response to direct user input. A single paused Anime.js timeline coordinates the sequence. Native scroll maps to continuous timeline progress with frame-rate-independent damping, without scroll hijacking.
+| Step        | Physical action                                    | Customer explanation                                                                                  |
+| ----------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Connect     | Electronics dock around the optical payload.       | Switch between sample GitHub, Actions, JUnit and Sentry data for PR #184 and commit 8f3a2c1.          |
+| Trace       | The stack connects and a signal traverses its bus. | CI YAML and a delivery trail link the commit, run #928 and release.                                   |
+| Understand  | The stack separates and the aperture opens.        | A developer-added null-coupon regression test reproduces the production error in run #929.            |
+| Investigate | The payload slides out along its mounts.           | Inspect a candidate null-guard fix against the related change and verify it with the regression test. |
+| Automate    | Components seat; panels and antenna deploy.        | Illustrative TypeScript requests review when evidence contains failures; a person decides what ships. |
 
-Visitors can drag the core horizontally or focus its rotation control and use arrow keys. Home or the Reset button beside the story range returns its orientation. The range scrubs the complete story; chapter anchors work independently. The source-logo ports move with their modules, captions remain eight pixels beyond each projected rim, and selecting a source explains it. Playable, explicitly illustrative workflow sequences highlight code, builds, tests and production in order; investigation reverses the sequence.
+Each preview contains selectable code, syntax highlighting, evidence lines, an explanation and a copy control with success/failure feedback. Long lines scroll locally. Examples are sample data and proposed behavior, never live customer data, functioning integration claims or a published Forge rule API. The original test report predates the regression reproduction; a related commit alone is not proof of causality. SHA values are marked as abbreviated. Event structures follow [GitHub's workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows) and [Sentry's exception representation](https://docs.sentry.io/api/events/retrieve-an-issue-event/).
 
-GitHub, GitHub Actions, JUnit XML reports and Sentry are labeled as initial integrations in development. GitLab, Jira, Linear, Jenkins, SonarQube, Playwright, Selenium and AWS are labeled as roadmap tools. SVGs are served locally, with sources in `apps/web/public/integrations/SOURCES.md`. No synthetic metrics or functioning integration claims are introduced.
+## Implementation and interaction
 
-Headings and supporting paragraphs use short Anime.js timelines when they enter view. Hero, Automate and closing lines converge; Trace reads forward, Investigate reverses the word sequence, and Understand resolves a small blur. Each passage runs once per visit with at most 180ms of word staggering, then restores ordinary text styles. Buttons stay available. Leaving view, focusing a control or hiding the tab finishes the sequence; reduced motion restores static text immediately. React owns the word spans, preserving wrapping, selectable text and accessible heading names without client-side text replacement.
+- core-model.ts builds shared/instanced mechanical geometry: lens rings, curved iris blades, sensor, circuit tracks, pin headers, heatsink, coils, fasteners, rails, solar cells and antenna. A GLSL signal travels along the bus.
+- core-choreography.ts defines the persistent parts and five layouts. core-scene.tsx binds them to one paused Anime.js timeline, with native scroll, damping, direct rotation and a native story range. Default orientation stays fixed. Scroll reversal reverses assembly; there is no idle spin or permanent animation loop.
+- code-preview.tsx supplies the five readable examples, source selection, token rendering, highlight feedback and clipboard behavior.
+- text-motion.tsx reveals headings in 340ms with 35ms between lines; supporting copy starts immediately and finishes in 320ms. Text stays nearly opaque throughout. Passages can replay after leaving the viewport completely. Motion preferences, focus, exit and tab visibility finish or revert active animation.
+- landing.css scopes the marketing palette and layout. The desktop grid has a 35% central illustration column; mobile places copy and code below the object. The whole mobile reading area has an opaque background. Short viewports retain code previews. Story resize observation keeps scroll mapping aligned when a source preview changes height.
 
-## Implementation
+Rendering stops at rest, outside the story and in hidden tabs. Pixel ratios are capped at 1.6 desktop / 1.25 mobile. Resources, timelines, reflection textures, listeners, observers and the WebGL context are disposed on teardown. All copy, code and native anchors are server-rendered. Static SVG artwork remains for no JavaScript, reduced motion, WebGL failure and context loss; live preferences and context restoration are supported. The canvas is decorative; controls have keyboard-accessible names and focus treatment.
 
-- `landing-page.tsx`: semantic content, tool selection, native navigation, story scrubber and integration roadmap.
-- `core-scene.tsx`: lazy WebGL initialization, Anime.js master timeline, native scroll mapping, DOM logo projection, rotation interaction and lifecycle.
-- `core-choreography.ts`: persistent module state and source-map, delivery-path and inspection layouts.
-- `core-model.ts`: five machined assemblies, graphite faceplates and colored rims, separable housing quadrants, instanced teeth and fasteners, environment-lit surfaces and custom GLSL connection material.
-- `integrations.tsx`: tool metadata, local source SVGs and user-initiated Anime.js workflow examples.
-- `text-motion.tsx`: React word spans, viewport-triggered Anime.js text timelines and motion-preference cleanup.
-- `landing-palette.ts`: shared module identity colors for WebGL and the SVG fallback.
-- `landing.css`: scoped warm charcoal and coral palette, responsive composition, interaction states and readable mobile layout.
-- `tests/e2e/landing.spec.ts`: actual rendering, reversible movement, controls, source-logo loading, reduced motion, context failure and navigation.
-
-Three.js and types are pinned to 0.186.0; Anime.js to 4.5.0. Scene imports are deferred and skipped for reduced motion. The scene uses shared geometry and instancing. Pixel ratio is capped at 1.6 desktop and 1.25 mobile. Rendering stops after motion settles, outside the story and in hidden tabs. Geometry, materials, instance resources, reflection texture, observers, listeners, timelines and WebGL context are disposed on unmount or preference changes.
-
-## Accessibility and fallback
-
-All copy and links are server-rendered HTML. A static SVG mechanism is visible without JavaScript, with reduced motion, when WebGL fails, and during context loss. Context restoration resumes rendering; live motion preferences recreate or dispose the renderer. Canvas content is decorative. Rotation has a labeled keyboard control; the scrubber supports native keyboard and touch interaction. Tool selection exposes explanatory text and pressed state.
-
-Desktop places narrative and tool explanations beside the central scene. Mobile places the scene above the text, with persistent controls in their own stacking layer. Short viewports return the scene and controls to normal document flow. The dark application palette is tested separately.
+Initial integrations remain GitHub, Actions, JUnit reports and Sentry, in development. Roadmap logos remain in their separate labeled section. Source provenance is in apps/web/public/integrations/SOURCES.md. The working application at /app, /guide, /system and API endpoints retain their existing behavior. A future 3D logo and Phase 2 backend remain separate work.
 
 ## Run and verify
 
-```powershell
-docker compose up -d --build --no-deps frontend
-```
+Run docker compose up -d --build --no-deps frontend, then open [the landing](http://localhost:3000). Development runs with npm run dev --workspace @forge/web -- --port 3100.
 
-Open [the landing](http://localhost:3000) or [the platform](http://localhost:3000/app). For development:
-
-```powershell
-npm run dev --workspace @forge/web -- --port 3100
-```
-
-Run lint, typecheck, unit tests, production build and Playwright. Set `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` and `FORGE_E2E_LIVE=1` to include actual Compose readiness checks. Browser checks use two workers and Chromium's software WebGL fallback to avoid concurrent software-rendering contention. This flag is a test setting, not a visitor requirement.
-
-No backend change or migration accompanies this redesign. Chromium checks do not establish Safari/Firefox compatibility, assistive-technology behavior or real-device frame rates.
+Lint, typecheck, production build and Playwright cover navigation, rendering, reversible motion, source selection, clipboard, reduced motion, WebGL failure/restoration and the actual Compose readiness endpoint. Set PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 and FORGE_E2E_LIVE=1 for production browser checks. Chromium uses two workers and software WebGL in tests; these checks do not establish real-device frame rates or Safari/Firefox compatibility.

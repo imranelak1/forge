@@ -46,7 +46,7 @@ test("chapter links and platform navigation work with the landing palette scoped
   await chapter.press("Enter");
   await expect(page).toHaveURL(/#understand$/);
   await expect(
-    page.getByRole("heading", { name: "See what’s holding you back." }),
+    page.getByRole("heading", { name: "Make the failure understandable." }),
   ).toBeInViewport();
   await page.evaluate(() => scrollTo(0, 0));
   await page.getByRole("link", { name: "Open platform", exact: true }).click();
@@ -240,4 +240,29 @@ test("illustrated delivery plays forward and investigation reverses to its sourc
     .click();
   await expect(page.locator("#investigate .flow-demo")).toHaveAttribute("data-playing", "false");
   await expect(page.locator("#investigate .tool-explanation strong")).toHaveText("GitHub");
+});
+
+test("code previews explain every step and tool selection copies the displayed example", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  await expect(page.locator(".code-preview")).toHaveCount(5);
+  await expect(page.locator("#trace pre")).toContainText("npm test");
+  await expect(page.locator("#understand pre")).toContainText("total(100, null)");
+  await expect(page.locator("#investigate pre")).toContainText("coupon?.percent ?? 0");
+  await expect(page.locator("#automate .example-note")).toContainText("not a published Forge API");
+  await page
+    .locator("#connect")
+    .getByRole("button", { name: "Inspect GitHub Actions", exact: true })
+    .click();
+  await expect(page.locator("#connect figcaption")).toContainText("workflow_run.json");
+  await expect(page.locator("#connect .preview-result")).toContainText("CI run #928");
+  await page.getByRole("button", { name: "Copy workflow_run.json", exact: true }).click();
+  await expect(page.locator("#connect [role=status]")).toHaveText("Example copied");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('"run_number": 928');
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "static");
+  await expect(page.locator(".code-preview")).toHaveCount(5);
 });

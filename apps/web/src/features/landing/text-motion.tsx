@@ -38,7 +38,7 @@ export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
       element!.dataset.textMotion = preference.matches ? "static" : "loading";
       if (preference.matches) return;
       try {
-        const { createTimeline, stagger } = await import("animejs");
+        const { createTimeline } = await import("animejs");
         if (version !== generation) return;
         const running = new Map<HTMLElement, ReturnType<typeof createTimeline>>();
         const finish = (scene: HTMLElement) => running.get(scene)?.complete();
@@ -48,6 +48,11 @@ export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
               const scene = entry.target as HTMLElement;
               if (!entry.isIntersecting) {
                 finish(scene);
+                if (
+                  entry.boundingClientRect.bottom < 0 ||
+                  entry.boundingClientRect.top > innerHeight
+                )
+                  seen.delete(scene);
                 continue;
               }
               if (seen.has(scene)) continue;
@@ -61,7 +66,7 @@ export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
               scene.dataset.textState = "running";
               const timeline = createTimeline({
                 autoplay: false,
-                defaults: { duration: assemble ? 640 : 500, ease: "out(4)" },
+                defaults: { duration: 340, ease: "out(4)" },
                 onComplete: () => {
                   timeline.revert();
                   running.delete(scene);
@@ -85,11 +90,13 @@ export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
                             : -18,
                     to: 0,
                   },
-                  opacity: [0.35, 1],
-                  filter: inspect ? ["blur(4px)", "blur(0px)"] : ["blur(0px)", "blur(0px)"],
-                  delay: stagger(Math.min(45, 180 / Math.max(1, words.length - 1)), {
-                    from: reverse ? "last" : "first",
-                  }),
+                  opacity: [0.85, 1],
+                  y: [14, 0],
+                  filter: inspect ? ["blur(1px)", "blur(0px)"] : ["blur(0px)", "blur(0px)"],
+                  delay: (target?: unknown) =>
+                    target instanceof HTMLElement
+                      ? Number(target.parentElement?.dataset.textLine ?? 0) * 35
+                      : 0,
                 },
                 0,
               );
@@ -97,17 +104,19 @@ export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
                 timeline.add(
                   copy,
                   {
-                    opacity: [0.5, 1],
-                    y: [6, 0],
-                    duration: 420,
+                    opacity: [0.9, 1],
+                    x: [reverse ? -14 : 14, 0],
+                    clipPath: ["inset(0 0 8% 0)", "inset(0 0 0% 0)"],
+                    y: [8, 0],
+                    duration: 320,
                   },
-                  120,
+                  0,
                 );
               running.set(scene, timeline);
               timeline.play();
             }
           },
-          { rootMargin: "0px 0px -12% 0px", threshold: 0.12 },
+          { rootMargin: "0px 0px -5% 0px", threshold: 0.2 },
         );
         const onFocus = (event: FocusEvent) => {
           if (event.target instanceof Element) {

@@ -196,8 +196,7 @@
   padding: 4px;
   background: transparent;
 }
-.core-stage[data-unfolded="true"] .port-name,
-.core-stage[data-unfolded="true"] .port-connector {
+.core-stage[data-unfolded="true"] .port-name {
   display: none;
 }
 .core-stage[data-unfolded="true"] .port-role {
@@ -209,6 +208,18 @@
   color: var(--land-ink);
   font-size: 11px;
   white-space: nowrap;
+}
+.core-stage[data-unfolded="true"] .port-connector {
+  display: block;
+  position: absolute;
+  width: 28px;
+  top: 50%;
+}
+.core-stage[data-unfolded="true"] .core-port:nth-child(odd) .port-connector {
+  left: 100%;
+}
+.core-stage[data-unfolded="true"] .core-port:nth-child(even) .port-connector {
+  right: 100%;
 }
 .core-stage[data-unfolded="true"] .core-evidence-label {
   display: block;
@@ -495,11 +506,11 @@
   pointer-events: none;
 }
 .chapter-inner {
-  max-width: 1250px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 36% minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 35% minmax(0, 1fr);
   align-items: center;
 }
 .chapter-copy {
@@ -556,7 +567,7 @@
   justify-self: center;
   display: block;
   width: 100%;
-  max-width: 280px;
+  max-width: 355px;
   pointer-events: auto;
   color: var(--land-muted);
   font-size: 11px;
@@ -595,8 +606,8 @@
   flex-direction: row-reverse;
 }
 .tool-explanation {
-  min-height: 145px;
-  margin-top: 19px;
+  min-height: 82px;
+  margin-top: 16px;
 }
 .tool-explanation strong {
   font-weight: 550;
@@ -606,7 +617,117 @@
 .tool-explanation p {
   margin-top: 8px;
   line-height: 1.8;
+  font-size: 12px;
+}
+.code-preview {
+  margin: 16px 0 0;
+  min-width: 0;
+  border: 1px solid var(--land-line);
+  background: #211f1e;
+  color: var(--land-ink);
+}
+.code-preview figcaption {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--land-line);
+  font-size: 11px;
+}
+.code-preview figcaption > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono), monospace;
+}
+.code-preview figcaption > span:nth-child(2) {
+  color: var(--land-muted);
+  font-size: 10px;
+}
+.code-preview figcaption button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-height: 40px;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--land-muted);
+  background: transparent;
+  border: 0;
+}
+.code-preview figcaption button:hover {
+  color: var(--land-accent-hover);
+}
+.code-preview pre {
+  overflow: auto;
+  max-width: 100%;
+  padding: 16px 0;
+  margin: 0;
+  font:
+    12px/1.85 var(--font-mono),
+    monospace;
+  tab-size: 2;
+  scrollbar-color: var(--land-control-line) #211f1e;
+  scrollbar-width: thin;
+}
+.code-preview code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+.code-line {
+  display: block;
+  padding-right: 16px;
+  min-height: 1.85em;
+}
+.code-line.is-highlighted {
+  background: #302e29;
+}
+.code-line.is-added {
+  background: #283224;
+}
+.code-line.is-removed {
+  background: #3c2726;
+}
+.line-number {
+  display: inline-block;
+  width: 34px;
+  padding-right: 12px;
+  text-align: right;
+  color: var(--land-subtle);
+  user-select: none;
+}
+.syntax-string {
+  color: #b7ff54;
+}
+.syntax-keyword {
+  color: #ff718b;
+}
+.syntax-number {
+  color: #ffa828;
+}
+.syntax-comment {
+  color: var(--land-muted);
+}
+.preview-result {
+  padding: 14px 15px;
+  border-top: 1px solid var(--land-line);
+}
+.preview-result > span {
+  color: var(--land-muted);
+  font-size: 11px;
+}
+.preview-result p {
+  margin-top: 6px;
   font-size: 13px;
+  line-height: 1.65;
+}
+.code-preview .example-note {
+  padding: 0 15px 14px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--land-muted);
 }
 .mechanism-notes a {
   display: flex;
@@ -890,6 +1011,7 @@
     align-items: flex-start;
   }
   .chapter-inner {
+    background: var(--land-bg);
     display: block;
   }
   .chapter-copy {
@@ -1078,6 +1200,7 @@
     padding-top: 75px;
   }
   .chapter-inner {
+    background: var(--land-bg);
     display: block;
   }
   .chapter-copy {
@@ -1085,6 +1208,8 @@
     margin: auto;
   }
   .chapter-endpoint {
-    display: none;
+    display: block;
+    margin: 28px auto 0;
+    max-width: 450px;
   }
 }

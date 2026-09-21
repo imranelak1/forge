@@ -6,52 +6,58 @@ import { ArrowDown, ArrowRight, ArrowUpRight, MoveUpRight, RotateCcw } from "luc
 import { FlowDemo, integrations, roadmap, ToolLogo } from "./integrations";
 import { CoreScene, chapterNames, seekStory } from "./core-scene";
 import { TextLines, useLandingTextMotion } from "./text-motion";
+import { CodePreview } from "./code-preview";
 
 const chapters = [
   {
     id: "connect",
-    title: "Your tools.\nWorking together.",
+    title: "Connect the tools.\nKeep the context.",
     description:
-      "Bring code, builds, tests and production errors into the same story. Keep each signal connected to where it came from.",
-    detail: "Planned connections",
-    items: ["GitHub", "GitHub Actions", "JUnit", "Sentry"],
-    caption: "The core unfolds. Four sources connect to one evidence module.",
+      "Bring a pull request, its CI run, test report and production error together. Forge is being built to link them by the change they share.",
+    detail: "One example throughout this tour",
+    items: ["Checkout service", "PR #184", "Commit 8f3a2c1"],
+    caption:
+      "Connect: electronics dock around the optical payload, just as tool events join one delivery story.",
   },
   {
     id: "trace",
-    title: "Nothing happens\nin isolation.",
+    title: "Follow the change\ninto production.",
     description:
-      "Follow a change from its pull request to the build that tested it and the deployment that shipped it.",
-    detail: "The delivery lifecycle",
-    items: ["Pull request", "Commit", "Build", "Deployment"],
-    caption: "The modules form a path: code, build, tests, production.",
+      "See which build tested a commit and which release shipped it. A shared commit creates a trail you can follow across tools.",
+    detail: "The same checkout change",
+    items: ["PR #184", "CI #928", "Release 8f3a2c1"],
+    caption:
+      "Trace: a signal travels through the connected hardware, following the delivery from source to release.",
   },
   {
     id: "understand",
-    title: "See what’s\nholding you back.",
+    title: "Make the failure\nunderstandable.",
     description:
-      "Unpick slow reviews, unreliable tests and repeated build failures. Every insight leads back to the evidence behind it.",
-    detail: "Planned intelligence",
-    items: ["Review time", "Build reliability", "Test failures"],
-    caption: "The evidence housing opens to reveal the assembly inside.",
+      "The original tests passed, but checkout failed without a coupon. A new regression test reproduces the error and gives the team evidence to work from.",
+    detail: "Reproduction after the production error",
+    items: ["CI #929", "Null coupon", "Failing test"],
+    caption:
+      "Understand: the lens opens and exposes the sensor, bringing the failing case into focus.",
   },
   {
     id: "investigate",
-    title: "Follow the signal.\nFind the context.",
+    title: "Find the line.\nReview the fix.",
     description:
-      "Start with a production error and work backward. Connect the release to its related changes, without losing the trail.",
-    detail: "Illustrated investigation",
-    items: ["Production error", "Deployment", "Related commit"],
-    caption: "Follow the same path backward, from production to code.",
+      "Trace the error back to its release and related code. Compare the suspected change with a candidate fix, then verify it with the failing test.",
+    detail: "Evidence before conclusions",
+    items: ["Sentry error", "Related commit", "Candidate diff"],
+    caption:
+      "Investigate: the optical payload slides out along its mounts so you can inspect the part behind the signal.",
   },
   {
     id: "automate",
-    title: "Close the loop.\nKeep control.",
+    title: "Set a condition.\nChoose a response.",
     description:
-      "Turn explicit conditions into deliberate pipeline responses. Understand why a rule matched and keep a record of what happened next.",
-    detail: "Planned automation",
-    items: ["Conditions", "Action", "Audit trail"],
-    caption: "The parts return to their slots. One connected system, ready to act.",
+      "A failed regression test can become a review request with the linked commit attached. Planned rules will explain why they matched and record the response.",
+    detail: "An explicit, reviewable response",
+    items: ["Failed test", "Request review", "Human decision"],
+    caption:
+      "Automate: the frame closes, panels unfold and antenna deploys. The connected system can transmit a response.",
   },
 ];
 
@@ -140,7 +146,9 @@ export function LandingPage() {
               </button>
             </div>
             <p className="core-caption">
-              {active >= 0 ? chapters[active].caption : "Five capabilities. One connected system."}
+              {active >= 0
+                ? chapters[active].caption
+                : "An optical payload becomes a satellite. Follow one change through the whole system."}
             </p>
             <nav
               className="core-navigation"
@@ -164,12 +172,12 @@ export function LandingPage() {
           <section className="core-hero" aria-labelledby="hero-title">
             <div className="hero-copy" data-text-scene="hero">
               <h1 id="hero-title">
-                <TextLines lines={["Engineering.", "In full view."]} />
+                <TextLines lines={["Every change.", "In context."]} />
               </h1>
               <p data-text-copy>
-                From the first commit to production.
+                Connect pull requests, builds, tests and production errors.
                 <br />
-                See the relationships. Understand the impact.
+                Find the change. Understand what happened.
               </p>
               <div className="hero-actions">
                 <Link href="/app" className="landing-button">
@@ -179,7 +187,9 @@ export function LandingPage() {
                   Explore the core <ArrowDown size={15} aria-hidden="true" />
                 </a>
               </div>
-              <p className="preview-note">In development. Explore the working foundation.</p>
+              <p className="preview-note">
+                Interactive example. Integrations and automation are in development.
+              </p>
             </div>
             <span className="hero-scroll-cue" aria-hidden="true">
               Scroll to connect <ArrowDown size={13} />
@@ -217,30 +227,40 @@ export function LandingPage() {
                   </div>
                 </div>
                 <aside className="chapter-endpoint" aria-label={chapterNames[i] + " illustration"}>
-                  {i === 0 || i === 1 || i === 3 ? (
+                  <p>
+                    Illustrative example ·{" "}
+                    {i === 0
+                      ? "source events"
+                      : i === 1
+                        ? "delivery workflow"
+                        : i === 2
+                          ? "regression test"
+                          : i === 3
+                            ? "candidate fix"
+                            : "response logic"}
+                  </p>
+                  {i === 0 && (
+                    <div className="workflow-tools">
+                      {integrations.map((tool, n) => (
+                        <button
+                          key={tool.id}
+                          type="button"
+                          aria-label={"Inspect " + tool.name}
+                          aria-pressed={selectedTool === n}
+                          onClick={() => {
+                            setSelectedTool(n);
+                            setFocus(n);
+                          }}
+                        >
+                          <ToolLogo id={tool.id} />
+                          <span>{tool.short}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <CodePreview step={i} source={selectedTool} />
+                  {(i === 0 || i === 1 || i === 3) && (
                     <>
-                      <p>
-                        {i === 3
-                          ? "Trace backward from production"
-                          : "Planned integration workflow"}
-                      </p>
-                      <div className={"workflow-tools " + (i === 3 ? "workflow-reverse" : "")}>
-                        {integrations.map((tool, n) => (
-                          <button
-                            key={tool.id}
-                            type="button"
-                            aria-label={"Inspect " + tool.name}
-                            aria-pressed={selectedTool === n}
-                            onClick={() => {
-                              setSelectedTool(n);
-                              setFocus(n);
-                            }}
-                          >
-                            <ToolLogo id={tool.id} />
-                            <span>{tool.short}</span>
-                          </button>
-                        ))}
-                      </div>
                       <FlowDemo
                         reverse={i === 3}
                         onSelect={(step) => {
@@ -251,23 +271,6 @@ export function LandingPage() {
                       <div className="tool-explanation" aria-live="polite">
                         <strong>{integrations[selectedTool].name}</strong>
                         <p>{integrations[selectedTool].detail}</p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <p>{i === 2 ? "Every layer has a purpose" : "A response you can explain"}</p>
-                      <div className="mechanism-notes">
-                        {chapter.items.map((item, n) => (
-                          <a
-                            key={item}
-                            href={i === 2 ? "#investigate" : "/guide"}
-                            onMouseEnter={() => setFocus(n)}
-                            onFocus={() => setFocus(n)}
-                          >
-                            {item}
-                            <ArrowUpRight size={14} aria-hidden="true" />
-                          </a>
-                        ))}
                       </div>
                     </>
                   )}
