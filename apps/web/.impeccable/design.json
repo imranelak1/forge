@@ -436,6 +436,11 @@
         "purpose": "Illustrative forward delivery and reverse investigation update tool explanations. The play button disables during playback; reduced motion selects the terminal step."
       },
       {
+        "name": "landing-text-sequence",
+        "value": "Anime.js out(4); words 500ms or 640ms; total stagger at most 180ms; supporting copy 420ms starting at 120ms",
+        "purpose": "React-owned heading words converge for hero/Automate/closing, move forward for Trace and backward for Investigate, and resolve a 4px blur for Understand. Each passage runs once on entering view. Original styles return on completion, focus, leaving view or hidden tab. Reduced motion and missing JavaScript preserve plain text; cleanup reverts timelines and observers."
+      },
+      {
         "name": "landing-static-fallback",
         "value": "Static five-layer SVG mechanism; reduced motion skips WebGL initialization",
         "purpose": "No JavaScript, unavailable WebGL, shader failure and context loss retain the SVG with independent HTML and native anchors. Context restoration resumes rendering; preference changes and unmount dispose scene resources and timelines."

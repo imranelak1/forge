@@ -267,6 +267,8 @@ Server-rendered text, native links, and the static SVG mechanism remain availabl
 
 ### Landing workflow examples and integrations
 
+Landing heading words and their supporting paragraphs animate once when their passage enters the reading area. React-owned word spans preserve normal wrapping and heading names. Hero, Automate and closing lines converge from 14px offsets; forward chapters use an 18px left offset and Investigate reverses both direction and word order. Understand resolves a 4px blur. Anime.js uses out(4), 500ms word motion (640ms for converging lines), at most 180ms total stagger, and a 420ms supporting-copy transition starting at 120ms. Text is visible by default; no-JavaScript and reduced-motion paths remain plain. Completion restores original styles. Leaving view, hiding the tab or focusing a control finishes active text motion; live preference changes and unmount revert animations and disconnect observers. Controls themselves never wait for text.
+
 User-initiated illustrative workflow playback highlights Code, Build, Test and Observe over 2400ms with linear Anime.js timing; investigation reverses the selected sequence. Playback disables its button while running. Reduced motion selects the terminal step immediately. The initial integration section is explicitly labeled "Initial integrations (in development)" and identifies GitHub, GitHub Actions, JUnit reports and Sentry. GitLab, Jira, Linear, Jenkins, SonarQube, Playwright, Selenium and AWS appear under "On the roadmap". These local source logos identify planned tools, not customers or endorsements.
 
 ## Do's and Don'ts

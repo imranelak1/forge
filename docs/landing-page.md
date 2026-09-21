@@ -10,6 +10,8 @@ Visitors can drag the core horizontally or focus its rotation control and use ar
 
 GitHub, GitHub Actions, JUnit XML reports and Sentry are labeled as initial integrations in development. GitLab, Jira, Linear, Jenkins, SonarQube, Playwright, Selenium and AWS are labeled as roadmap tools. SVGs are served locally, with sources in `apps/web/public/integrations/SOURCES.md`. No synthetic metrics or functioning integration claims are introduced.
 
+Headings and supporting paragraphs use short Anime.js timelines when they enter view. Hero, Automate and closing lines converge; Trace reads forward, Investigate reverses the word sequence, and Understand resolves a small blur. Each passage runs once per visit with at most 180ms of word staggering, then restores ordinary text styles. Buttons stay available. Leaving view, focusing a control or hiding the tab finishes the sequence; reduced motion restores static text immediately. React owns the word spans, preserving wrapping, selectable text and accessible heading names without client-side text replacement.
+
 ## Implementation
 
 - `landing-page.tsx`: semantic content, tool selection, native navigation, story scrubber and integration roadmap.
@@ -17,6 +19,7 @@ GitHub, GitHub Actions, JUnit XML reports and Sentry are labeled as initial inte
 - `core-choreography.ts`: persistent module state and source-map, delivery-path and inspection layouts.
 - `core-model.ts`: five machined assemblies, colored faceplates, separable housing quadrants, instanced teeth and fasteners, environment-lit surfaces and custom GLSL connection material.
 - `integrations.tsx`: tool metadata, local source SVGs and user-initiated Anime.js workflow examples.
+- `text-motion.tsx`: React word spans, viewport-triggered Anime.js text timelines and motion-preference cleanup.
 - `landing.css`: scoped grayscale palette, responsive composition, interaction states and readable mobile layout.
 - `tests/e2e/landing.spec.ts`: actual rendering, reversible movement, controls, source-logo loading, reduced motion, context failure and navigation.
 

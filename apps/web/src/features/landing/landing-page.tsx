@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, MoveUpRight, RotateCcw } from "lucide-react";
 import { FlowDemo, integrations, roadmap, ToolLogo } from "./integrations";
 import { CoreScene, chapterNames, seekStory } from "./core-scene";
+import { TextLines, useLandingTextMotion } from "./text-motion";
 
 const chapters = [
   {
@@ -55,13 +56,15 @@ const chapters = [
 ];
 
 export function LandingPage() {
+  const landing = useRef<HTMLDivElement>(null);
+  useLandingTextMotion(landing);
   const story = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(-1);
   const [focus, setFocus] = useState(-1);
   const [selectedTool, setSelectedTool] = useState(0);
   const [showTool, setShowTool] = useState(false);
   return (
-    <div className="landing">
+    <div className="landing" ref={landing}>
       <a className="skip-link" href="#landing-content">
         Skip to content
       </a>
@@ -159,13 +162,11 @@ export function LandingPage() {
             </nav>
           </div>
           <section className="core-hero" aria-labelledby="hero-title">
-            <div className="hero-copy">
+            <div className="hero-copy" data-text-scene="hero">
               <h1 id="hero-title">
-                Engineering.
-                <br />
-                In full view.
+                <TextLines lines={["Engineering.", "In full view."]} />
               </h1>
-              <p>
+              <p data-text-copy>
                 From the first commit to production.
                 <br />
                 See the relationships. Understand the impact.
@@ -193,19 +194,16 @@ export function LandingPage() {
               aria-labelledby={`${chapter.id}-title`}
             >
               <div className="chapter-inner">
-                <div className="chapter-copy">
+                <div className="chapter-copy" data-text-scene={chapter.id}>
                   <p className="sr-only">
                     Step {i + 1} of 5: {chapterNames[i]}
                   </p>
                   <h2 id={`${chapter.id}-title`}>
-                    {chapter.title.split("\n").map((line, n) => (
-                      <span key={line}>
-                        {n > 0 && <br />}
-                        {line}
-                      </span>
-                    ))}
+                    <TextLines lines={chapter.title.split("\n")} />
                   </h2>
-                  <p className="chapter-description">{chapter.description}</p>
+                  <p className="chapter-description" data-text-copy>
+                    {chapter.description}
+                  </p>
                   <div className="chapter-evidence">
                     <p>{chapter.detail}</p>
                     <ul>
@@ -279,13 +277,11 @@ export function LandingPage() {
           ))}
         </div>
         <section className="integration-section" aria-labelledby="integrations-title">
-          <div className="integration-intro">
+          <div className="integration-intro" data-text-scene="integrations">
             <h2 id="integrations-title">
-              Built around
-              <br />
-              your engineering stack.
+              <TextLines lines={["Built around", "your engineering stack."]} />
             </h2>
-            <p>
+            <p data-text-copy>
               Start with the tools that carry your delivery story. More connections are on the
               roadmap.
             </p>
@@ -314,13 +310,12 @@ export function LandingPage() {
             </ul>
           </div>
         </section>
-        <section className="landing-close" aria-labelledby="close-title">
+        <section className="landing-close" aria-labelledby="close-title" data-text-scene="close">
           <MoveUpRight size={38} strokeWidth={1} aria-hidden="true" />
           <h2 id="close-title">
-            The whole story.
-            <br />A clearer next step.
+            <TextLines lines={["The whole story.", "A clearer next step."]} />
           </h2>
-          <p>
+          <p data-text-copy>
             We’re building Forge to turn connected engineering evidence into decisions you can
             explain.
           </p>
