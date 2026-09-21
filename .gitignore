@@ -30,6 +30,7 @@ build/
 .impeccable/build/
 .impeccable/config.local.json
 .impeccable/cache/
+.impeccable/research/
 .DS_Store
 Thumbs.db
 *.log

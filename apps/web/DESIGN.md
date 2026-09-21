@@ -1,6 +1,6 @@
 ---
 name: Forge
-description: A dark engineering workbench with a scoped monochrome WebGL cable landing page.
+description: A dark engineering workbench with a scoped monochrome WebGL precision-core landing page.
 colors:
   background: "#111111"
   foreground: "#ededed"
@@ -30,7 +30,7 @@ colors:
 typography:
   landing-display:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "clamp(64px, 7.1vw, 102px)"
+    fontSize: "clamp(60px, 5.8vw, 84px)"
     fontWeight: 510
     lineHeight: 0.99
     letterSpacing: "-0.04em"
@@ -143,7 +143,7 @@ Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and rea
 
 This document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.
 
-The public landing page at `/` adds a scoped monochrome material illustration: a centered graphite cable on a white canvas, large black Geist type, and smooth scroll-driven deformation. Its display scale, shader reflections, and narrative motion belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.
+The public landing page at `/` adds a built, scoped monochrome precision mechanism: a centered five-layer core on a white canvas, large black Geist type, and reversible Anime.js choreography. Machined grayscale materials, a custom GLSL signal, direct rotation and local integration-logo storytelling belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.
 
 **Key Characteristics:**
 
@@ -151,7 +151,7 @@ The public landing page at `/` adds a scoped monochrome material illustration: a
 - Geist interface text with system monospace for commands and versions.
 - Restrained controls and explicit, text-supported service states.
 - Responsive navigation and locally scrollable technical content.
-- A scoped public landing with a procedural five-strand WebGL cable and five connected capability chapters.
+- A scoped public landing with a procedural five-layer WebGL mechanism and five connected capability chapters.
 
 ## Colors
 
@@ -181,7 +181,7 @@ Frontmatter records the implemented colors. The companion `.impeccable/design.js
 
 ### Landing scope
 
-The `landing-*` frontmatter tokens apply only at `/`. White background, black text, gray supporting copy, and fine gray rules frame the cable. Primary actions have a near-black fill and white labels; hover and keyboard focus remain monochrome. The cable uses grayscale reflections, surface detail, and a light signal. This landing palette does not change application service-state semantics.
+The `landing-*` frontmatter tokens apply only at `/`. White background, black text, gray supporting copy, and fine gray rules frame the core. Primary actions have a near-black fill and white labels; hover and keyboard focus remain monochrome. Graphite, silver and ceramic materials, a grayscale shader signal, and grayscale local tool logos provide visual detail. The landing also overrides the inherited muted-foreground variable with its own supporting-copy token. This landing palette does not change application service-state semantics.
 
 ## Typography
 
@@ -196,7 +196,7 @@ Geist Variable is bundled locally through `@fontsource-variable/geist`; the fall
 
 Repository empty-state copy is limited to 47ch, system notes to 72ch, and the guide column to 76ch. Labels use sentence case.
 
-The landing reuses Geist with the `landing-display` and `landing-chapter` roles. Hero copy is centered, 15px with 1.7 line height; chapter descriptions are 15px with 1.85 line height and a 310px measure. The closing headline scales from 39px to 72px. At 800 to 1100px chapter headings use 32px; below 800px the hero scales from 61px to 82px and chapter headings from 33px to 43px. At 380px and below the hero is 56px. The landing wordmark is 30px, weight 680, with -1.2px tracking and a plain period; the footer wordmark is 26px.
+The landing reuses Geist with the `landing-display` and `landing-chapter` roles. Hero copy is centered, 15px with 1.7 line height; chapter descriptions are 15px with 1.85 line height and a 310px measure. The closing headline scales from 39px to 72px. At 800 to 1100px chapter headings use 32px; below 800px the hero scales from 49px to 68px and chapter headings from 33px to 43px. At 380px and below the hero is 47px. The landing wordmark is 30px, weight 680, with -1.2px tracking and a plain period; the footer wordmark is 26px.
 
 ## Layout
 
@@ -206,21 +206,21 @@ At 1100px and below, main padding reduces to 24px and the health strip wraps its
 
 The lifecycle has seven equal desktop columns. On mobile, stages keep a 94px width within a keyboard-focusable horizontal scroller, followed by an explicit scroll hint. Repository headers reduce from four columns to two. Command blocks scroll within their own boundary. Keep the page itself free of horizontal overflow.
 
-The landing header has a 1600px maximum width, 5% side padding, and an 84px height. The centered hero and sticky cable stage use the viewport height minus the header; the hero has a 740px minimum height. The cable remains centered while five chapters alternate their copy between the outer columns of a 1250px grid with a 36% center column. Chapters have a 105svh minimum height and 5% side padding. At 800 to 1100px the center column reduces to 34% and the cable caption is hidden.
+The landing header has a 1600px maximum width, 5% side padding, and an 84px height. The centered hero and sticky core stage use the viewport height minus the header; the hero has a 740px minimum height. Five chapters alternate copy and tool explanations around the core in a 1250px grid with a 36% center column. Chapters have a 105svh minimum height and 5% side padding. At 800 to 1100px the center column reduces to 34% and the core caption is hidden. Story controls occupy a separate sticky layer with a 114px height, a -114px top margin and zero bottom margin, keeping their sticky boundary inside the story. The integration section follows in normal flow, with four initial-tool columns and a wrapping roadmap list.
 
-Below 800px, the landing header is 72px tall with 24px side padding; its secondary navigation is hidden while platform entry remains visible. The hero has a 700px minimum height. The cable occupies the upper reading area, with chapter copy beginning at 43svh and using a 440px maximum measure. Chapters have a 108svh minimum height and 27px side padding; all five chapter links remain visible with 44px minimum targets. At 380px and below chapter side padding becomes 22px. At any width when the viewport is at most 600px high, the cable stage returns to normal document flow at 400px high, followed by chapters with a 550px minimum height.
+Below 800px, the landing header is 72px tall with 24px side padding; its secondary navigation is hidden while platform entry remains visible. The hero has a 700px minimum height. The core occupies the upper reading area, with chapter copy beginning at 43svh and using a 440px maximum measure; tool explanations follow the copy. Chapters have a 108svh minimum height and 27px side padding; all five chapter links remain visible with 44px minimum targets. Story controls use a 94px height, a -94px top margin and zero bottom margin. Initial integrations become two columns. At 380px and below chapter side padding becomes 22px. At any width when the viewport is at most 600px high, the core stage and controls return to normal document flow, with a 400px stage and 550px minimum chapter height; side explanations are hidden.
 
 ## Elevation & Depth
 
 The application implements no shadows, gradients, blur, or floating surfaces. Depth comes from restrained tonal differences and one-pixel borders. Containers sit directly in the document flow. Do not add elevation to ordinary data panels without a new design decision.
 
-The landing cable uses real WebGL geometry with custom vertex and fragment shaders. Grayscale studio reflections, subtle woven surface detail, and background grain establish material depth. An orthographic camera keeps the composition centered; a small mouse response turns the object. This treatment is confined to the illustration; landing copy and controls retain flat surfaces and fine rules.
+The landing core uses procedural Three.js geometry with environment-lit graphite, silver, ceramic and recessed surfaces. Beveled annular layers, instanced teeth and fasteners, rotors, engraved end caps, and a central shaft establish mechanical depth. A custom GLSL material carries a grayscale signal around the layers. An orthographic camera changes composition with the story; drag or keyboard input adjusts orientation. This treatment is confined to the illustration; landing copy and controls retain flat surfaces and fine rules.
 
 ## Shapes
 
 Forms are compact rectangles: badges use the badge radius, navigation uses the navigation radius, and buttons, notices, tables, service lists, and code blocks use the control radius. Circular geometry appears in state icons rather than pill-shaped containers. Lucide stroke icons provide navigation and status imagery; the shipping favicon is SVG. There are no shipping raster assets.
 
-Landing actions use 3px corners. The cable is a procedural five-strand mesh that moves between separated, braided, opened, and closed-loop forms. Its fallback is a static SVG of five curved strokes. It is an illustration, not a replacement logo or a reusable application panel style.
+Landing actions use 3px corners. The core is a procedural five-layer mechanism that separates, rotates, exposes its assemblies and reassembles. Its fallback is a static SVG of five stacked elliptical assemblies around a shaft. It is an illustration, not a replacement logo or a reusable application panel style. Local integration SVGs retain their source geometry and are displayed in grayscale; provenance is recorded in `public/integrations/SOURCES.md`.
 
 ## Components
 
@@ -250,15 +250,19 @@ Service rows use 22px padding and horizontal dividers, reducing to 18px and a st
 
 Navigation changes background and text color over 150ms; buttons transition colors. There is no entrance animation or rotating loading icon. Reduced-motion preference removes all animation and transition. Focus remains visible on actionable elements and the lifecycle scroller; the programmatic main-content target suppresses its outline.
 
-### Landing actions and cable
+### Landing actions and precision core
 
 The near-black solid action uses 12px by 20px padding, a 13px label at weight 500, 3px corners, and a matching border; hover changes its fill to gray. Below 800px it uses 12px by 16px padding and a 12px label. Header entry uses an outlined action. Both open `/app`; build notes and system links reach working routes. Landing actions and chapter links use a black focus ring. Interactive background, color, and border changes take 200ms.
 
-The cable represents Connect, Trace, Understand, Investigate, and Automate. Native anchor links navigate to chapters, while the active chapter receives `aria-current="step"`. Hover or keyboard focus emphasizes an individual strand. The accompanying descriptions and in-development disclosures make clear that the capability tour illustrates planned work.
+The five core layers represent Connect, Trace, Understand, Investigate, and Automate. Native anchor links navigate to chapters, while the active chapter receives `aria-current="step"`; hover or keyboard focus emphasizes its layer. The native Story progress range runs from 0 to 5 in 0.01 steps and seeks native scroll position. A labeled rotation control accepts drag and Left/Right keys, while Home or Reset restores orientation. Four source-logo ports move in projected scene coordinates; selecting a tool sets its pressed state and reveals its explanation. Chapter tool buttons share selectable explanations. These controls explain planned capabilities without claiming live provider connections.
 
-Native scroll position drives shader progress from 0 to 5. Frame-rate-independent exponential damping smooths progress and the small mouse response. Five strands join, carry a signal, open for inspection, reverse the signal during investigation, and close a loop for automation. Reverse scrolling reverses the deformation. Rendering stops when motion settles, when the story leaves view, and when the tab is hidden. There is no autoplay loop or scroll hijacking. Pixel ratio is capped at 1.75 on desktop and 1.25 below 800px.
+Native scroll position seeks a single paused Anime.js master timeline with five 1000ms chapter segments and inOut(3) easing. Frame-rate-independent damping uses 1 - exp(-delta * 10), with delta capped at 0.05 seconds. The timeline coordinates layer separation, alternating rotation, caps, shaft, camera composition and forward or reverse GLSL signal travel; reverse scroll reverses the choreography. Rendering stops when motion settles, when the story leaves view, and when the tab is hidden. Pixel ratio is capped at 1.6 on desktop and 1.25 below 800px. The scene has no autoplay loop or scroll hijacking.
 
-Server-rendered text, native links, and the static SVG cable remain available without JavaScript. Reduced motion skips WebGL initialization and uses the static cable; unavailable WebGL, shader failure, and context loss also retain the fallback. Context restoration resumes rendering. Live preference changes dispose or initialize the renderer; cleanup disposes geometry, materials, observers, listeners, and the WebGL context. The decorative renderer is hidden from assistive technology. The page also has a keyboard-visible skip link to main content.
+Server-rendered text, native links, and the static SVG mechanism remain available without JavaScript. Reduced motion skips WebGL initialization; unavailable WebGL, shader failure, and context loss also reveal the fallback. Context restoration resumes rendering. Live preference changes dispose or initialize the renderer; cleanup disposes geometry, materials, instance resources, reflection textures, observers, listeners, timelines, and the WebGL context. The decorative canvas and fallback are hidden from assistive technology while the rotation control remains separately labeled when WebGL is active. The page also has a keyboard-visible skip link to main content.
+
+### Landing workflow examples and integrations
+
+User-initiated illustrative workflow playback highlights Code, Build, Test and Observe over 2400ms with linear Anime.js timing; investigation reverses the selected sequence. Playback disables its button while running. Reduced motion selects the terminal step immediately. The initial integration section is explicitly labeled "Initial integrations (in development)" and identifies GitHub, GitHub Actions, JUnit reports and Sentry. GitLab, Jira, Linear, Jenkins, SonarQube, Playwright, Selenium and AWS appear under "On the roadmap". These local source logos identify planned tools, not customers or endorsements.
 
 ## Do's and Don'ts
 
@@ -269,8 +273,8 @@ Server-rendered text, native links, and the static SVG cable remain available wi
 - **Do** preserve unknown, checking, unavailable, and healthy as distinct states.
 - **Do** keep mobile technical content locally scrollable with a visible cue when needed.
 - **Do** use real navigation targets and neutral descriptions of health checks.
-- **Do** scope the monochrome landing palette, display typography, shader materials, and cable motion to the public marketing surface.
-- **Do** keep the static cable, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL.
+- **Do** scope the monochrome landing palette, display typography, shader materials, and core motion to the public marketing surface.
+- **Do** keep the static mechanism, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL.
 
 ### Don't:
 

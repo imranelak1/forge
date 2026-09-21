@@ -1,31 +1,24 @@
----
+﻿---
 version: 1
 slug: "landing"
 primary_target: "apps/web/src/app/page.tsx"
-related_targets: ["apps/web/src/features/landing/landing-page.tsx", "apps/web/src/features/landing/cable-scene.tsx", "apps/web/src/features/landing/cable-shaders.ts", "apps/web/src/features/landing/landing.css"]
+related_targets: ["apps/web/src/features/landing/landing-page.tsx", "apps/web/src/features/landing/core-scene.tsx", "apps/web/src/features/landing/core-model.ts", "apps/web/src/features/landing/landing.css"]
 ---
 
-# Landing page — a continuous thread
+# Landing page — precision core
 
 Mode: Persuade.
 
-## Authority and scope
-User rejected the circuit board and requested a centered cable, smooth motion, genuine WebGL and shaders. Black, white and gray apply to the landing page only. This precise direction replaces the former marketing system; /app keeps its foundation palette. Logo discussion is deferred. Procedural geometry and GLSL are the code-led artifact, not an approximation of a raster comp.
+## Direction contract
 
-## THESIS
-Separate engineering signals become one traceable story. Five strands join, carry evidence, separate for inspection, reverse a signal during investigation, and close a loop for automation.
+THESIS: Forge turns separate engineering events into traceable evidence and deliberate responses.
 
-## OWN-WORLD
-White canvas, black display typography, graphite/chrome WebGL cable, grayscale material highlights. Existing self-hosted Geist. No chromatic accents, circuit boards or dashboard chrome on this surface.
+OWN-WORLD: User-approved precision mechanism; white canvas, black type, machined grayscale rings, existing Geist. App palette and wordmark remain unchanged.
 
-## FIRST VIEWPORT
-Centered heading and short explanation above a large sculptural cable in the middle. Black CTA to the working foundation, in-development disclosure and subtle downward invitation.
+STORY: Recognizable GitHub, Actions, JUnit and Sentry logos feed a core; five layers separate, trace a delivery, expose evidence, reverse an incident, then assemble for automation. Planned integrations stay labeled.
 
-## STORY AND FORM
-Desktop explanations alternate beside the centered cable. Mobile cable occupies the upper reading area and narrative the lower area. Persistent chapter links support direct navigation. The close identifies available versus planned functionality.
+FIRST VIEWPORT: Centered mechanical core dominates beneath a short centered headline. Working-platform CTA, source logos, rotate control and draggable story progress remain discoverable.
 
-## SIGNATURE MOTION
-One procedural multi-strand mesh continuously deforms between separate, braided, inspected and looped states. Frame-rate-independent damping smooths native scroll without hijacking it. Custom fragment shaders supply monochrome reflections, surface detail, reversing signal and background grain. Rendering stops after motion settles, off-screen and in hidden tabs.
+FORM: User selected precision core plus kinetic workflow, overriding surface seed 08d23926. Procedural Three.js with an Anime.js master timeline, camera transitions, direct rotation, native scroll and accessible fallback. Code-led motion artifact; reference is inspected animejs.com, not a raster comp.
 
-## FINISH AND RESILIENCE
-Responsive pixel-ratio caps and modest geometry. Static cable fallback for reduced motion, no JavaScript, unavailable WebGL and context loss. Verify actual WebGL output, forward/reverse motion, disposal, context failure, keyboard navigation and preference changes. Inspect desktop/mobile screenshots and complete fresh review/documentation. No backend phase expansion.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.

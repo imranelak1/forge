@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, MoveUpRight } from "lucide-react";
-import { CableScene, chapterNames } from "./cable-scene";
+import { FlowDemo, integrations, roadmap, ToolLogo } from "./integrations";
+import { CoreScene, chapterNames, seekStory } from "./core-scene";
 
 const chapters = [
   {
     id: "connect",
-    title: "Separate tools.\nA shared thread.",
+    title: "Your tools.\nWorking together.",
     description:
       "Bring code, builds, tests and production errors into the same story. Keep each signal connected to where it came from.",
     detail: "Planned connections",
@@ -31,7 +32,7 @@ const chapters = [
       "Unpick slow reviews, unreliable tests and repeated build failures. Every insight leads back to the evidence behind it.",
     detail: "Planned intelligence",
     items: ["Review time", "Build reliability", "Test failures"],
-    caption: "Open the thread. Understand its individual signals.",
+    caption: "Separate the layers. See the evidence behind each insight.",
   },
   {
     id: "investigate",
@@ -57,6 +58,8 @@ export function LandingPage() {
   const story = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(-1);
   const [focus, setFocus] = useState(-1);
+  const [selectedTool, setSelectedTool] = useState(0);
+  const [showTool, setShowTool] = useState(false);
   return (
     <div className="landing">
       <a className="skip-link" href="#landing-content">
@@ -77,53 +80,94 @@ export function LandingPage() {
         </Link>
       </header>
       <main id="landing-content" tabIndex={-1}>
-        <div className="cable-story" ref={story}>
-          <div className="cable-stage" data-active={active >= 0 ? chapters[active].id : "intro"}>
-            <CableScene story={story} onStageChange={setActive} focus={focus} />
-            <div className="cable-stage-footer">
-              <p className="cable-caption">
-                {active >= 0
-                  ? chapters[active].caption
-                  : "Five capabilities. One connected system."}
-              </p>
-              <nav
-                className="cable-navigation"
-                aria-label="Story chapters"
-                onMouseLeave={() => setFocus(-1)}
-              >
-                {chapters.map((chapter, i) => (
-                  <a
-                    key={chapter.id}
-                    href={`#${chapter.id}`}
-                    aria-current={active === i ? "step" : undefined}
-                    onMouseEnter={() => setFocus(i)}
-                    onFocus={() => setFocus(i)}
-                    onBlur={() => setFocus(-1)}
-                  >
-                    {chapterNames[i]}
-                  </a>
-                ))}
-              </nav>
+        <div className="core-story" ref={story}>
+          <div className="core-stage" data-active={active >= 0 ? chapters[active].id : "intro"}>
+            <CoreScene story={story} onStageChange={setActive} focus={focus} />
+            <div className="core-ports" aria-label="Explore planned integrations">
+              {integrations.map((tool, i) => (
+                <button
+                  key={tool.id}
+                  type="button"
+                  data-core-port={tool.id}
+                  className="core-port"
+                  aria-label={tool.name}
+                  aria-pressed={selectedTool === i}
+                  onClick={() => {
+                    setSelectedTool(i);
+                    setFocus(i);
+                    setShowTool(true);
+                  }}
+                >
+                  <ToolLogo id={tool.id} />
+                  <span>{tool.name}</span>
+                  <span className="port-connector" aria-hidden="true" />
+                </button>
+              ))}
+              {showTool && (
+                <div className="core-port-note" role="status">
+                  <strong>{integrations[selectedTool].name}</strong>
+                  <p>{integrations[selectedTool].detail}</p>
+                  <span>Planned integration</span>
+                </div>
+              )}
             </div>
           </div>
-          <section className="cable-hero" aria-labelledby="hero-title">
+          <div className="core-stage-footer">
+            <div className="core-scrubber">
+              <label htmlFor="story-progress">Explore the core</label>
+              <input
+                id="story-progress"
+                data-story-scrubber
+                type="range"
+                min="0"
+                max="5"
+                step="0.01"
+                defaultValue="0"
+                aria-label="Story progress"
+                aria-valuetext="Introduction"
+                onChange={(event) => seekStory(story.current, Number(event.target.value))}
+              />
+            </div>
+            <p className="core-caption">
+              {active >= 0 ? chapters[active].caption : "Five capabilities. One connected system."}
+            </p>
+            <nav
+              className="core-navigation"
+              aria-label="Story chapters"
+              onMouseLeave={() => setFocus(-1)}
+            >
+              {chapters.map((chapter, i) => (
+                <a
+                  key={chapter.id}
+                  href={`#${chapter.id}`}
+                  aria-current={active === i ? "step" : undefined}
+                  onMouseEnter={() => setFocus(i)}
+                  onFocus={() => setFocus(i)}
+                  onBlur={() => setFocus(-1)}
+                >
+                  {chapterNames[i]}
+                </a>
+              ))}
+            </nav>
+          </div>
+          <section className="core-hero" aria-labelledby="hero-title">
             <div className="hero-copy">
               <h1 id="hero-title">
-                Everything.
+                Engineering.
                 <br />
-                Connected.
+                In full view.
               </h1>
               <p>
                 From the first commit to production.
                 <br />
-                Your engineering story, connected.
+                See the relationships. Understand the impact.
               </p>
               <div className="hero-actions">
                 <Link href="/app" className="landing-button">
                   Explore Forge <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
                 <a href="#connect" className="landing-link">
-                  Follow the thread <ArrowDown size={15} aria-hidden="true" />
+                  Explore the core <ArrowDown size={15} aria-hidden="true" />
                 </a>
               </div>
               <p className="preview-note">In development. Explore the working foundation.</p>
@@ -137,7 +181,7 @@ export function LandingPage() {
               key={chapter.id}
               id={chapter.id}
               data-chapter={chapter.id}
-              className={`cable-chapter ${i % 2 ? "chapter-right" : "chapter-left"}`}
+              className={`core-chapter ${i % 2 ? "chapter-right" : "chapter-left"}`}
               aria-labelledby={`${chapter.id}-title`}
             >
               <div className="chapter-inner">
@@ -166,14 +210,102 @@ export function LandingPage() {
                     </ul>
                   </div>
                 </div>
-                <span className="chapter-endpoint" aria-hidden="true">
-                  <span />
-                  {chapterNames[i]}
-                </span>
+                <aside className="chapter-endpoint" aria-label={chapterNames[i] + " illustration"}>
+                  {i === 0 || i === 1 || i === 3 ? (
+                    <>
+                      <p>
+                        {i === 3
+                          ? "Trace backward from production"
+                          : "Planned integration workflow"}
+                      </p>
+                      <div className={"workflow-tools " + (i === 3 ? "workflow-reverse" : "")}>
+                        {integrations.map((tool, n) => (
+                          <button
+                            key={tool.id}
+                            type="button"
+                            aria-label={"Inspect " + tool.name}
+                            aria-pressed={selectedTool === n}
+                            onClick={() => {
+                              setSelectedTool(n);
+                              setFocus(n);
+                            }}
+                          >
+                            <ToolLogo id={tool.id} />
+                            <span>{tool.short}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <FlowDemo
+                        reverse={i === 3}
+                        onSelect={(step) => {
+                          setSelectedTool(step);
+                          setFocus(step);
+                        }}
+                      />
+                      <div className="tool-explanation" aria-live="polite">
+                        <strong>{integrations[selectedTool].name}</strong>
+                        <p>{integrations[selectedTool].detail}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p>{i === 2 ? "Every layer has a purpose" : "A response you can explain"}</p>
+                      <div className="mechanism-notes">
+                        {chapter.items.map((item, n) => (
+                          <a
+                            key={item}
+                            href={i === 2 ? "#investigate" : "/guide"}
+                            onMouseEnter={() => setFocus(n)}
+                            onFocus={() => setFocus(n)}
+                          >
+                            {item}
+                            <ArrowUpRight size={14} aria-hidden="true" />
+                          </a>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </aside>
               </div>
             </section>
           ))}
         </div>
+        <section className="integration-section" aria-labelledby="integrations-title">
+          <div className="integration-intro">
+            <h2 id="integrations-title">
+              Built around
+              <br />
+              your engineering stack.
+            </h2>
+            <p>
+              Start with the tools that carry your delivery story. More connections are on the
+              roadmap.
+            </p>
+          </div>
+          <div className="integration-current">
+            <h3>Initial integrations (in development)</h3>
+            <div className="integration-list">
+              {integrations.map((tool) => (
+                <div key={tool.id}>
+                  <ToolLogo id={tool.id} />
+                  <h4>{tool.name}</h4>
+                  <p>{tool.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="integration-roadmap">
+            <h3>On the roadmap</h3>
+            <ul>
+              {roadmap.map(([id, name]) => (
+                <li key={id}>
+                  <ToolLogo id={id} />
+                  <span>{name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
         <section className="landing-close" aria-labelledby="close-title">
           <MoveUpRight size={38} strokeWidth={1} aria-hidden="true" />
           <h2 id="close-title">
