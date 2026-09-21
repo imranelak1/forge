@@ -17,7 +17,7 @@ const chapters = [
     detail: "One example throughout this tour",
     items: ["Checkout service", "PR #184", "Commit 8f3a2c1"],
     caption:
-      "Connect: four source records share commit 8f3a2c1. Select a record to inspect its example event.",
+      "Connect: the track draws through GitHub, Actions, JUnit and Sentry. Select a checkpoint to inspect its example event.",
   },
   {
     id: "trace",
@@ -27,7 +27,7 @@ const chapters = [
     detail: "The same checkout change",
     items: ["PR #184", "CI #928", "Release 8f3a2c1"],
     caption:
-      "Trace: the pull request, passing CI run and production error line up around the same commit.",
+      "Trace: one commit travels through build, tests and release. The original test suite passes before the production error.",
   },
   {
     id: "understand",
@@ -37,7 +37,7 @@ const chapters = [
     detail: "Reproduction after the production error",
     items: ["CI #929", "Null coupon", "Failing test"],
     caption:
-      "Understand: open the new regression test. Checkout without a coupon reproduces the error.",
+      "Understand: the error opens a branch to reproduction. A new test exposes the missing no-coupon case.",
   },
   {
     id: "investigate",
@@ -47,7 +47,7 @@ const chapters = [
     detail: "Evidence before conclusions",
     items: ["Sentry error", "Related commit", "Candidate diff"],
     caption:
-      "Investigate: compare the production error with a candidate change, then verify it with the failing test.",
+      "Investigate: follow the return track to the related change. Review the candidate fix and verify it with the failing test.",
   },
   {
     id: "automate",
@@ -57,7 +57,7 @@ const chapters = [
     detail: "An explicit, reviewable response",
     items: ["Failed test", "Request review", "Human decision"],
     caption:
-      "Automate: collect the linked evidence into a review request. A person decides what happens next.",
+      "Automate: the switch routes the linked evidence into a review request. A person decides what happens next.",
   },
 ];
 

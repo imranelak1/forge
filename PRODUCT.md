@@ -30,7 +30,7 @@ Phase 0 was approved with the user's “go” instruction. Implement Phase 1 onl
 
 Forge. Dark-first, professional developer-tool interface; subtle borders, dense readable data layouts, excellent spacing, color mainly for state. These constraints are explicit in the user's brief.
 
-The user authorized the public landing at `/` and rejected both the satellite’s relationship to Forge and its mechanical logic. The landing now follows the actual checkout delivery workflow: source records connect by commit, a failed regression test opens, the production error sits beside a candidate fix, and evidence collects into a proposed review request. Realistic code/event previews, fast Anime.js text reveals and the Anime.js warm charcoal/coral palette remain. GitHub, Actions, JUnit and Sentry are planned initial integrations; other tools remain an explicit roadmap. Examples are illustrative, not live customer data or working integrations. `/app` retains its existing dark foundation; the 3D logo and Phase 2 backend remain outside this work.
+The user authorized the public landing at `/` with a central dimensional pipeline track. One coral commit carrier follows two metallic rails through GitHub, Actions, JUnit and Sentry checkpoints. The track draws itself, opens a branch for reproduction, returns to the related change for investigation and switches into human review. Motion follows connected routes. Realistic code/event previews, fast Anime.js text reveals and the Anime.js warm charcoal/coral palette remain. Integrations and automation are in development; examples are illustrative. `/app` retains its existing dark foundation, and the 3D logo and Phase 2 backend remain separate work.
 
 ## Evidence on Hand
 

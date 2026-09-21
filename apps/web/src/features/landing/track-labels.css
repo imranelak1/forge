@@ -1,0 +1,156 @@
+.track-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  visibility: hidden;
+}
+.core-renderer[data-renderer="webgl"] .track-labels {
+  visibility: visible;
+}
+.track-stop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 112px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: var(--land-bg);
+  text-align: left;
+  color: var(--land-muted);
+  pointer-events: auto;
+  cursor: pointer;
+  transition:
+    border-color 160ms,
+    color 160ms;
+}
+.track-stop .tool-logo {
+  width: 21px;
+  height: 21px;
+}
+.track-stop .tool-logo[src$="junit.svg"] {
+  width: 30px;
+}
+.track-stop strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--land-ink);
+}
+.track-stop > span > span {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.track-stop > span {
+  opacity: var(--label-detail, 1);
+}
+.track-stop[data-compact="true"] {
+  justify-content: center;
+  padding: 5px;
+  gap: 0;
+}
+.track-stop[data-compact="true"] > span {
+  display: none;
+}
+.track-stop:hover {
+  border-color: var(--land-control-line);
+}
+.track-stop[aria-pressed="true"] {
+  border-color: var(--land-accent);
+}
+.track-packet-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 5px;
+  font:
+    10px/1.4 var(--font-mono),
+    monospace;
+  color: var(--land-ink);
+  background: var(--land-bg);
+  white-space: nowrap;
+}
+.track-packet-label > span {
+  height: 1px;
+  width: 16px;
+  background: var(--land-subtle);
+}
+.track-detail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 240px;
+  text-align: center;
+  padding: 10px 12px;
+  background: transparent;
+  visibility: hidden;
+}
+.core-renderer[data-renderer="webgl"] .track-detail[data-visible="true"] {
+  visibility: visible;
+}
+.track-detail strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 550;
+}
+.track-detail code {
+  display: block;
+  font-size: 12px;
+  color: #b7ff54;
+  margin-top: 7px;
+}
+.track-detail > span {
+  display: block;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--land-muted);
+  margin-top: 6px;
+}
+.track-detail .track-review {
+  color: #ffa828;
+}
+@media (max-width: 799px) {
+  .track-stop {
+    width: 99px;
+    gap: 6px;
+    padding: 5px;
+    min-height: 44px;
+  }
+  .track-stop .tool-logo {
+    width: 18px;
+    height: 18px;
+  }
+  .track-stop .tool-logo[src$="junit.svg"] {
+    width: 26px;
+  }
+  .track-stop strong {
+    font-size: 10px;
+  }
+  .track-stop > span > span {
+    font-size: 9px;
+  }
+  .track-packet-label {
+    font-size: 9px;
+  }
+  .track-detail {
+    padding: 7px;
+  }
+  .track-detail strong,
+  .track-detail code {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .track-stop {
+    transition: none;
+  }
+}

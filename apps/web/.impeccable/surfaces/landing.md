@@ -5,7 +5,7 @@ primary_target: "apps/web/src/app/page.tsx"
 related_targets: ["apps/web/src/features/landing/landing-page.tsx", "apps/web/src/features/landing/core-scene.tsx", "apps/web/src/features/landing/core-model.ts", "apps/web/src/features/landing/landing.css"]
 ---
 
-# Landing page - follow the change
+# Landing page - the delivery track
 
 Mode: Persuade.
 
@@ -15,10 +15,10 @@ THESIS: Forge turns separate engineering events into traceable evidence and deli
 
 OWN-WORLD: Warm charcoal canvas, off-white type, coral controls, warm stone integrations, existing Geist and stable coral/orange/lime/cyan/blue source identities. The user-selected Anime.js palette supersedes the initial monochrome build. App palette and wordmark remain unchanged.
 
-STORY: One checkout pull request becomes a connected delivery investigation. Persistent GitHub, Actions, JUnit and Sentry records connect by commit, arrange into a trail, open the regression failure, expose the candidate fix and collect into a proposed review request. Examples and integrations remain explicitly illustrative/planned.
+STORY: One checkout commit travels along a continuous physical track. Rails draw through GitHub, Actions, JUnit and Sentry checkpoints. Branches open for reproduction, return investigation and human review. The original tests pass before the error; the regression test is a later reproduction. Code previews and integrations remain explicitly illustrative/planned.
 
-FIRST VIEWPORT: A centered pull request sits beneath a short centered headline. Working-platform CTA, source identity and draggable story progress remain discoverable.
+FIRST VIEWPORT: A partly drawn track and coral commit carrier sit beneath the centered headline. The working-platform CTA, source identity and draggable story progress remain discoverable.
 
-FORM: Native readable delivery records with Three.js relationship paths and an Anime.js scroll timeline. Every movement follows a delivery relationship or opens evidence. Selectable source records and a restart control support exploration. Inspectable code accompanies every chapter. Fast synchronized text reveals, no idle spin.
+FORM: Procedural Three.js rails, sleepers, checkpoint gates, carrier and pivoting junction. An Anime.js scroll timeline drives construction and continuous route travel. Fixed view; meaningful movement follows the rails. Native source logos move into a compact row as branches open. Fast text reveals, code previews, reduced-motion SVG and working exploration controls remain.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.

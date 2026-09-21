@@ -1,6 +1,6 @@
 ---
 name: Forge
-description: A dark engineering workbench with an Anime.js-inspired landing that follows one checkout change through a connected delivery investigation.
+description: A dark engineering workbench with an Anime.js-inspired landing and a dimensional track that carries one commit through delivery and investigation.
 colors:
   background: "#111111"
   foreground: "#ededed"
@@ -152,7 +152,7 @@ Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and rea
 
 This document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.
 
-The public landing page at `/` follows one illustrative checkout change through GitHub, Actions, JUnit and Sentry. Persistent source records connect by commit, arrange into a delivery trace, open the regression failure, expose the related code and collect into a review request. Each chapter retains its realistic code preview and fast Anime.js text reveal. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The simple wordmark remains; a future 3D logo is deferred.
+The public landing page at `/` follows one illustrative checkout commit along a dimensional delivery track. Two metallic rails draw through GitHub, Actions, JUnit and Sentry checkpoints. A coral carrier follows the track into production, a reproduction branch, a return route to the code and a switched route to human review. Each chapter retains its realistic code preview and fast Anime.js text reveal. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.
 
 **Key Characteristics:**
 
@@ -160,7 +160,7 @@ The public landing page at `/` follows one illustrative checkout change through 
 - Geist interface text with system monospace for commands and versions.
 - Restrained controls and explicit, text-supported service states.
 - Responsive navigation and locally scrollable technical content.
-- A scoped public landing with persistent delivery records, meaningful connections and five code examples.
+- A scoped public landing with a continuous delivery track, tool checkpoints and five code examples.
 
 ## Colors
 
@@ -190,7 +190,7 @@ Frontmatter records the implemented colors. The companion `.impeccable/design.js
 
 ### Landing scope
 
-The `landing-*` frontmatter tokens apply only at `/`. The user-selected Anime.js palette uses warm charcoal, off-white text, warm gray supporting copy and fine rules. Primary actions have coral fill and charcoal labels; hover is lighter coral and focus is coral. The integrations section uses warm stone with charcoal text and darker supporting copy. Local tool logos are white on dark sections and black on stone. Module identity colors are coral Code, orange Build, lime Tests, cyan Production and blue Evidence, carried by relationship paths, source dots and selection outlines. Connection shaders carry the source colors. These colors persist through every configuration; they are not application state colors. The landing also overrides the inherited muted-foreground variable with its own supporting-copy token.
+The `landing-*` frontmatter tokens apply only at `/`. The user-selected Anime.js palette uses warm charcoal, off-white text, warm gray supporting copy and fine rules. Primary actions have coral fill and charcoal labels; hover is lighter coral and focus is coral. The integrations section uses warm stone with charcoal text and darker supporting copy. Local tool logos are white on dark sections and black on stone. Module identity colors are coral Code, orange Build, lime Tests, cyan Production and blue Evidence, carried by checkpoint lights, branch conductors and selection outlines. Branch conductors use lime for reproduction, cyan for investigation and blue for review. These colors persist through every configuration; they are not application state colors. The landing also overrides the inherited muted-foreground variable with its own supporting-copy token.
 
 ## Typography
 
@@ -205,7 +205,7 @@ Geist Variable is bundled locally through `@fontsource-variable/geist`; the fall
 
 Repository empty-state copy is limited to 47ch, system notes to 72ch, and the guide column to 76ch. Labels use sentence case.
 
-Illustration records use 9-12px metadata and code, with a 20px review-request title (16px on mobile). The adjacent chapter code previews retain 12px selectable text. Failure and removed-line text uses #ff8b92 for contrast against the record surface.
+Checkpoint metadata uses 9-11px text; contextual track explanations and code use 10-12px. The adjacent chapter code previews retain 12px selectable text. Logos stay in native HTML, with 44px compact targets. The same metadata stays available through accessible source names.
 
 The landing reuses Geist with the `landing-display` and `landing-chapter` roles. Hero copy is centered, 15px with 1.7 line height; chapter descriptions are 15px with 1.85 line height and a 310px measure. The closing headline scales from 39px to 72px. At 800 to 1100px chapter headings use 32px; below 800px the hero scales from 49px to 68px and chapter headings from 33px to 43px. At 380px and below the hero is 47px. The landing wordmark is 30px, weight 680, with -1.2px tracking and a plain period; the footer wordmark is 26px.
 
@@ -217,7 +217,7 @@ At 1100px and below, main padding reduces to 24px and the health strip wraps its
 
 The lifecycle has seven equal desktop columns. On mobile, stages keep a 94px width within a keyboard-focusable horizontal scroller, followed by an explicit scroll hint. Repository headers reduce from four columns to two. Command blocks scroll within their own boundary. Keep the page itself free of horizontal overflow.
 
-The landing header has a 1600px maximum width, 5% side padding, and an 84px height. The centered hero and sticky core stage use the viewport height minus the header; the hero has a 740px minimum height. The hero begins with an expanded pull request at vertical lift -2.1; responsive projection keeps the records within the central reading area. Five chapters alternate copy and tool explanations around the core in a 1440px grid with a 35% center column. Chapters have a 105svh minimum height and 5% side padding. At 800 to 1100px the center column reduces to 34% and the core caption is hidden. Story controls occupy a separate sticky layer with a 114px height, a -114px top margin and zero bottom margin, keeping their sticky boundary inside the story. The integration section follows in normal flow, with four initial-tool columns and a wrapping roadmap list.
+The landing header has a 1600px maximum width, 5% side padding, and an 84px height. The centered hero and sticky core stage use the viewport height minus the header; the hero has a 740px minimum height. The hero begins with a partly drawn track and a coral commit carrier at vertical lift -2.45; responsive projection keeps the rails and labels in the central reading area. Five chapters alternate copy and tool explanations around the core in a 1440px grid with a 35% center column. Chapters have a 105svh minimum height and 5% side padding. At 800 to 1100px the center column reduces to 34% and the core caption is hidden. Story controls occupy a separate sticky layer with a 114px height, a -114px top margin and zero bottom margin, keeping their sticky boundary inside the story. The integration section follows in normal flow, with four initial-tool columns and a wrapping roadmap list.
 
 Below 800px, the landing header is 72px tall with 24px side padding; its secondary navigation is hidden while platform entry remains visible. The hero has a 700px minimum height. The core occupies the upper reading area, with chapter copy beginning at 43svh and using a 440px maximum measure; tool explanations follow the copy. Chapters have a 108svh minimum height and 27px side padding; all five chapter links remain visible with 44px minimum targets. Story controls use a 94px height, a -94px top margin and zero bottom margin. Initial integrations become two columns. At 380px and below chapter side padding becomes 22px. At any width when the viewport is at most 600px high, the core stage and controls return to normal document flow, with a 400px stage and 550px minimum chapter height; code previews remain in document flow beneath their explanations.
 
@@ -225,13 +225,13 @@ Below 800px, the landing header is 72px tall with 24px side padding; its seconda
 
 The application implements no shadows, gradients, blur, or floating surfaces. Depth comes from restrained tonal differences and one-pixel borders. Containers sit directly in the document flow. Do not add elevation to ordinary data panels without a new design decision.
 
-The landing illustration pairs five native HTML records with four Three.js cubic Bezier paths. A custom GLSL material highlights the path segment traversed by the delivery packet. An orthographic camera projects the native record positions; source logos and type remain sharp and undistorted. All geometry is authored locally, with no raster or external model assets.
+The landing illustration uses four connected Catmull-Rom routes: delivery, reproduction, investigation and review. Each route has a dark bed, two beveled metal rails, instanced sleepers and a shader reveal. Source checkpoints use colored light bars. A wheeled coral carrier follows the route; a hinged tongue opens the review branch. The fixed orthographic view gives shallow depth without idle rotation. Native HTML logos and source names project from scene coordinates. All geometry is authored locally; there are no raster or external model assets.
 
 ## Shapes
 
 Forms are compact rectangles: badges use the badge radius, navigation uses the navigation radius, and buttons, notices, tables, service lists, and code blocks use the control radius. Circular geometry appears in state icons rather than pill-shaped containers. Lucide stroke icons provide navigation and status imagery; the shipping favicon is SVG. There are no shipping raster assets.
 
-Landing actions and source records use 3px corners. A pull request expands into a connected delivery investigation and concludes with a proposed review request. Static SVG source records preserve the explanation without WebGL. Local integration SVGs retain their source geometry and render in white or black to suit the section; provenance is in `public/integrations/SOURCES.md`.
+Landing actions and checkpoint controls use 3px corners. A partly built track extends into a complete delivery path and branches into reproduction, investigation and review. A static SVG track preserves the explanation without WebGL. Local integration SVGs retain their source geometry and render in white or black to suit the section; provenance is in `public/integrations/SOURCES.md`.
 
 ## Components
 
@@ -265,11 +265,11 @@ Navigation changes background and text color over 150ms; buttons transition colo
 
 The coral solid action with charcoal text uses 12px by 20px padding, a 13px label at weight 500, 3px corners, and a matching border; hover changes its fill to lighter coral. Below 800px it uses 12px by 16px padding and a 12px label. Header entry uses an outlined action. Both open `/app`; build notes and system links reach working routes. Landing actions and chapter links use a coral focus ring. Interactive background, color, and border changes take 200ms.
 
-Four source identities: Code, Build, Tests and Production, stay attached to their delivery records throughout the story. Native chapter anchors expose aria-current=step. The Story progress range runs from 0 to 5 in 0.01 steps and seeks native scroll; Restart story returns to the opening pull request. Selecting a record updates the source selection, its explanation and the Connect code preview. Controls describe planned capabilities without claiming live provider connections.
+Four source identities, Code, Build, Tests and Production, stay associated with checkpoints throughout the story. Native chapter anchors expose aria-current=step. Story progress runs from 0 to 5 in 0.01 steps and seeks native scroll; Restart story returns to the opening track. Selecting a checkpoint updates its light, pressed state, source explanation and the Connect code preview. Controls describe planned capabilities without claiming live provider connections.
 
-Native scroll seeks one paused Anime.js timeline across five 1000ms windows. Connect joins four source records by commit. Trace arranges those records into the delivery trail. Understand expands the new regression test. Investigate places the production error beside a candidate fix. Automate collects evidence into a proposed review request. Native HTML records preserve readable type while WebGL curves interpolate between the same coordinates; GLSL highlights carry a packet along the relationships. Reverse scrolling reverses the sequence. Frame-rate-independent damping uses 1 - exp(-delta * 10), with delta capped at 0.05 seconds. Rendering stops at rest, outside the story and in hidden tabs. DPR caps are 1.6 desktop and 1.25 mobile. ResizeObserver tracks both the renderer and story so source-preview height changes preserve chapter synchronization.
+Native scroll seeks one paused Anime.js timeline across five 1000ms windows. Connect draws the rails through four source checkpoints. Trace carries one commit through the original build, passing tests and release. Understand opens the reproduction branch. Investigate draws the return track toward the related code. Automate pivots the junction tongue before moving the evidence into human review. The routes share their endpoints; the carrier follows curve distance and aligns to the route tangent, including elevation. There is no idle rotation. Checkpoint labels move into a compact logo row when branches open. GLSL reveals the rails, shades their beveled metal and highlights the active route. Reverse scrolling retraces the same journey. Frame-rate-independent damping uses 1 - exp(-delta * 10), with delta capped at 0.05 seconds. Rendering stops at rest, outside the story and in hidden tabs. DPR caps are 1.6 desktop and 1.25 mobile. ResizeObserver tracks the renderer and story so source-preview height changes preserve chapter synchronization.
 
-Server-rendered text, code, native links and a labeled static SVG delivery diagram remain available without JavaScript. Reduced motion skips WebGL initialization; unavailable WebGL, shader failure and context loss also reveal the fallback. Context restoration resumes rendering. Live preference changes dispose or initialize the renderer; cleanup disposes geometry, materials, observers, listeners, timelines and the WebGL context. The decorative canvas is hidden from assistive technology. Native record buttons have source-specific names and pressed states; invisible records are inert. The page also has a keyboard-visible skip link to main content.
+Server-rendered text, code, native links and a labeled static SVG track remain available without JavaScript. Reduced motion skips WebGL initialization; unavailable WebGL, shader failure and context loss reveal the same fallback. Context restoration resumes rendering. Preference changes and unmount dispose geometry, materials, instance resources, observers, listeners, timelines and the WebGL context. Native checkpoint buttons have source-specific names and pressed states; invisible checkpoints are inert. The canvas is decorative. The page retains its keyboard-visible skip link.
 
 ### Landing workflow examples and integrations
 
@@ -288,8 +288,8 @@ User-initiated illustrative workflow playback highlights Code, Build, Test and O
 - **Do** preserve unknown, checking, unavailable, and healthy as distinct states.
 - **Do** keep mobile technical content locally scrollable with a visible cue when needed.
 - **Do** use real navigation targets and neutral descriptions of health checks.
-- **Do** scope the warm charcoal and coral page palette, source colors, display typography, connection shaders and record transitions to the public marketing surface.
-- **Do** keep the static delivery diagram, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL.
+- **Do** scope the warm charcoal and coral page palette, source colors, display typography, track shaders and checkpoint transitions to the public marketing surface.
+- **Do** keep the static delivery track, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL.
 
 ### Don't:
 

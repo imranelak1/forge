@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-21T21:01:16.194Z",
+  "generatedAt": "2026-09-21T21:40:31.061Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -287,27 +287,27 @@
       "landing-module-code": {
         "role": "primary",
         "displayName": "Code coral board edge",
-        "purpose": "Persistent source identity on delivery records; separate from application status colors."
+        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
       },
       "landing-module-build": {
         "role": "primary",
         "displayName": "Build orange board edge",
-        "purpose": "Persistent source identity on delivery records; separate from application status colors."
+        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
       },
       "landing-module-tests": {
         "role": "primary",
         "displayName": "Tests lime board edge",
-        "purpose": "Persistent source identity on delivery records; separate from application status colors."
+        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
       },
       "landing-module-production": {
         "role": "primary",
         "displayName": "Production cyan board edge",
-        "purpose": "Persistent source identity on delivery records; separate from application status colors."
+        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
       },
       "landing-module-evidence": {
         "role": "primary",
         "displayName": "Evidence blue board edge",
-        "purpose": "Persistent source identity on delivery records; separate from application status colors."
+        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
       },
       "landing-surface": {
         "role": "neutral",
@@ -368,8 +368,8 @@
       },
       {
         "name": "landing-master-timeline",
-        "value": "Paused Anime.js timeline; five 1000ms chapters; inOut(3) shared record motion; frame-rate-independent damping",
-        "purpose": "Native scroll seeks one paused Anime.js timeline across five 1000ms windows. Connect joins four source records by commit. Trace arranges those records into the delivery trail. Understand expands the new regression test. Investigate places the production error beside a candidate fix. Automate collects evidence into a proposed review request. Native HTML records preserve readable type while WebGL curves interpolate between the same coordinates; GLSL highlights carry a packet along the relationships. Reverse scrolling reverses the sequence. Frame-rate-independent damping uses 1 - exp(-delta * 10), with delta capped at 0.05 seconds. Rendering stops at rest, outside the story and in hidden tabs. DPR caps are 1.6 desktop and 1.25 mobile. ResizeObserver tracks both the renderer and story so source-preview height changes preserve chapter synchronization."
+        "value": "Paused Anime.js timeline; five 1000ms chapters; connected route travel, track reveals and a pivoting junction",
+        "purpose": "Native scroll seeks one paused Anime.js timeline across five 1000ms windows. Connect draws the rails through four source checkpoints. Trace carries one commit through the original build, passing tests and release. Understand opens the reproduction branch. Investigate draws the return track toward the related code. Automate pivots the junction tongue before moving the evidence into human review. The routes share their endpoints; the carrier follows curve distance and aligns to the route tangent, including elevation. There is no idle rotation. Checkpoint labels move into a compact logo row when branches open. GLSL reveals the rails, shades their beveled metal and highlights the active route. Reverse scrolling retraces the same journey. Frame-rate-independent damping uses 1 - exp(-delta * 10), with delta capped at 0.05 seconds. Rendering stops at rest, outside the story and in hidden tabs. DPR caps are 1.6 desktop and 1.25 mobile. ResizeObserver tracks the renderer and story so source-preview height changes preserve chapter synchronization."
       },
       {
         "name": "landing-workflow-playback",
@@ -383,8 +383,8 @@
       },
       {
         "name": "landing-static-fallback",
-        "value": "Labeled static SVG delivery diagram; reduced motion skips WebGL initialization",
-        "purpose": "Server-rendered text, code, native links and a labeled static SVG delivery diagram remain available without JavaScript. Reduced motion skips WebGL initialization; unavailable WebGL, shader failure and context loss also reveal the fallback. Context restoration resumes rendering. Live preference changes dispose or initialize the renderer; cleanup disposes geometry, materials, observers, listeners, timelines and the WebGL context. The decorative canvas is hidden from assistive technology. Native record buttons have source-specific names and pressed states; invisible records are inert. The page also has a keyboard-visible skip link to main content."
+        "value": "Labeled static SVG track; reduced motion skips WebGL",
+        "purpose": "Server-rendered text, code, native links and a labeled static SVG track remain available without JavaScript. Reduced motion skips WebGL initialization; unavailable WebGL, shader failure and context loss reveal the same fallback. Context restoration resumes rendering. Preference changes and unmount dispose geometry, materials, instance resources, observers, listeners, timelines and the WebGL context. Native checkpoint buttons have source-specific names and pressed states; invisible checkpoints are inert. The canvas is decorative. The page retains its keyboard-visible skip link."
       }
     ],
     "breakpoints": [
@@ -489,27 +489,27 @@
     {
       "name": "Landing story chapter links",
       "kind": "nav",
-      "description": "Five native anchors accompany the centered delivery diagram. The current chapter has aria-current=step. All links remain visible on mobile. Story controls respect the story boundary with matching negative top margins.",
+      "description": "Five native anchors accompany the centered delivery track. The current chapter has aria-current=step. All links remain visible on mobile. Story controls respect the story boundary with matching negative top margins.",
       "html": "<nav class=\"ds-core-nav\" aria-label=\"Story chapters\"><a href=\"#connect\" aria-current=\"step\">Connect</a><a href=\"#trace\">Trace</a><a href=\"#understand\">Understand</a><a href=\"#investigate\">Investigate</a><a href=\"#automate\">Automate</a></nav>",
       "css": ".ds-core-nav{display:flex;justify-content:center;gap:30px;background:#252423;font-family:var(--font-sans,\"Geist Variable\",sans-serif)}.ds-core-nav a{position:relative;color:#b4b1af;font-size:12px;line-height:1.55;padding:10px 2px;border-bottom:1px solid transparent;text-decoration:none;transition:color .2s,border-color .2s}.ds-core-nav a:hover,.ds-core-nav a[aria-current=\"step\"]{color:#ff4b4b;border-bottom-color:#ff4b4b}.ds-core-nav a:focus-visible{outline:2px solid #ff4b4b;outline-offset:4px}@media(max-width:799px){.ds-core-nav{gap:0;justify-content:space-between}.ds-core-nav a{font-size:10px;min-height:44px;display:flex;align-items:center;padding:6px 3px}}@media(prefers-reduced-motion:reduce){.ds-core-nav a{transition:none}}"
     },
     {
       "name": "Landing story range",
       "kind": "input",
-      "description": "Native Story progress seeks the five-stage story through native scroll. Keyboard and touch remain available. Restart story returns to the opening pull request.",
+      "description": "Native Story progress seeks the five-stage story through native scroll. Keyboard and touch remain available. Restart story returns to the opening track.",
       "html": "<div class=\"ds-core-scrubber\"><label for=\"ds-story-progress\">Follow the change</label><input id=\"ds-story-progress\" aria-label=\"Story progress\" type=\"range\" min=\"0\" max=\"5\" step=\"0.01\" value=\"0\" /><button type=\"button\" class=\"ds-core-reset\" aria-label=\"Restart story\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 11a9 9 0 1 1 2.4 6.2M3 4v7h7\"/></svg><span>Restart</span></button></div>",
       "css": ".ds-core-scrubber{display:flex;align-items:center;justify-content:center;gap:18px;background:#252423;color:#b4b1af;font:11px var(--font-sans,\"Geist Variable\",sans-serif)}.ds-core-scrubber input{appearance:none;width:220px;height:32px;background:transparent;cursor:ew-resize;accent-color:#ff4b4b}.ds-core-scrubber input::-webkit-slider-runnable-track{height:3px;background:#85827e}.ds-core-scrubber input::-webkit-slider-thumb{appearance:none;width:10px;height:19px;margin-top:-8px;background:#ff4b4b;border:2px solid #252423;border-radius:0}.ds-core-scrubber input::-moz-range-track{height:3px;background:#85827e}.ds-core-scrubber input::-moz-range-thumb{width:7px;height:17px;background:#ff4b4b;border:2px solid #252423;border-radius:0}.ds-core-scrubber input:focus-visible{outline:2px solid #ff4b4b;outline-offset:4px}@media(max-width:799px){.ds-core-scrubber{gap:12px;font-size:10px}.ds-core-scrubber input{width:180px}}.ds-core-reset{display:inline-flex;align-items:center;gap:7px;background:transparent;color:#b4b1af;border:0;font-size:11px;min-height:36px;padding:7px;cursor:pointer}.ds-core-reset:focus-visible{outline:2px solid #ff4b4b;outline-offset:4px}@media(max-width:799px){.ds-core-reset{font-size:10px}}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` follows one illustrative checkout change through GitHub, Actions, JUnit and Sentry. Persistent source records connect by commit, arrange into a delivery trace, open the regression failure, expose the related code and collect into a review request. Each chapter retains its realistic code preview and fast Anime.js text reveal. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The simple wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` follows one illustrative checkout commit along a dimensional delivery track. Two metallic rails draw through GitHub, Actions, JUnit and Sentry checkpoints. A coral carrier follows the track into production, a reproduction branch, a return route to the code and a switched route to human review. Each chapter retains its realistic code preview and fast Anime.js text reveal. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
       "Restrained controls and explicit, text-supported service states.",
       "Responsive navigation and locally scrollable technical content.",
-      "A scoped public landing with persistent delivery records, meaningful connections and five code examples."
+      "A scoped public landing with a continuous delivery track, tool checkpoints and five code examples."
     ],
     "rules": [
       {
@@ -524,8 +524,8 @@
       "**Do** preserve unknown, checking, unavailable, and healthy as distinct states.",
       "**Do** keep mobile technical content locally scrollable with a visible cue when needed.",
       "**Do** use real navigation targets and neutral descriptions of health checks.",
-      "**Do** scope the warm charcoal and coral page palette, source colors, display typography, connection shaders and record transitions to the public marketing surface.",
-      "**Do** keep the static delivery diagram, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL."
+      "**Do** scope the warm charcoal and coral page palette, source colors, display typography, track shaders and checkpoint transitions to the public marketing surface.",
+      "**Do** keep the static delivery track, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL."
     ],
     "donts": [
       "**Don't** fabricate metrics, customer data, connected sources, or working planned controls.",

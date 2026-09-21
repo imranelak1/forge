@@ -132,25 +132,39 @@ test("the tour remains readable and navigable without JavaScript", async ({
   await context.close();
 });
 
-test("delivery records open relevant evidence and the story can restart", async ({ page }) => {
+test("track checkpoints expose evidence and the commit follows connected branches", async ({
+  page,
+}) => {
   await page.goto("/");
   const renderer = page.locator(".core-renderer");
   await expect(renderer).toHaveAttribute("data-renderer", "webgl");
-  await expect(renderer).toHaveAttribute("data-configuration", "pull-request");
-  await expect(renderer.locator('[data-record="3"]')).toHaveJSProperty("inert", true);
+  await expect(renderer).toHaveAttribute("data-configuration", "commit-on-track");
+  await expect(renderer.locator('[data-checkpoint="3"]')).toHaveJSProperty("inert", true);
   await goToChapter(page, "connect", 0.99);
-  const record = page.getByRole("button", { name: "Select Sentry record" });
+  const record = page.getByRole("button", { name: "Select Sentry checkpoint" });
   await record.focus();
   await record.press("Enter");
   await expect(record).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#connect figcaption")).toContainText("sentry-event.json");
   await goToChapter(page, "understand", 2.99);
-  await expect(renderer.locator('[data-record="2"]')).toContainText("total(100, null)");
-  await expect(renderer.locator('[data-record="2"]')).toHaveAttribute("data-expanded", "true");
+  await expect(renderer.locator(".track-detail")).toContainText("total(100, null)");
+  await expect(renderer).toHaveAttribute("data-branch", "reproduction");
+  await goToChapter(page, "investigate", 3.99);
+  await expect(renderer.locator(".track-detail")).toContainText("coupon?.percent ?? 0");
+  for (const checkpoint of await renderer.getByRole("button").all()) {
+    await expect(checkpoint).toBeInViewport({ ratio: 1 });
+  }
+  await expect
+    .poll(async () => Number(await renderer.getAttribute("data-journey")))
+    .toBeGreaterThan(2.99);
   await goToChapter(page, "automate", 4.99);
-  await expect(renderer.locator('[data-record="4"]')).toContainText("Human review required");
+  await expect(renderer.locator(".track-detail")).toContainText("Human review required");
+  await expect(renderer).toHaveAttribute("data-branch", "review");
+  await expect
+    .poll(async () => Number(await renderer.getAttribute("data-journey")))
+    .toBeGreaterThan(3.99);
   await page.getByRole("button", { name: "Restart story", exact: true }).click();
-  await expect(renderer).toHaveAttribute("data-configuration", "pull-request");
+  await expect(renderer).toHaveAttribute("data-configuration", "commit-on-track");
   await expect(renderer).toHaveAttribute("data-moving", "false");
 });
 
