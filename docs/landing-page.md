@@ -1,6 +1,6 @@
 ﻿# Precision-core landing page
 
-The public home page uses a centered, procedural mechanism to explain Forge. The user selected this replacement for the rejected circuit and cable designs after a browser study of Anime.js. The surrounding landing is black, white and grayscale; the user authorized color on the mechanism to preserve module identity during transformations. The existing application remains at `/app`; `/guide`, `/system` and API URLs are unchanged. A future 3D logo is deferred.
+The public home page uses a centered, procedural mechanism to explain Forge. The user selected this replacement for the rejected circuit and cable designs after a browser study of Anime.js. The latest user direction adopts the [Anime.js landing palette](https://animejs.com/), inspected on 2026-09-21: warm charcoal (#252423), off-white (#f6f4f2), coral controls (#ff4b4b) and a warm stone integrations section (#dad5d0). Red, orange, lime, cyan and blue rims preserve module identity during transformations. The existing application remains at `/app`; `/guide`, `/system` and API URLs are unchanged. A future 3D logo is deferred.
 
 ## Experience
 
@@ -17,10 +17,11 @@ Headings and supporting paragraphs use short Anime.js timelines when they enter 
 - `landing-page.tsx`: semantic content, tool selection, native navigation, story scrubber and integration roadmap.
 - `core-scene.tsx`: lazy WebGL initialization, Anime.js master timeline, native scroll mapping, DOM logo projection, rotation interaction and lifecycle.
 - `core-choreography.ts`: persistent module state and source-map, delivery-path and inspection layouts.
-- `core-model.ts`: five machined assemblies, colored faceplates, separable housing quadrants, instanced teeth and fasteners, environment-lit surfaces and custom GLSL connection material.
+- `core-model.ts`: five machined assemblies, graphite faceplates and colored rims, separable housing quadrants, instanced teeth and fasteners, environment-lit surfaces and custom GLSL connection material.
 - `integrations.tsx`: tool metadata, local source SVGs and user-initiated Anime.js workflow examples.
 - `text-motion.tsx`: React word spans, viewport-triggered Anime.js text timelines and motion-preference cleanup.
-- `landing.css`: scoped grayscale palette, responsive composition, interaction states and readable mobile layout.
+- `landing-palette.ts`: shared module identity colors for WebGL and the SVG fallback.
+- `landing.css`: scoped warm charcoal and coral palette, responsive composition, interaction states and readable mobile layout.
 - `tests/e2e/landing.spec.ts`: actual rendering, reversible movement, controls, source-logo loading, reduced motion, context failure and navigation.
 
 Three.js and types are pinned to 0.186.0; Anime.js to 4.5.0. Scene imports are deferred and skipped for reduced motion. The scene uses shared geometry and instancing. Pixel ratio is capped at 1.6 desktop and 1.25 mobile. Rendering stops after motion settles, outside the story and in hidden tabs. Geometry, materials, instance resources, reflection texture, observers, listeners, timelines and WebGL context are disposed on unmount or preference changes.

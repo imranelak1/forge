@@ -1,6 +1,6 @@
 ---
 name: Forge
-description: A dark engineering workbench with a monochrome landing page with a colored WebGL precision core.
+description: A dark engineering workbench with an Anime.js-inspired charcoal and coral landing and a colored WebGL precision core.
 colors:
   background: "#111111"
   foreground: "#ededed"
@@ -20,18 +20,22 @@ colors:
   recovery-background: "#211d17"
   recovery-border: "#504330"
   recovery-text: "#c9bda9"
-  landing-background: "#fafafa"
-  landing-text: "#111111"
-  landing-muted: "#666666"
-  landing-line: "#dedede"
-  landing-button: "#171717"
-  landing-button-text: "#ffffff"
-  landing-button-hover: "#383838"
-  landing-module-code: "#8c6ce7"
-  landing-module-build: "#5092e8"
-  landing-module-tests: "#49ae87"
-  landing-module-production: "#e98757"
-  landing-module-evidence: "#67bfc2"
+  landing-background: "#252423"
+  landing-surface: "#2a2928"
+  landing-subtle: "#93908d"
+  landing-integrations: "#dad5d0"
+  landing-integrations-muted: "#5b5855"
+  landing-text: "#f6f4f2"
+  landing-muted: "#b4b1af"
+  landing-line: "#4a4847"
+  landing-button: "#ff4b4b"
+  landing-button-text: "#252423"
+  landing-button-hover: "#ff718b"
+  landing-module-code: "#ff4b4b"
+  landing-module-build: "#ffa828"
+  landing-module-tests: "#b7ff54"
+  landing-module-production: "#05dbe9"
+  landing-module-evidence: "#4d9cff"
 typography:
   landing-display:
     fontFamily: '"Geist Variable", sans-serif'
@@ -148,7 +152,7 @@ Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and rea
 
 This document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.
 
-The public landing page at `/` adds a built precision mechanism: four source modules and an evidence hub on a white canvas, large black Geist type, and reversible Anime.js transformations. Colored module faces preserve identity while the surrounding page stays monochrome. Machined materials, a custom GLSL connection signal, direct rotation and attached integration logos belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.
+The public landing page at `/` adds a built precision mechanism: four source modules and an evidence hub on a warm charcoal canvas, off-white Geist type, and reversible Anime.js transformations. Coral controls and a warm stone integrations chapter follow the user-selected Anime.js palette. Bright colored rims and connections preserve module identity. Machined materials, a custom GLSL connection signal, direct rotation and attached integration logos belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.
 
 **Key Characteristics:**
 
@@ -186,7 +190,7 @@ Frontmatter records the implemented colors. The companion `.impeccable/design.js
 
 ### Landing scope
 
-The `landing-*` frontmatter tokens apply only at `/`. White background, black text, gray supporting copy, and fine gray rules frame the core. Primary actions have a near-black fill and white labels; hover, keyboard focus and local tool logos remain monochrome. The object alone uses module identity colors: violet Code, blue Build, green Tests, orange Production and cyan Evidence, alongside graphite and silver mechanical surfaces. Connection shaders carry the source colors. These colors persist through every configuration; they are not application state colors. The landing also overrides the inherited muted-foreground variable with its own supporting-copy token.
+The `landing-*` frontmatter tokens apply only at `/`. The user-selected Anime.js palette uses warm charcoal, off-white text, warm gray supporting copy and fine rules. Primary actions have coral fill and charcoal labels; hover is lighter coral and focus is coral. The integrations section uses warm stone with charcoal text and darker supporting copy. Local tool logos are white on dark sections and black on stone. Module identity colors are coral Code, orange Build, lime Tests, cyan Production and blue Evidence, carried by bright rims around graphite faceplates and warm metal surfaces. Connection shaders carry the source colors. These colors persist through every configuration; they are not application state colors. The landing also overrides the inherited muted-foreground variable with its own supporting-copy token.
 
 ## Typography
 
@@ -219,13 +223,13 @@ Below 800px, the landing header is 72px tall with 24px side padding; its seconda
 
 The application implements no shadows, gradients, blur, or floating surfaces. Depth comes from restrained tonal differences and one-pixel borders. Containers sit directly in the document flow. Do not add elevation to ordinary data panels without a new design decision.
 
-The landing core uses procedural Three.js geometry with environment-lit graphite and silver surfaces, colored faceplates and dark recesses. Beveled annular modules, instanced teeth and fasteners, engraved end caps, and a central shaft establish mechanical depth. The evidence housing separates into four physical quadrants. A custom GLSL material carries a signal along connections between modules. The orthographic camera stays fixed; the object tilts when opening or closing, and direct drag or keyboard input adjusts orientation. This treatment is confined to the illustration; landing copy and controls retain flat surfaces and fine rules.
+The landing core uses procedural Three.js geometry with environment-lit graphite and warm metal surfaces, graphite faceplates, colored rims and dark recesses. Beveled annular modules, instanced teeth and fasteners, engraved end caps, and a central shaft establish mechanical depth. The evidence housing separates into four physical quadrants. A custom GLSL material carries a signal along connections between modules. The orthographic camera stays fixed; the object tilts when opening or closing, and direct drag or keyboard input adjusts orientation. This treatment is confined to the illustration; landing copy and controls retain flat surfaces and fine rules.
 
 ## Shapes
 
 Forms are compact rectangles: badges use the badge radius, navigation uses the navigation radius, and buttons, notices, tables, service lists, and code blocks use the control radius. Circular geometry appears in state icons rather than pill-shaped containers. Lucide stroke icons provide navigation and status imagery; the shipping favicon is SVG. There are no shipping raster assets.
 
-Landing actions use 3px corners. The core has four source modules and one evidence hub that unfold into a map, form a delivery path, open the evidence housing and return to their original slots before the covers close. Its fallback is a static SVG of five stacked elliptical assemblies around a shaft. It is an illustration, not a replacement logo or a reusable application panel style. Local integration SVGs retain their source geometry and are displayed in grayscale; provenance is recorded in `public/integrations/SOURCES.md`.
+Landing actions use 3px corners. The core has four source modules and one evidence hub that unfold into a map, form a delivery path, open the evidence housing and return to their original slots before the covers close. Its fallback is a static SVG of five stacked elliptical assemblies around a shaft. It is an illustration, not a replacement logo or a reusable application panel style. Local integration SVGs retain their source geometry and are displayed in white or black to suit their section; provenance is recorded in `public/integrations/SOURCES.md`.
 
 ## Components
 
@@ -257,7 +261,7 @@ Navigation changes background and text color over 150ms; buttons transition colo
 
 ### Landing actions and precision core
 
-The near-black solid action uses 12px by 20px padding, a 13px label at weight 500, 3px corners, and a matching border; hover changes its fill to gray. Below 800px it uses 12px by 16px padding and a 12px label. Header entry uses an outlined action. Both open `/app`; build notes and system links reach working routes. Landing actions and chapter links use a black focus ring. Interactive background, color, and border changes take 200ms.
+The coral solid action with charcoal text uses 12px by 20px padding, a 13px label at weight 500, 3px corners, and a matching border; hover changes its fill to lighter coral. Below 800px it uses 12px by 16px padding and a 12px label. Header entry uses an outlined action. Both open `/app`; build notes and system links reach working routes. Landing actions and chapter links use a coral focus ring. Interactive background, color, and border changes take 200ms.
 
 Four source modules retain their Code, Build, Tests and Production identities around an Evidence hub through Connect, Trace, Understand, Investigate and Automate. Native chapter anchors expose `aria-current="step"`; hover or keyboard focus emphasizes a module. The native Story progress range runs from 0 to 5 in 0.01 steps and seeks native scroll position. A labeled rotation control accepts drag and Left/Right keys. Home restores orientation; the separate button named "Reset core rotation" sits beside the range in the story toolbar and is shown when WebGL is active. Source-logo ports remain attached to their source modules throughout the open chapters, with captions placed 8px beyond the projected rim. Selecting a tool sets its pressed state and reveals its explanation; chapter tool buttons share these explanations. These controls explain planned capabilities without claiming live provider connections.
 
@@ -280,7 +284,7 @@ User-initiated illustrative workflow playback highlights Code, Build, Test and O
 - **Do** preserve unknown, checking, unavailable, and healthy as distinct states.
 - **Do** keep mobile technical content locally scrollable with a visible cue when needed.
 - **Do** use real navigation targets and neutral descriptions of health checks.
-- **Do** scope the monochrome page palette, colored mechanism, display typography, shader materials, and core transformations to the public marketing surface.
+- **Do** scope the warm charcoal and coral page palette, colored mechanism, display typography, shader materials, and core transformations to the public marketing surface.
 - **Do** keep the static mechanism, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL.
 
 ### Don't:

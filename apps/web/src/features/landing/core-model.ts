@@ -1,6 +1,5 @@
 import * as THREE from "three";
-
-const moduleColors = [0x8c6ce7, 0x5092e8, 0x49ae87, 0xe98757, 0x67bfc2];
+import { coreColors as moduleColors } from "./landing-palette";
 
 /** Machined geometry shared by all five independently animated assemblies. */
 export function createCore() {
@@ -11,13 +10,13 @@ export function createCore() {
     return resource;
   };
   const graphite = keep(
-    new THREE.MeshStandardMaterial({ color: 0x202020, metalness: 0.78, roughness: 0.29 }),
+    new THREE.MeshStandardMaterial({ color: 0x252423, metalness: 0.5, roughness: 0.42 }),
   );
   const silver = keep(
-    new THREE.MeshStandardMaterial({ color: 0xc9c9c9, metalness: 0.82, roughness: 0.24 }),
+    new THREE.MeshStandardMaterial({ color: 0x423d3d, metalness: 0.5, roughness: 0.42 }),
   );
   const recess = keep(
-    new THREE.MeshStandardMaterial({ color: 0x090909, metalness: 0.45, roughness: 0.5 }),
+    new THREE.MeshStandardMaterial({ color: 0x171615, metalness: 0.3, roughness: 0.55 }),
   );
 
   const annulus = (outer: number, inner: number, depth: number) => {
@@ -56,7 +55,7 @@ export function createCore() {
     layer.add(shell);
     const faceMaterial = keep(
       new THREE.MeshStandardMaterial({
-        color: moduleColors[i],
+        color: 0x22201f,
         metalness: 0.05,
         roughness: 0.6,
         envMapIntensity: 0.2,
@@ -70,7 +69,8 @@ export function createCore() {
     const rotor = new THREE.Group();
     rotor.add(new THREE.Mesh(innerGeometry, graphite));
     layer.add(rotor);
-    const rim = new THREE.Mesh(rimGeometry, graphite);
+    const accent = keep(new THREE.MeshBasicMaterial({ color: moduleColors[i], toneMapped: false }));
+    const rim = new THREE.Mesh(rimGeometry, accent);
     rim.position.y = 0.08;
     layer.add(rim);
     const teeth = new THREE.InstancedMesh(toothGeometry, i % 2 ? silver : graphite, 64);
@@ -175,6 +175,15 @@ export function createCore() {
     detail.scale.set(0.96, 0.15, 0.96);
     detail.position.y = 0.13;
     panel.add(detail);
+    const edgeGeometry = keep(new THREE.TorusGeometry(1.55, 0.025, 6, 24, end - start));
+    edgeGeometry.rotateZ(start);
+    edgeGeometry.rotateX(Math.PI / 2);
+    const edge = new THREE.Mesh(
+      edgeGeometry,
+      keep(new THREE.MeshBasicMaterial({ color: moduleColors[4], toneMapped: false })),
+    );
+    edge.position.y = 0.13;
+    panel.add(edge);
     for (let j = 0; j < 2; j++) {
       const angle = start + ((j + 0.5) * (end - start)) / 2;
       const screw = new THREE.Mesh(boltGeometry, graphite);
@@ -192,6 +201,7 @@ export function createCore() {
     const material = keep(
       new THREE.ShaderMaterial({
         transparent: true,
+        toneMapped: false,
         uniforms: {
           uProgress: { value: 0 },
           uOpacity: { value: 0 },
@@ -205,7 +215,8 @@ export function createCore() {
         uniform float uOpacity; uniform float uIndex; uniform vec3 uColor;
         void main() {
           float pulse = 1. - smoothstep(.03, .24, abs(uIndex + vAlong - uProgress));
-          gl_FragColor = vec4(mix(uColor * .7, vec3(.04), pulse), uOpacity);
+          gl_FragColor = vec4(mix(uColor, vec3(.92), pulse), uOpacity);
+          #include <colorspace_fragment>
         }`,
       }),
     );
@@ -215,7 +226,7 @@ export function createCore() {
   });
   const marker = new THREE.Mesh(
     keep(new THREE.SphereGeometry(0.065, 12, 8)),
-    keep(new THREE.MeshBasicMaterial({ color: 0x111111 })),
+    keep(new THREE.MeshBasicMaterial({ color: 0xf6f4f2, toneMapped: false })),
   );
   root.add(marker);
   const capGeometry = annulus(1.65, 0.52, 0.12);

@@ -13,7 +13,7 @@ Mode: Persuade.
 
 THESIS: Forge turns separate engineering events into traceable evidence and deliberate responses.
 
-OWN-WORLD: User-approved precision mechanism; white canvas, black type, machined metal and colored module faces, existing Geist. Color on the object was explicitly authorized after the initial monochrome build. App palette and wordmark remain unchanged.
+OWN-WORLD: User-approved precision mechanism; warm charcoal canvas, off-white type, coral controls, warm stone integrations, and machined metal with red/orange/lime/cyan/blue rims, existing Geist. The latest user direction adopts the inspected Anime.js palette, superseding the initial monochrome build. App palette and wordmark remain unchanged.
 
 STORY: User rejected arbitrary rotation. The same four source modules and one evidence module unfold into a map, form an ordered delivery path, open the central housing into four pieces, retrace the delivery, then return to their original slots. Color and source logos preserve identity. No chapter-by-chapter spin or orbit. Planned integrations stay labeled.
 

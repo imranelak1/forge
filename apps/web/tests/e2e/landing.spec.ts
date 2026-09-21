@@ -55,7 +55,7 @@ test("chapter links and platform navigation work with the landing palette scoped
   await page.getByRole("link", { name: "Forge home" }).click();
   await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "webgl");
   await expect(page.locator(".core-renderer canvas")).toHaveCount(1);
-  await expect(page.locator(".landing")).toHaveCSS("background-color", "rgb(250, 250, 250)");
+  await expect(page.locator(".landing")).toHaveCSS("background-color", "rgb(37, 36, 35)");
 });
 
 test("reduced motion uses static artwork and supports live preference changes", async ({
@@ -206,11 +206,11 @@ test("story controls clear the integration heading and workflow copy keeps contr
   await page.goto("/");
   await expect(page.locator("#connect .tool-explanation p")).toHaveCSS(
     "color",
-    "rgb(102, 102, 102)",
+    "rgb(180, 177, 175)",
   );
   await expect(page.locator("#connect .chapter-endpoint > p")).toHaveCSS(
     "color",
-    "rgb(102, 102, 102)",
+    "rgb(180, 177, 175)",
   );
   await page
     .locator(".integration-section")

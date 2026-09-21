@@ -1,6 +1,6 @@
 # Integration logo sources
 
-These marks identify planned integrations and roadmap tools, not customers or endorsements. SVG geometry is retained; CSS displays the assets in grayscale. Downloaded 2026-09-21.
+These marks identify planned integrations and roadmap tools, not customers or endorsements. SVG geometry is retained; CSS displays the assets as white marks on charcoal and black marks on the warm stone integrations section. Downloaded 2026-09-21.
 
 | Asset          | Source                                                                                                                                     |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |

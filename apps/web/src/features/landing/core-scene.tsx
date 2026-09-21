@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 import { createChoreography } from "./core-choreography";
+import { coreBackground, coreColors } from "./landing-palette";
 
 export const chapterNames = ["Connect", "Trace", "Understand", "Investigate", "Automate"];
 
@@ -107,7 +108,7 @@ export function CoreScene({
         evidenceLabel.removeAttribute("style");
         invalidate.current = () => {};
       };
-      renderer.setClearColor(0xfafafa);
+      renderer.setClearColor(coreBackground);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 0.95;
       const scene = new THREE.Scene();
@@ -529,19 +530,19 @@ export function CoreScene({
   return (
     <div className="core-renderer" ref={host} data-renderer="static">
       <svg className="core-fallback" viewBox="0 0 500 440" fill="none" aria-hidden="true">
-        <path d="M250 95v255" stroke="#999" strokeWidth="32" />
+        <path d="M250 95v255" stroke="#615e5b" strokeWidth="32" />
         {[0, 1, 2, 3, 4].map((i) => (
           <g key={i} transform={`translate(250 ${110 + i * 50}) rotate(-16)`}>
-            <ellipse cy="12" rx="125" ry="42" fill="#292929" stroke="#111" />
+            <ellipse cy="12" rx="125" ry="42" fill="#171615" stroke="#101010" />
             <ellipse
               rx="125"
               ry="42"
-              fill={i % 2 ? "#bbb" : "#eee"}
-              stroke="#333"
+              fill={i % 2 ? "#353432" : "#423d3d"}
+              stroke={`#${coreColors[i].toString(16).padStart(6, "0")}`}
               strokeWidth="2"
             />
-            <ellipse rx="110" ry="35" stroke="#777" strokeDasharray="2 5" />
-            <ellipse rx="43" ry="15" fill="#333" stroke="#111" />
+            <ellipse rx="110" ry="35" stroke="#93908d" strokeDasharray="2 5" />
+            <ellipse rx="43" ry="15" fill="#252423" stroke="#101010" />
           </g>
         ))}
       </svg>

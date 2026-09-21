@@ -1,18 +1,25 @@
 .landing {
-  --land-bg: #fafafa;
-  --land-ink: #111;
-  --land-muted: #666;
-  --muted-foreground: #666;
-  --land-line: #dedede;
-  --ring: #111;
+  --land-bg: #252423;
+  --land-surface: #2a2928;
+  --land-ink: #f6f4f2;
+  --land-muted: #b4b1af;
+  --land-subtle: #93908d;
+  --land-line: #4a4847;
+  --land-control-line: #85827e;
+  --land-accent: #ff4b4b;
+  --land-accent-hover: #ff718b;
+  --land-on-accent: #252423;
+  --land-selected: #3c2726;
+  --muted-foreground: var(--land-muted);
+  --ring: var(--land-accent);
   background: var(--land-bg);
   color: var(--land-ink);
-  color-scheme: light;
+  color-scheme: dark;
   overflow: clip;
 }
 .landing ::selection {
-  background: #161616;
-  color: #fff;
+  background: var(--land-accent);
+  color: var(--land-on-accent);
 }
 .motion-line {
   display: block;
@@ -21,8 +28,8 @@
   display: inline-block;
 }
 .landing .skip-link {
-  background: #111;
-  color: #fff;
+  background: var(--land-accent);
+  color: var(--land-on-accent);
   z-index: 20;
 }
 .landing-header {
@@ -54,11 +61,11 @@
   gap: 5px;
   align-items: center;
   font-size: 12px;
-  color: #505050;
+  color: var(--land-muted);
 }
 .landing-header nav a:hover,
 .landing-footer nav a:hover {
-  color: #000;
+  color: var(--land-ink);
   text-decoration: underline;
 }
 .landing-open {
@@ -67,12 +74,12 @@
   gap: 18px;
   font-size: 12px;
   padding: 10px 14px;
-  border: 1px solid #bfbfbf;
+  border: 1px solid var(--land-line);
   border-radius: 3px;
   transition: border-color 0.2s;
 }
 .landing-open:hover {
-  border-color: #111;
+  border-color: var(--land-accent);
 }
 .core-story {
   position: relative;
@@ -114,7 +121,7 @@
   align-items: center;
   gap: 7px;
   background: transparent;
-  color: #626262;
+  color: var(--land-muted);
   border: 0;
   font-size: 11px;
   min-height: 36px;
@@ -143,7 +150,7 @@
   gap: 10px;
   font-size: 11px;
   border: 0;
-  background: #fafafa;
+  background: var(--land-bg);
   min-height: 44px;
   padding: 8px;
   pointer-events: auto;
@@ -153,15 +160,15 @@
     color 0.2s;
 }
 .core-port[aria-pressed="true"] {
-  color: #111;
+  color: var(--land-ink);
 }
 .core-port[aria-pressed="false"] {
-  color: #666;
+  color: var(--land-muted);
 }
 .port-connector {
   width: 32px;
   height: 1px;
-  background: #aaa;
+  background: var(--land-subtle);
 }
 .core-port:nth-child(even) .port-connector {
   order: -1;
@@ -199,7 +206,7 @@
   top: calc(50% + var(--port-label-offset, 60px));
   left: 50%;
   transform: translateX(-50%);
-  color: #333;
+  color: var(--land-ink);
   font-size: 11px;
   white-space: nowrap;
 }
@@ -209,8 +216,8 @@
   top: 0;
   left: 0;
   font-size: 10px;
-  color: #333;
-  background: #fafafa;
+  color: var(--land-ink);
+  background: var(--land-bg);
   padding: 2px;
 }
 .core-stage[data-active="automate"] .core-ports {
@@ -228,12 +235,12 @@
   max-width: 205px;
   font-size: 12px;
   line-height: 1.7;
-  color: #555;
-  background: #fafafa;
+  color: var(--land-muted);
+  background: var(--land-bg);
   padding: 10px;
 }
 .core-port-note strong {
-  color: #111;
+  color: var(--land-ink);
   font-weight: 550;
 }
 .core-port-note p {
@@ -249,7 +256,7 @@
   height: 27px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: grayscale(1);
+  filter: brightness(0) invert(1);
 }
 .core-scrubber {
   display: flex;
@@ -261,7 +268,7 @@
 }
 .core-scrubber label {
   font-size: 11px;
-  color: #555;
+  color: var(--land-muted);
 }
 .core-scrubber input {
   appearance: none;
@@ -269,34 +276,34 @@
   height: 32px;
   background: transparent;
   cursor: ew-resize;
-  accent-color: #111;
+  accent-color: var(--land-accent);
 }
 .core-scrubber input::-webkit-slider-runnable-track {
   height: 3px;
-  background: #c8c8c8;
+  background: var(--land-control-line);
 }
 .core-scrubber input::-webkit-slider-thumb {
   appearance: none;
   width: 10px;
   height: 19px;
   margin-top: -8px;
-  background: #111;
-  border: 2px solid #fafafa;
+  background: var(--land-accent);
+  border: 2px solid var(--land-bg);
   border-radius: 0;
 }
 .core-scrubber input::-moz-range-track {
   height: 3px;
-  background: #c8c8c8;
+  background: var(--land-control-line);
 }
 .core-scrubber input::-moz-range-thumb {
   width: 7px;
   height: 17px;
-  background: #111;
-  border: 2px solid #fafafa;
+  background: var(--land-accent);
+  border: 2px solid var(--land-bg);
   border-radius: 0;
 }
 .core-scrubber input:focus-visible {
-  outline: 2px solid #111;
+  outline: 2px solid var(--land-accent);
   outline-offset: 4px;
 }
 .core-renderer canvas {
@@ -331,20 +338,20 @@
   width: max-content;
   max-width: calc(100% - 32px);
   padding: 4px 14px;
-  background: #fafafa;
+  background: var(--land-bg);
   z-index: 4;
 }
 .flow-rail {
   position: relative;
   height: 1px;
   margin: 0 5px 12px;
-  background: #bcbcbc;
+  background: var(--land-control-line);
 }
 .flow-rail span {
   position: absolute;
   width: 6px;
   height: 6px;
-  background: #111;
+  background: var(--land-accent);
   top: -3px;
   left: 4%;
 }
@@ -358,14 +365,14 @@
   background: transparent;
   cursor: pointer;
   font-size: 11px;
-  color: #444;
+  color: var(--land-muted);
 }
 .flow-demo > button:hover {
   text-decoration: underline;
 }
 .flow-demo > button:disabled {
   cursor: default;
-  color: #666;
+  color: var(--land-muted);
 }
 .flow-demo {
   margin-top: 15px;
@@ -378,7 +385,7 @@
 }
 .core-caption {
   font-size: 11px;
-  color: #666;
+  color: var(--land-muted);
   margin-bottom: 4px;
 }
 .core-navigation {
@@ -389,7 +396,7 @@
 }
 .core-navigation a {
   position: relative;
-  color: #6a6a6a;
+  color: var(--land-muted);
   font-size: 12px;
   padding: 10px 2px;
   border-bottom: 1px solid transparent;
@@ -399,8 +406,8 @@
 }
 .core-navigation a:hover,
 .core-navigation a[aria-current="step"] {
-  color: #111;
-  border-bottom-color: #111;
+  color: var(--land-accent);
+  border-bottom-color: var(--land-accent);
 }
 .core-hero {
   position: relative;
@@ -423,7 +430,7 @@
   line-height: 0.99;
 }
 .hero-copy > p {
-  color: #636363;
+  color: var(--land-muted);
   font-size: 15px;
   line-height: 1.7;
   margin-top: 17px;
@@ -440,9 +447,9 @@
   align-items: center;
   justify-content: center;
   gap: 24px;
-  background: #171717;
-  border: 1px solid #171717;
-  color: #fff;
+  background: var(--land-accent);
+  border: 1px solid var(--land-accent);
+  color: var(--land-on-accent);
   padding: 12px 20px;
   border-radius: 3px;
   font-size: 13px;
@@ -450,7 +457,7 @@
   transition: background 0.2s;
 }
 .landing-button:hover {
-  background: #383838;
+  background: var(--land-accent-hover);
 }
 .landing-link {
   display: inline-flex;
@@ -464,7 +471,7 @@
 }
 .hero-copy > .preview-note {
   font-size: 10px;
-  color: #737373;
+  color: var(--land-subtle);
   margin-top: 14px;
 }
 .hero-scroll-cue {
@@ -472,7 +479,7 @@
   bottom: 32px;
   left: 5%;
   font-size: 10px;
-  color: #737373;
+  color: var(--land-subtle);
   display: inline-flex;
   align-items: center;
   gap: 13px;
@@ -512,18 +519,18 @@
 .chapter-description {
   font-size: 15px;
   line-height: 1.85;
-  color: #626262;
+  color: var(--land-muted);
   margin-top: 26px;
   max-width: 310px;
 }
 .chapter-evidence {
-  border-top: 1px solid #d6d6d6;
+  border-top: 1px solid var(--land-line);
   padding-top: 19px;
   margin-top: 28px;
 }
 .chapter-evidence > p {
   font-size: 10px;
-  color: #707070;
+  color: var(--land-subtle);
   margin-bottom: 12px;
 }
 .chapter-evidence ul {
@@ -537,11 +544,11 @@
 .chapter-evidence li {
   display: flex;
   gap: 8px;
-  color: #333;
+  color: var(--land-ink);
   font-size: 11px;
 }
 .chapter-evidence li > span {
-  color: #a0a0a0;
+  color: var(--land-subtle);
 }
 .chapter-endpoint {
   grid-column: 3;
@@ -551,7 +558,7 @@
   width: 100%;
   max-width: 280px;
   pointer-events: auto;
-  color: #666;
+  color: var(--land-muted);
   font-size: 11px;
 }
 .chapter-endpoint > p {
@@ -564,12 +571,12 @@
   gap: 5px;
   justify-content: space-between;
   padding-bottom: 15px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--land-line);
 }
 .workflow-tools button {
   border: 0;
   background: transparent;
-  color: #555;
+  color: var(--land-muted);
   padding: 5px;
   min-width: 44px;
   cursor: pointer;
@@ -581,8 +588,8 @@
   font-size: 10px;
 }
 .workflow-tools button[aria-pressed="true"] {
-  color: #111;
-  background: #eee;
+  color: var(--land-ink);
+  background: var(--land-selected);
 }
 .workflow-reverse {
   flex-direction: row-reverse;
@@ -593,7 +600,7 @@
 }
 .tool-explanation strong {
   font-weight: 550;
-  color: #222;
+  color: var(--land-ink);
   font-size: 13px;
 }
 .tool-explanation p {
@@ -605,18 +612,30 @@
   display: flex;
   justify-content: space-between;
   padding: 15px 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--land-line);
   font-size: 13px;
 }
 .mechanism-notes a:hover {
-  color: #111;
+  color: var(--land-ink);
 }
 .integration-section {
+  --land-bg: #dad5d0;
+  --land-surface: #d5d3d1;
+  --land-ink: #252423;
+  --land-muted: #5b5855;
+  --land-subtle: #5b5855;
+  --land-line: #b4b1af;
+  --muted-foreground: var(--land-muted);
+  color: var(--land-ink);
+  color-scheme: light;
   position: relative;
   z-index: 3;
   padding: 90px 7%;
-  background: #fafafa;
-  border-top: 1px solid #ddd;
+  background: var(--land-bg);
+  border-top: 1px solid var(--land-line);
+}
+.integration-section .tool-logo {
+  filter: brightness(0);
 }
 .integration-intro {
   display: flex;
@@ -634,7 +653,7 @@
 }
 .integration-intro p {
   max-width: 320px;
-  color: #666;
+  color: var(--land-muted);
   font-size: 15px;
   line-height: 1.8;
 }
@@ -646,7 +665,7 @@
 .integration-section h3 {
   font-size: 12px;
   font-weight: 450;
-  color: #666;
+  color: var(--land-muted);
   margin-bottom: 27px;
 }
 .integration-list {
@@ -655,7 +674,7 @@
   gap: 36px;
 }
 .integration-list > div {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--land-line);
   padding-top: 22px;
 }
 .integration-list .tool-logo {
@@ -671,11 +690,11 @@
 .integration-list p {
   font-size: 13px;
   line-height: 1.8;
-  color: #666;
+  color: var(--land-muted);
   max-width: 235px;
 }
 .integration-roadmap {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--land-line);
   padding-top: 27px;
 }
 .integration-roadmap ul {
@@ -690,7 +709,7 @@
   align-items: center;
   gap: 10px;
   font-size: 12px;
-  color: #555;
+  color: var(--land-muted);
 }
 .integration-roadmap .tool-logo {
   width: 22px;
@@ -699,7 +718,7 @@
 .chapter-endpoint > span {
   width: 35px;
   height: 1px;
-  background: #bcbcbc;
+  background: var(--land-control-line);
 }
 .chapter-right .chapter-endpoint {
   grid-column: 1;
@@ -710,7 +729,7 @@
   padding: 105px 24px 70px;
   border-top: 1px solid var(--land-line);
   text-align: center;
-  background: #f4f4f4;
+  background: var(--land-surface);
 }
 .landing-close > svg {
   margin: 0 auto 28px;
@@ -724,7 +743,7 @@
 .landing-close > p {
   max-width: 410px;
   margin: 24px auto 29px;
-  color: #666;
+  color: var(--land-muted);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -735,29 +754,29 @@
   text-align: left;
   margin: 39px auto 22px;
   padding-top: 20px;
-  border-top: 1px solid #d2d2d2;
+  border-top: 1px solid var(--land-line);
 }
 .build-disclosure > span {
-  color: #333;
+  color: var(--land-ink);
   white-space: nowrap;
   font-size: 11px;
   padding-top: 2px;
 }
 .build-disclosure p {
   font-size: 12px;
-  color: #686868;
+  color: var(--land-muted);
   line-height: 1.65;
 }
 .back-to-top {
   display: inline-flex;
   gap: 7px;
   align-items: center;
-  color: #666;
+  color: var(--land-muted);
   font-size: 11px;
   padding: 10px;
 }
 .back-to-top:hover {
-  color: #111;
+  color: var(--land-ink);
   text-decoration: underline;
 }
 .landing-footer {
@@ -775,7 +794,7 @@
 }
 .landing-footer > p {
   font-size: 11px;
-  color: #707070;
+  color: var(--land-subtle);
 }
 .landing-footer nav {
   margin-left: auto;
@@ -847,7 +866,7 @@
     height: 94px;
     margin-top: -94px;
     margin-bottom: 0;
-    background: #fafafa;
+    background: var(--land-bg);
     padding: 0 9px;
     width: calc(100% - 28px);
   }
@@ -876,7 +895,7 @@
   .chapter-copy {
     max-width: 440px;
     margin: 0 auto;
-    background: #fafafa;
+    background: var(--land-bg);
     padding: 18px 0;
   }
   .chapter-copy h2 {
@@ -896,7 +915,7 @@
     display: block;
     max-width: 440px;
     margin: 20px auto 0;
-    background: #fafafa;
+    background: var(--land-bg);
   }
   .chapter-endpoint > p {
     margin-bottom: 12px;
@@ -922,7 +941,7 @@
     right: 12px;
     max-width: 215px;
     font-size: 11px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--land-line);
   }
   .core-port .tool-logo {
     width: 23px;
