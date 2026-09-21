@@ -1,12 +1,12 @@
 ﻿# Precision-core landing page
 
-The public home page uses a centered, procedural mechanism to explain Forge. The user selected this replacement for the rejected circuit and cable designs after a browser study of Anime.js. Black, white and grayscale apply only to the landing. The existing application remains at `/app`; `/guide`, `/system` and API URLs are unchanged. A future 3D logo is deferred.
+The public home page uses a centered, procedural mechanism to explain Forge. The user selected this replacement for the rejected circuit and cable designs after a browser study of Anime.js. The surrounding landing is black, white and grayscale; the user authorized color on the mechanism to preserve module identity during transformations. The existing application remains at `/app`; `/guide`, `/system` and API URLs are unchanged. A future 3D logo is deferred.
 
 ## Experience
 
-Five independently animated assemblies represent Connect, Trace, Understand, Investigate and Automate. Scrolling separates and rotates the layers, changes the camera composition, sends a shader signal forward or backward, then reassembles the mechanism. A single paused Anime.js timeline coordinates these poses. Native scroll maps to continuous timeline progress with frame-rate-independent damping, without scroll hijacking.
+Four source modules and one evidence module retain their identities through five chapters. Connect withdraws the covers and unfolds the stack into a source map. Trace arranges those parts into a code/build/tests/production/evidence path, then passes a signal along its connections. Understand parks the sources and opens the evidence housing into four physical quadrants. Investigate closes the housing, restores the path and retraces it to code. Automate returns the modules to their slots before closing the covers. Orientation stays fixed through the open stages; the object only tilts as it unfolds or in response to direct user input. A single paused Anime.js timeline coordinates the sequence. Native scroll maps to continuous timeline progress with frame-rate-independent damping, without scroll hijacking.
 
-Visitors can drag the core horizontally or focus its rotation control and use arrow keys. Home or Reset returns its orientation. A native range input scrubs the complete story; chapter anchors work independently. The source-logo ports move in scene coordinates, and selecting one explains the source. Playable, explicitly illustrative workflow sequences highlight code, builds, tests and production in order; investigation reverses the sequence.
+Visitors can drag the core horizontally or focus its rotation control and use arrow keys. Home or the Reset button beside the story range returns its orientation. The range scrubs the complete story; chapter anchors work independently. The source-logo ports move with their modules, captions remain eight pixels beyond each projected rim, and selecting a source explains it. Playable, explicitly illustrative workflow sequences highlight code, builds, tests and production in order; investigation reverses the sequence.
 
 GitHub, GitHub Actions, JUnit XML reports and Sentry are labeled as initial integrations in development. GitLab, Jira, Linear, Jenkins, SonarQube, Playwright, Selenium and AWS are labeled as roadmap tools. SVGs are served locally, with sources in `apps/web/public/integrations/SOURCES.md`. No synthetic metrics or functioning integration claims are introduced.
 
@@ -14,7 +14,8 @@ GitHub, GitHub Actions, JUnit XML reports and Sentry are labeled as initial inte
 
 - `landing-page.tsx`: semantic content, tool selection, native navigation, story scrubber and integration roadmap.
 - `core-scene.tsx`: lazy WebGL initialization, Anime.js master timeline, native scroll mapping, DOM logo projection, rotation interaction and lifecycle.
-- `core-model.ts`: five machined assemblies, instanced teeth and fasteners, rotors, retained rings, environment-lit surfaces and custom GLSL signal material.
+- `core-choreography.ts`: persistent module state and source-map, delivery-path and inspection layouts.
+- `core-model.ts`: five machined assemblies, colored faceplates, separable housing quadrants, instanced teeth and fasteners, environment-lit surfaces and custom GLSL connection material.
 - `integrations.tsx`: tool metadata, local source SVGs and user-initiated Anime.js workflow examples.
 - `landing.css`: scoped grayscale palette, responsive composition, interaction states and readable mobile layout.
 - `tests/e2e/landing.spec.ts`: actual rendering, reversible movement, controls, source-logo loading, reduced motion, context failure and navigation.

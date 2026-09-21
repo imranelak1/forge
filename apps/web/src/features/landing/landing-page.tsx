@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUpRight, MoveUpRight } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, MoveUpRight, RotateCcw } from "lucide-react";
 import { FlowDemo, integrations, roadmap, ToolLogo } from "./integrations";
 import { CoreScene, chapterNames, seekStory } from "./core-scene";
 
@@ -14,7 +14,7 @@ const chapters = [
       "Bring code, builds, tests and production errors into the same story. Keep each signal connected to where it came from.",
     detail: "Planned connections",
     items: ["GitHub", "GitHub Actions", "JUnit", "Sentry"],
-    caption: "Independent signals become one continuous thread.",
+    caption: "The core unfolds. Four sources connect to one evidence module.",
   },
   {
     id: "trace",
@@ -23,7 +23,7 @@ const chapters = [
       "Follow a change from its pull request to the build that tested it and the deployment that shipped it.",
     detail: "The delivery lifecycle",
     items: ["Pull request", "Commit", "Build", "Deployment"],
-    caption: "One signal. Every step from code to production.",
+    caption: "The modules form a path: code, build, tests, production.",
   },
   {
     id: "understand",
@@ -32,7 +32,7 @@ const chapters = [
       "Unpick slow reviews, unreliable tests and repeated build failures. Every insight leads back to the evidence behind it.",
     detail: "Planned intelligence",
     items: ["Review time", "Build reliability", "Test failures"],
-    caption: "Separate the layers. See the evidence behind each insight.",
+    caption: "The evidence housing opens to reveal the assembly inside.",
   },
   {
     id: "investigate",
@@ -41,7 +41,7 @@ const chapters = [
       "Start with a production error and work backward. Connect the release to its related changes, without losing the trail.",
     detail: "Illustrated investigation",
     items: ["Production error", "Deployment", "Related commit"],
-    caption: "Trace the story backward, from incident to change.",
+    caption: "Follow the same path backward, from production to code.",
   },
   {
     id: "automate",
@@ -50,7 +50,7 @@ const chapters = [
       "Turn explicit conditions into deliberate pipeline responses. Understand why a rule matched and keep a record of what happened next.",
     detail: "Planned automation",
     items: ["Conditions", "Action", "Audit trail"],
-    caption: "From connected evidence to accountable action.",
+    caption: "The parts return to their slots. One connected system, ready to act.",
   },
 ];
 
@@ -99,10 +99,14 @@ export function LandingPage() {
                   }}
                 >
                   <ToolLogo id={tool.id} />
-                  <span>{tool.name}</span>
+                  <span className="port-name">{tool.name}</span>
+                  <span className="port-role">{["Code", "Build", "Tests", "Production"][i]}</span>
                   <span className="port-connector" aria-hidden="true" />
                 </button>
               ))}
+              <span className="core-evidence-label" aria-hidden="true">
+                Evidence
+              </span>
               {showTool && (
                 <div className="core-port-note" role="status">
                   <strong>{integrations[selectedTool].name}</strong>
@@ -127,6 +131,10 @@ export function LandingPage() {
                 aria-valuetext="Introduction"
                 onChange={(event) => seekStory(story.current, Number(event.target.value))}
               />
+              <button type="button" className="core-reset" aria-label="Reset core rotation">
+                <RotateCcw size={13} aria-hidden="true" />
+                <span>Reset</span>
+              </button>
             </div>
             <p className="core-caption">
               {active >= 0 ? chapters[active].caption : "Five capabilities. One connected system."}

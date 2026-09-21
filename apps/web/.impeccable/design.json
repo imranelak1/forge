@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-21T19:07:02.978Z",
+  "generatedAt": "2026-09-21T19:39:59.864Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -353,6 +353,31 @@
           "oklch(83.57% 0.0000 0)",
           "oklch(95.00% 0.0000 0)"
         ]
+      },
+      "landing-module-code": {
+        "role": "primary",
+        "displayName": "Code violet module face",
+        "purpose": "Object-only identity color retained through source map, delivery path, inspection and reassembly; the surrounding page stays monochrome."
+      },
+      "landing-module-build": {
+        "role": "primary",
+        "displayName": "Build blue module face",
+        "purpose": "Object-only identity color retained through source map, delivery path, inspection and reassembly; the surrounding page stays monochrome."
+      },
+      "landing-module-tests": {
+        "role": "primary",
+        "displayName": "Tests green module face",
+        "purpose": "Object-only identity color retained through source map, delivery path, inspection and reassembly; the surrounding page stays monochrome."
+      },
+      "landing-module-production": {
+        "role": "primary",
+        "displayName": "Production orange module face",
+        "purpose": "Object-only identity color retained through source map, delivery path, inspection and reassembly; the surrounding page stays monochrome."
+      },
+      "landing-module-evidence": {
+        "role": "primary",
+        "displayName": "Evidence cyan module face",
+        "purpose": "Object-only identity color retained through source map, delivery path, inspection and reassembly; the surrounding page stays monochrome."
       }
     },
     "typographyMeta": {
@@ -397,13 +422,13 @@
       },
       {
         "name": "landing-master-timeline",
-        "value": "Paused Anime.js timeline; five 1000ms segments; inOut(3); progress 0..5; damping 1 - exp(-delta * 10), delta capped at 0.05s",
-        "purpose": "Native scroll reversibly coordinates five mechanical layers, rotors, caps, shaft, camera composition and custom GLSL signal travel. Rendering pauses at rest, outside the story and in hidden tabs; DPR caps are 1.6 desktop and 1.25 mobile."
+        "value": "Paused Anime.js timeline; five 1000ms chapter windows; staggered inOut(3) part translations; linear signal travel; damping 1 - exp(-delta * 10), delta capped at 0.05s",
+        "purpose": "The same four source modules and evidence hub unfold into a map, form Code/Build/Tests/Production/Evidence connections, open the evidence housing into four quadrants, retrace the path and reassemble into original slots before covers close. Orientation is fixed during open chapters; only opening, closing and manual input tilt the object. Rendering pauses at rest, outside the story and in hidden tabs; DPR caps remain 1.6 desktop and 1.25 mobile."
       },
       {
         "name": "landing-core-rotation",
         "value": "Drag x delta * 0.008 and y delta * 0.006; x clamp -1.8..1.8 and y clamp -0.55..0.55 radians; Left/Right increment 0.2; Home or Reset clears both",
-        "purpose": "Labeled direct rotation; chapter hover/focus and tool selection separately emphasize a mechanical layer."
+        "purpose": "Labeled direct rotation; Home or the Reset core rotation button in the story scrubber toolbar clears manual orientation. Chapter hover/focus and tool selection emphasize module faces. Source logos stay attached during open chapters; captions clear the projected rim by 8px."
       },
       {
         "name": "landing-workflow-playback",
@@ -518,27 +543,27 @@
     {
       "name": "Landing core chapter links",
       "kind": "nav",
-      "description": "Five native anchors accompany the centered sticky mechanism. The current chapter has aria-current=step; hover or focus emphasizes a layer. All links remain visible on mobile. Story controls use 114px desktop and 94px mobile heights with equal negative top margins and zero bottom margins to respect the story boundary.",
+      "description": "Five native anchors accompany the centered sticky mechanism. The current chapter has aria-current=step; hover or focus emphasizes a module. All links remain visible on mobile. Story controls use 114px desktop and 94px mobile heights with equal negative top margins and zero bottom margins to respect the story boundary.",
       "html": "<nav class=\"ds-core-nav\" aria-label=\"Story chapters\"><a href=\"#connect\" aria-current=\"step\">Connect</a><a href=\"#trace\">Trace</a><a href=\"#understand\">Understand</a><a href=\"#investigate\">Investigate</a><a href=\"#automate\">Automate</a></nav>",
       "css": ".ds-core-nav{display:flex;justify-content:center;gap:30px;background:#fafafa;font-family:var(--font-sans,\"Geist Variable\",sans-serif)}.ds-core-nav a{position:relative;color:#6a6a6a;font-size:12px;line-height:1.55;padding:10px 2px;border-bottom:1px solid transparent;text-decoration:none;transition:color .2s,border-color .2s}.ds-core-nav a:hover,.ds-core-nav a[aria-current=\"step\"]{color:#111;border-bottom-color:#111}.ds-core-nav a:focus-visible{outline:2px solid #111;outline-offset:4px}@media(max-width:799px){.ds-core-nav{gap:0;justify-content:space-between}.ds-core-nav a{font-size:10px;min-height:44px;display:flex;align-items:center;padding:6px 3px}}@media(prefers-reduced-motion:reduce){.ds-core-nav a{transition:none}}"
     },
     {
       "name": "Landing story range",
       "kind": "input",
-      "description": "Native Story progress input seeks the five-stage story through native scroll; keyboard and touch remain available. This preview shows the control styling.",
-      "html": "<div class=\"ds-core-scrubber\"><label for=\"ds-story-progress\">Explore the core</label><input id=\"ds-story-progress\" aria-label=\"Story progress\" type=\"range\" min=\"0\" max=\"5\" step=\"0.01\" value=\"0\" /></div>",
-      "css": ".ds-core-scrubber{display:flex;align-items:center;justify-content:center;gap:18px;background:#fafafa;color:#555;font:11px var(--font-sans,\"Geist Variable\",sans-serif)}.ds-core-scrubber input{appearance:none;width:220px;height:32px;background:transparent;cursor:ew-resize;accent-color:#111}.ds-core-scrubber input::-webkit-slider-runnable-track{height:3px;background:#c8c8c8}.ds-core-scrubber input::-webkit-slider-thumb{appearance:none;width:10px;height:19px;margin-top:-8px;background:#111;border:2px solid #fafafa;border-radius:0}.ds-core-scrubber input::-moz-range-track{height:3px;background:#c8c8c8}.ds-core-scrubber input::-moz-range-thumb{width:7px;height:17px;background:#111;border:2px solid #fafafa;border-radius:0}.ds-core-scrubber input:focus-visible{outline:2px solid #111;outline-offset:4px}@media(max-width:799px){.ds-core-scrubber{gap:12px;font-size:10px}.ds-core-scrubber input{width:180px}}"
+      "description": "Native Story progress input seeks the five-stage story through native scroll; keyboard and touch remain available. Reset core rotation sits beside the range in the WebGL story toolbar.",
+      "html": "<div class=\"ds-core-scrubber\"><label for=\"ds-story-progress\">Explore the core</label><input id=\"ds-story-progress\" aria-label=\"Story progress\" type=\"range\" min=\"0\" max=\"5\" step=\"0.01\" value=\"0\" /><button type=\"button\" class=\"ds-core-reset\" aria-label=\"Reset core rotation\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 11a9 9 0 1 1 2.4 6.2M3 4v7h7\"/></svg><span>Reset</span></button></div>",
+      "css": ".ds-core-scrubber{display:flex;align-items:center;justify-content:center;gap:18px;background:#fafafa;color:#555;font:11px var(--font-sans,\"Geist Variable\",sans-serif)}.ds-core-scrubber input{appearance:none;width:220px;height:32px;background:transparent;cursor:ew-resize;accent-color:#111}.ds-core-scrubber input::-webkit-slider-runnable-track{height:3px;background:#c8c8c8}.ds-core-scrubber input::-webkit-slider-thumb{appearance:none;width:10px;height:19px;margin-top:-8px;background:#111;border:2px solid #fafafa;border-radius:0}.ds-core-scrubber input::-moz-range-track{height:3px;background:#c8c8c8}.ds-core-scrubber input::-moz-range-thumb{width:7px;height:17px;background:#111;border:2px solid #fafafa;border-radius:0}.ds-core-scrubber input:focus-visible{outline:2px solid #111;outline-offset:4px}@media(max-width:799px){.ds-core-scrubber{gap:12px;font-size:10px}.ds-core-scrubber input{width:180px}}.ds-core-reset{display:inline-flex;align-items:center;gap:7px;background:transparent;color:#626262;border:0;font-size:11px;min-height:36px;padding:7px;cursor:pointer}.ds-core-reset:focus-visible{outline:2px solid #111;outline-offset:4px}@media(max-width:799px){.ds-core-reset{font-size:10px}}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` adds a built, scoped monochrome precision mechanism: a centered five-layer core on a white canvas, large black Geist type, and reversible Anime.js choreography. Machined grayscale materials, a custom GLSL signal, direct rotation and local integration-logo storytelling belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` adds a built precision mechanism: four source modules and an evidence hub on a white canvas, large black Geist type, and reversible Anime.js transformations. Colored module faces preserve identity while the surrounding page stays monochrome. Machined materials, a custom GLSL connection signal, direct rotation and attached integration logos belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
       "Restrained controls and explicit, text-supported service states.",
       "Responsive navigation and locally scrollable technical content.",
-      "A scoped public landing with a procedural five-layer WebGL mechanism and five connected capability chapters."
+      "A scoped public landing with four persistent source modules, an evidence hub, and five transformation chapters."
     ],
     "rules": [
       {
@@ -553,7 +578,7 @@
       "**Do** preserve unknown, checking, unavailable, and healthy as distinct states.",
       "**Do** keep mobile technical content locally scrollable with a visible cue when needed.",
       "**Do** use real navigation targets and neutral descriptions of health checks.",
-      "**Do** scope the monochrome landing palette, display typography, shader materials, and core motion to the public marketing surface.",
+      "**Do** scope the monochrome page palette, colored mechanism, display typography, shader materials, and core transformations to the public marketing surface.",
       "**Do** keep the static mechanism, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL."
     ],
     "donts": [

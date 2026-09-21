@@ -13,12 +13,12 @@ Mode: Persuade.
 
 THESIS: Forge turns separate engineering events into traceable evidence and deliberate responses.
 
-OWN-WORLD: User-approved precision mechanism; white canvas, black type, machined grayscale rings, existing Geist. App palette and wordmark remain unchanged.
+OWN-WORLD: User-approved precision mechanism; white canvas, black type, machined metal and colored module faces, existing Geist. Color on the object was explicitly authorized after the initial monochrome build. App palette and wordmark remain unchanged.
 
-STORY: Recognizable GitHub, Actions, JUnit and Sentry logos feed a core; five layers separate, trace a delivery, expose evidence, reverse an incident, then assemble for automation. Planned integrations stay labeled.
+STORY: User rejected arbitrary rotation. The same four source modules and one evidence module unfold into a map, form an ordered delivery path, open the central housing into four pieces, retrace the delivery, then return to their original slots. Color and source logos preserve identity. No chapter-by-chapter spin or orbit. Planned integrations stay labeled.
 
 FIRST VIEWPORT: Centered mechanical core dominates beneath a short centered headline. Working-platform CTA, source logos, rotate control and draggable story progress remain discoverable.
 
-FORM: User selected precision core plus kinetic workflow, overriding surface seed 08d23926. Procedural Three.js with an Anime.js master timeline, camera transitions, direct rotation, native scroll and accessible fallback. Code-led motion artifact; reference is inspected animejs.com, not a raster comp.
+FORM: User selected precision core plus kinetic workflow, overriding surface seed 08d23926. Procedural Three.js with an Anime.js master timeline, authored part translations and housing disassembly, fixed camera, direct rotation, native scroll and accessible fallback. Code-led motion artifact; reference is inspected animejs.com, not a raster comp.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.

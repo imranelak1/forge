@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+const moduleColors = [0x8c6ce7, 0x5092e8, 0x49ae87, 0xe98757, 0x67bfc2];
+
 /** Machined geometry shared by all five independently animated assemblies. */
 export function createCore() {
   const root = new THREE.Group();
@@ -13,9 +15,6 @@ export function createCore() {
   );
   const silver = keep(
     new THREE.MeshStandardMaterial({ color: 0xc9c9c9, metalness: 0.82, roughness: 0.24 }),
-  );
-  const ceramic = keep(
-    new THREE.MeshStandardMaterial({ color: 0xf4f4f4, metalness: 0.25, roughness: 0.3 }),
   );
   const recess = keep(
     new THREE.MeshStandardMaterial({ color: 0x090909, metalness: 0.45, roughness: 0.5 }),
@@ -55,7 +54,17 @@ export function createCore() {
     const layer = new THREE.Group();
     const shell = new THREE.Mesh(bodyGeometry, i % 2 ? graphite : silver);
     layer.add(shell);
-    const face = new THREE.Mesh(faceGeometry, i % 2 ? silver : ceramic);
+    const faceMaterial = keep(
+      new THREE.MeshStandardMaterial({
+        color: moduleColors[i],
+        metalness: 0.05,
+        roughness: 0.6,
+        envMapIntensity: 0.2,
+        emissive: moduleColors[i],
+        emissiveIntensity: 0,
+      }),
+    );
+    const face = new THREE.Mesh(faceGeometry, faceMaterial);
     face.position.y = 0.125;
     layer.add(face);
     const rotor = new THREE.Group();
@@ -130,11 +139,85 @@ export function createCore() {
     }
     layer.position.y = (i - 2) * 0.36;
     root.add(layer);
-    return { group: layer, rotor, face };
+    return { group: layer, rotor, face, faceMaterial };
   });
 
   const shaft = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.37, 0.37, 2.2, 48)), graphite);
   root.add(shaft);
+
+  // Four real housing pieces separate to expose the evidence module's inner assembly.
+  const hub = layers[4];
+  const housing = hub.group.children.filter((child) => child !== hub.rotor);
+  const panels = Array.from({ length: 4 }, (_, i) => {
+    const start = (i * Math.PI) / 2 + 0.025;
+    const end = start + Math.PI / 2 - 0.05;
+    const shape = new THREE.Shape();
+    shape.absarc(0, 0, 1.55, start, end, false);
+    shape.lineTo(Math.cos(end) * 0.89, Math.sin(end) * 0.89);
+    shape.absarc(0, 0, 0.89, end, start, true);
+    shape.closePath();
+    const geometry = keep(
+      new THREE.ExtrudeGeometry(shape, {
+        depth: 0.2,
+        bevelEnabled: true,
+        bevelSize: 0.025,
+        bevelThickness: 0.025,
+        bevelSegments: 2,
+        steps: 1,
+        curveSegments: 24,
+      }),
+    );
+    geometry.rotateX(Math.PI / 2);
+    geometry.translate(0, 0.1, 0);
+    const panel = new THREE.Group();
+    panel.add(new THREE.Mesh(geometry, silver));
+    const detail = new THREE.Mesh(geometry, hub.faceMaterial);
+    detail.scale.set(0.96, 0.15, 0.96);
+    detail.position.y = 0.13;
+    panel.add(detail);
+    for (let j = 0; j < 2; j++) {
+      const angle = start + ((j + 0.5) * (end - start)) / 2;
+      const screw = new THREE.Mesh(boltGeometry, graphite);
+      screw.position.set(Math.cos(angle) * 1.18, 0.16, Math.sin(angle) * 1.18);
+      panel.add(screw);
+    }
+    panel.visible = false;
+    hub.group.add(panel);
+    return panel;
+  });
+
+  // Connections are part of the unfolded object, with one traveling evidence signal.
+  const linkGeometry = keep(new THREE.CylinderGeometry(0.014, 0.014, 1, 6));
+  const links = Array.from({ length: 4 }, (_, i) => {
+    const material = keep(
+      new THREE.ShaderMaterial({
+        transparent: true,
+        uniforms: {
+          uProgress: { value: 0 },
+          uOpacity: { value: 0 },
+          uIndex: { value: i },
+          uColor: { value: new THREE.Color(moduleColors[i]) },
+        },
+        vertexShader: `varying float vAlong;
+        void main() { vAlong = position.y + .5;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+        fragmentShader: `varying float vAlong; uniform float uProgress;
+        uniform float uOpacity; uniform float uIndex; uniform vec3 uColor;
+        void main() {
+          float pulse = 1. - smoothstep(.03, .24, abs(uIndex + vAlong - uProgress));
+          gl_FragColor = vec4(mix(uColor * .7, vec3(.04), pulse), uOpacity);
+        }`,
+      }),
+    );
+    const mesh = new THREE.Mesh(linkGeometry, material);
+    root.add(mesh);
+    return mesh;
+  });
+  const marker = new THREE.Mesh(
+    keep(new THREE.SphereGeometry(0.065, 12, 8)),
+    keep(new THREE.MeshBasicMaterial({ color: 0x111111 })),
+  );
+  root.add(marker);
   const capGeometry = annulus(1.65, 0.52, 0.12);
   const caps = [-1, 1].map((direction) => {
     const cap = new THREE.Group();
@@ -158,36 +241,15 @@ export function createCore() {
     root.add(cap);
     return cap;
   });
-  const signalMaterial = keep(
-    new THREE.ShaderMaterial({
-      uniforms: { uTravel: { value: 0 }, uIntensity: { value: 0.3 } },
-      vertexShader: `varying vec3 vPosition; varying vec3 vNormal;
-      void main() { vPosition = position; vNormal = normalize(normalMatrix * normal);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
-      fragmentShader: `varying vec3 vPosition; varying vec3 vNormal;
-      uniform float uTravel; uniform float uIntensity;
-      void main() {
-        float angle = atan(vPosition.z, vPosition.x);
-        float beam = pow(max(0., cos(angle - uTravel)), 24.);
-        float rim = pow(1. - abs(vNormal.z), 2.);
-        float value = .15 + beam * .8 * uIntensity + rim * .15;
-        gl_FragColor = vec4(vec3(value), 1.);
-      }`,
-    }),
-  );
-  const signalGeometry = keep(new THREE.TorusGeometry(1.595, 0.018, 6, 100));
-  signalGeometry.rotateX(Math.PI / 2);
-  layers.forEach(({ group }) => {
-    const signal = new THREE.Mesh(signalGeometry, signalMaterial);
-    signal.position.y = -0.04;
-    group.add(signal);
-  });
   return {
     root,
     layers,
     caps,
     shaft,
-    signalMaterial,
+    housing,
+    panels,
+    links,
+    marker,
     dispose: () => resources.forEach((r) => r.dispose()),
   };
 }
