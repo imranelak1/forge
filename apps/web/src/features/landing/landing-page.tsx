@@ -1,195 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { createTimeline } from "animejs";
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  GitBranch,
-  GitCommitHorizontal,
-  GitPullRequest,
-  Layers3,
-  Play,
-  RotateCcw,
-  Workflow,
-} from "lucide-react";
-import { CircuitBoard, modules } from "./circuit-board";
+import { useRef, useState } from "react";
+import { ArrowDown, ArrowRight, ArrowUpRight, MoveUpRight } from "lucide-react";
+import { CableScene, chapterNames } from "./cable-scene";
 
 const chapters = [
   {
     id: "connect",
-    title: "Your tools.\nA common language.",
+    title: "Separate tools.\nA shared thread.",
     description:
-      "Code lives in GitHub. Builds live in CI. Errors live in production. Bring their signals together, without losing where they came from.",
-    detail: "Planned sources",
+      "Bring code, builds, tests and production errors into the same story. Keep each signal connected to where it came from.",
+    detail: "Planned connections",
     items: ["GitHub", "GitHub Actions", "JUnit", "Sentry"],
-    caption: "Separate sources. Shared context.",
+    caption: "Independent signals become one continuous thread.",
   },
   {
     id: "trace",
-    title: "Follow the change.\nKeep the context.",
+    title: "Nothing happens\nin isolation.",
     description:
-      "Connect the pull request to its commits, checks and deployment. Follow the evidence across the entire delivery lifecycle.",
-    detail: "One connected lifecycle",
+      "Follow a change from its pull request to the build that tested it and the deployment that shipped it.",
+    detail: "The delivery lifecycle",
     items: ["Pull request", "Commit", "Build", "Deployment"],
-    caption: "A path from code to production.",
+    caption: "One signal. Every step from code to production.",
   },
   {
     id: "understand",
-    title: "Find where\nprogress gets stuck.",
+    title: "See what’s\nholding you back.",
     description:
-      "See where reviews wait, builds slow down and tests become unreliable. Every insight should lead back to the events behind it.",
+      "Unpick slow reviews, unreliable tests and repeated build failures. Every insight leads back to the evidence behind it.",
     detail: "Planned intelligence",
     items: ["Review time", "Build reliability", "Test failures"],
-    caption: "Measure the process. Keep the evidence.",
+    caption: "Open the thread. Understand its individual signals.",
   },
   {
     id: "investigate",
-    title: "An error is\nonly the beginning.",
+    title: "Follow the signal.\nFind the context.",
     description:
-      "Start with a production error. Trace its release and related changes backward, so the next question has somewhere to go.",
+      "Start with a production error and work backward. Connect the release to its related changes, without losing the trail.",
     detail: "Illustrated investigation",
     items: ["Production error", "Deployment", "Related commit"],
-    caption: "Follow the signal back to the change.",
+    caption: "Trace the story backward, from incident to change.",
   },
   {
     id: "automate",
-    title: "Close the loop.\nStay in control.",
+    title: "Close the loop.\nKeep control.",
     description:
-      "Turn explicit conditions into deliberate pipeline responses. See why a rule matched, what it did and the record it left behind.",
+      "Turn explicit conditions into deliberate pipeline responses. Understand why a rule matched and keep a record of what happened next.",
     detail: "Planned automation",
-    items: ["Evaluate conditions", "Run an action", "Keep an audit trail"],
-    caption: "Connected evidence. Accountable action.",
+    items: ["Conditions", "Action", "Audit trail"],
+    caption: "From connected evidence to accountable action.",
   },
 ];
 
 export function LandingPage() {
   const story = useRef<HTMLDivElement>(null);
-  const board = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(-1);
-  const [highlighted, setHighlighted] = useState<string | null>(null);
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const root = story.current;
-    const canvas = board.current;
-    if (!root || !canvas) return;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let frame = 0;
-    let timeline: ReturnType<typeof createTimeline> | undefined;
-    let previous = -2;
-    const chaptersElements = Array.from(root.querySelectorAll<HTMLElement>("[data-chapter]"));
-    const signal = canvas.querySelector<SVGCircleElement>(".incident-signal");
-    const signalPath = canvas.querySelector<SVGPathElement>(".incident-path");
-    const signalLength = signalPath?.getTotalLength() ?? 0;
-    const signalPosition = { value: 0 };
-
-    const update = () => {
-      frame = 0;
-      const viewportAnchor = window.innerHeight * (window.innerWidth < 900 ? 0.68 : 0.52);
-      let chapter = -1;
-      chaptersElements.forEach((element, i) => {
-        if (element.getBoundingClientRect().top <= viewportAnchor) chapter = i;
-      });
-      if (chapter !== previous) {
-        previous = chapter;
-        setActive(chapter);
-      }
-      if (!timeline) return;
-      const target = chaptersElements[Math.max(0, chapter)];
-      const position = target.getBoundingClientRect();
-      const local = Math.max(
-        0,
-        Math.min(
-          1,
-          (viewportAnchor - position.top) /
-            Math.min(position.height * 0.7, window.innerHeight * 0.65),
-        ),
-      );
-      const progress = chapter < 0 ? 0 : (chapter + local) * 1000;
-      timeline.seek(progress);
-      if (signal && signalPath && chapter === 3) {
-        const point = signalPath.getPointAtLength(signalLength * signalPosition.value);
-        signal.setAttribute("cx", String(point.x));
-        signal.setAttribute("cy", String(point.y));
-      }
-      canvas.dataset.progress = String(Math.round(progress));
-    };
-    const requestUpdate = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    const configure = () => {
-      timeline?.revert();
-      timeline = undefined;
-      setReduced(media.matches);
-      if (!media.matches) {
-        timeline = createTimeline({ autoplay: false, defaults: { ease: "linear" } });
-        modules.forEach((_, i) => {
-          timeline!.add(
-            canvas.querySelectorAll(`.module-${i}`),
-            { opacity: [0, 1], translateY: [-38, 0], duration: 450, ease: "out(3)" },
-            i * 1000,
-          );
-          timeline!.add(
-            canvas.querySelectorAll(`.trace-${i}`),
-            { strokeDashoffset: [1, 0], duration: 750 },
-            i * 1000 + 150,
-          );
-          timeline!.add(
-            canvas.querySelectorAll(`.node-${i}`),
-            { opacity: [0, 1], duration: 300 },
-            i * 1000 + 350,
-          );
-        });
-        timeline.add(
-          canvas.querySelector(".circuit-object")!,
-          { rotateX: [32, 8], rotateZ: [-24, 0], duration: 5000 },
-          0,
-        );
-        timeline.add(signalPosition, { value: [0, 1], duration: 850 }, 3100);
-        timeline.add(
-          canvas.querySelectorAll(".incident-path"),
-          { strokeDashoffset: [1, 0], opacity: [0, 1], duration: 900 },
-          3000,
-        );
-        timeline.add(
-          canvas.querySelectorAll(".incident-path"),
-          { opacity: [1, 0], duration: 300 },
-          4100,
-        );
-        timeline.add(
-          canvas.querySelectorAll(".incident-signal"),
-          { opacity: [0, 1], duration: 80 },
-          3100,
-        );
-        timeline.add(
-          canvas.querySelectorAll(".incident-signal"),
-          { opacity: [1, 0], duration: 150 },
-          3950,
-        );
-        // Prime every future child before the first seek so unassembled modules
-        // start hidden, including when this component remounts through navigation.
-        timeline.seek(timeline.duration);
-        timeline.seek(0);
-      }
-      update();
-    };
-    configure();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-    media.addEventListener("change", configure);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-      media.removeEventListener("change", configure);
-      timeline?.revert();
-    };
-  }, []);
-
+  const [focus, setFocus] = useState(-1);
   return (
     <div className="landing">
       <a className="skip-link" href="#landing-content">
@@ -197,7 +64,7 @@ export function LandingPage() {
       </a>
       <header className="landing-header">
         <Link className="landing-wordmark" href="/" aria-label="Forge home">
-          forge<span aria-hidden="true">.</span>
+          forge.
         </Link>
         <nav aria-label="Website navigation">
           <a href="#connect">The platform</a>
@@ -206,159 +73,119 @@ export function LandingPage() {
           </Link>
         </nav>
         <Link href="/app" className="landing-open">
-          Open platform <ArrowUpRight size={16} aria-hidden="true" />
+          Open platform <ArrowUpRight size={15} aria-hidden="true" />
         </Link>
       </header>
-
       <main id="landing-content" tabIndex={-1}>
-        <div className="assembly-story" ref={story}>
-          <div className="story-copy">
-            <section className="landing-hero" aria-labelledby="hero-title">
+        <div className="cable-story" ref={story}>
+          <div className="cable-stage" data-active={active >= 0 ? chapters[active].id : "intro"}>
+            <CableScene story={story} onStageChange={setActive} focus={focus} />
+            <div className="cable-stage-footer">
+              <p className="cable-caption">
+                {active >= 0
+                  ? chapters[active].caption
+                  : "Five capabilities. One connected system."}
+              </p>
+              <nav
+                className="cable-navigation"
+                aria-label="Story chapters"
+                onMouseLeave={() => setFocus(-1)}
+              >
+                {chapters.map((chapter, i) => (
+                  <a
+                    key={chapter.id}
+                    href={`#${chapter.id}`}
+                    aria-current={active === i ? "step" : undefined}
+                    onMouseEnter={() => setFocus(i)}
+                    onFocus={() => setFocus(i)}
+                    onBlur={() => setFocus(-1)}
+                  >
+                    {chapterNames[i]}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </div>
+          <section className="cable-hero" aria-labelledby="hero-title">
+            <div className="hero-copy">
               <h1 id="hero-title">
-                Every change.
+                Everything.
                 <br />
-                Every signal.
-                <br />
-                <span>Connected.</span>
+                Connected.
               </h1>
-              <p className="hero-description">
-                Engineering intelligence, from the first commit to what happens in production.
+              <p>
+                From the first commit to production.
+                <br />
+                Your engineering story, connected.
               </p>
               <div className="hero-actions">
                 <Link href="/app" className="landing-button">
-                  Explore Forge <ArrowUpRight size={17} aria-hidden="true" />
+                  Explore Forge <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
                 <a href="#connect" className="landing-link">
-                  See how it connects <ArrowDown size={16} aria-hidden="true" />
+                  Follow the thread <ArrowDown size={15} aria-hidden="true" />
                 </a>
               </div>
               <p className="preview-note">In development. Explore the working foundation.</p>
-              <a href="#connect" className="scroll-invitation">
-                <span className="scroll-line" aria-hidden="true" />
-                Scroll to assemble the bigger picture
-              </a>
-            </section>
-
-            {chapters.map((chapter, i) => (
-              <section
-                key={chapter.id}
-                id={chapter.id}
-                data-chapter={chapter.id}
-                className={`story-chapter chapter-${chapter.id}`}
-                aria-labelledby={`${chapter.id}-title`}
-              >
-                <p className="sr-only">
-                  Step {i + 1} of 5: {chapter.id}
-                </p>
-                <h2 id={`${chapter.id}-title`}>
-                  {chapter.title.split("\n").map((line, n) => (
-                    <span key={n}>
-                      {line}
-                      {n === 0 && <br />}
-                    </span>
-                  ))}
-                </h2>
-                <p className="chapter-description">{chapter.description}</p>
-                <div className="chapter-evidence">
-                  <p>{chapter.detail}</p>
-                  {i === 0 ? (
-                    <ul className="source-list">
+            </div>
+            <span className="hero-scroll-cue" aria-hidden="true">
+              Scroll to connect <ArrowDown size={13} />
+            </span>
+          </section>
+          {chapters.map((chapter, i) => (
+            <section
+              key={chapter.id}
+              id={chapter.id}
+              data-chapter={chapter.id}
+              className={`cable-chapter ${i % 2 ? "chapter-right" : "chapter-left"}`}
+              aria-labelledby={`${chapter.id}-title`}
+            >
+              <div className="chapter-inner">
+                <div className="chapter-copy">
+                  <p className="sr-only">
+                    Step {i + 1} of 5: {chapterNames[i]}
+                  </p>
+                  <h2 id={`${chapter.id}-title`}>
+                    {chapter.title.split("\n").map((line, n) => (
+                      <span key={line}>
+                        {n > 0 && <br />}
+                        {line}
+                      </span>
+                    ))}
+                  </h2>
+                  <p className="chapter-description">{chapter.description}</p>
+                  <div className="chapter-evidence">
+                    <p>{chapter.detail}</p>
+                    <ul>
                       {chapter.items.map((item, n) => (
                         <li key={item}>
-                          {n === 0 ? (
-                            <GitBranch size={17} />
-                          ) : n === 1 ? (
-                            <Workflow size={17} />
-                          ) : n === 2 ? (
-                            <Check size={17} />
-                          ) : (
-                            <Layers3 size={17} />
-                          )}
-                          <span>{item}</span>
+                          {item}
+                          {n < chapter.items.length - 1 && <span aria-hidden="true">/</span>}
                         </li>
                       ))}
                     </ul>
-                  ) : (
-                    <ol className="evidence-path">
-                      {chapter.items.map((item, n) => (
-                        <li key={item}>
-                          <span>{item}</span>
-                          {n < chapter.items.length - 1 && (
-                            <ArrowRight size={13} aria-hidden="true" />
-                          )}
-                        </li>
-                      ))}
-                    </ol>
-                  )}
+                  </div>
                 </div>
-              </section>
-            ))}
-          </div>
-
-          <div
-            ref={board}
-            className="board-stage"
-            data-active={active >= 0 ? modules[active].id : "core"}
-            data-highlight={highlighted ?? "none"}
-            data-reduced-motion={reduced}
-          >
-            <div className="board-overline">
-              <span>One connected system</span>
-              <span>Product preview</span>
-            </div>
-            <div className="circuit-perspective">
-              <div className="circuit-object">
-                <CircuitBoard />
+                <span className="chapter-endpoint" aria-hidden="true">
+                  <span />
+                  {chapterNames[i]}
+                </span>
               </div>
-            </div>
-            <div className="board-caption">
-              <span className="caption-marker" aria-hidden="true" />
-              <p>
-                {active >= 0 ? chapters[active].caption : "The whole lifecycle. Coming together."}
-              </p>
-            </div>
-            <nav
-              className="circuit-navigation"
-              aria-label="Circuit chapters"
-              onMouseLeave={() => setHighlighted(null)}
-            >
-              {modules.map((mod, i) => (
-                <a
-                  key={mod.id}
-                  href={`#${mod.id}`}
-                  aria-current={active === i ? "step" : undefined}
-                  onMouseEnter={() => setHighlighted(mod.id)}
-                  onFocus={() => setHighlighted(mod.id)}
-                  onBlur={() => setHighlighted(null)}
-                >
-                  <span className="circuit-step-number">0{i + 1}</span>
-                  <span>{mod.label}</span>
-                </a>
-              ))}
-            </nav>
-          </div>
+            </section>
+          ))}
         </div>
-
         <section className="landing-close" aria-labelledby="close-title">
-          <div className="close-topline">
-            <GitPullRequest size={20} aria-hidden="true" />
-            <span className="close-connector" />
-            <GitCommitHorizontal size={20} aria-hidden="true" />
-            <span className="close-connector" />
-            <Play size={18} aria-hidden="true" />
-            <span className="close-connector" />
-            <Layers3 size={20} aria-hidden="true" />
-          </div>
+          <MoveUpRight size={38} strokeWidth={1} aria-hidden="true" />
           <h2 id="close-title">
-            See the system.
-            <br />
-            <span>Understand the change.</span>
+            The whole story.
+            <br />A clearer next step.
           </h2>
           <p>
-            We’re building Forge to connect engineering evidence with decisions you can explain.
+            We’re building Forge to turn connected engineering evidence into decisions you can
+            explain.
           </p>
           <Link href="/app" className="landing-button">
-            Open the foundation <ArrowUpRight size={17} aria-hidden="true" />
+            Open the foundation <ArrowRight size={16} aria-hidden="true" />
           </Link>
           <div className="build-disclosure">
             <span>Available now</span>
@@ -367,16 +194,14 @@ export function LandingPage() {
               automation are in development.
             </p>
           </div>
-          <a href="#hero-title" className="replay-link">
-            <RotateCcw size={14} aria-hidden="true" />
-            Back to the circuit
+          <a className="back-to-top" href="#hero-title">
+            Back to the start <ArrowUpRight size={13} aria-hidden="true" />
           </a>
         </section>
       </main>
-
       <footer className="landing-footer">
         <Link href="/" className="landing-wordmark" aria-label="Forge home">
-          forge<span aria-hidden="true">.</span>
+          forge.
         </Link>
         <p>Engineering, connected.</p>
         <nav aria-label="Footer navigation">

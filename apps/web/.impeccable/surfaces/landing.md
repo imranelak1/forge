@@ -2,28 +2,30 @@
 version: 1
 slug: "landing"
 primary_target: "apps/web/src/app/page.tsx"
-related_targets: ["apps/web/src/features/landing/landing-page.tsx", "apps/web/src/features/landing/circuit-board.tsx", "apps/web/src/features/landing/landing.css"]
+related_targets: ["apps/web/src/features/landing/landing-page.tsx", "apps/web/src/features/landing/cable-scene.tsx", "apps/web/src/features/landing/cable-shaders.ts", "apps/web/src/features/landing/landing.css"]
 ---
 
-# Landing page — assembling circuit board
+# Landing page — a continuous thread
 
-## Scope and authority
-Persuade surface at `/`. User explicitly selected a circuit board assembling on scroll after reviewing alternatives, then instructed implementation. This choice supersedes another direction-selection round. Code-authored SVG is necessary for individually animated traces and components; no raster comp is the visual authority. Existing application is preserved at `/app`; `/system` and `/guide` retain their URLs. Logo redesign is explicitly deferred.
+Mode: Persuade.
+
+## Authority and scope
+User rejected the circuit board and requested a centered cable, smooth motion, genuine WebGL and shaders. Black, white and gray apply to the landing page only. This precise direction replaces the former marketing system; /app keeps its foundation palette. Logo discussion is deferred. Procedural geometry and GLSL are the code-led artifact, not an approximation of a raster comp.
 
 ## THESIS
-Forge connects fragmented engineering evidence. One circuit board reveals that connection through five modules: connect, trace, understand, investigate, automate. Developers should understand the lifecycle and open the working foundation.
+Separate engineering signals become one traceable story. Five strands join, carry evidence, separate for inspection, reverse a signal during investigation, and close a loop for automation.
+
+## OWN-WORLD
+White canvas, black display typography, graphite/chrome WebGL cable, grayscale material highlights. Existing self-hosted Geist. No chromatic accents, circuit boards or dashboard chrome on this surface.
 
 ## FIRST VIEWPORT
-Warm white large type on graphite at left; an oversized, tilted, physically detailed circuit board at right. A single Forge chip sits among etched traces and empty component sockets. Clear Open platform and Explore the circuit actions. No dashboard shell or invented social proof. Product-preview status is visible from the first screen.
+Centered heading and short explanation above a large sculptural cable in the middle. Black CTA to the working foundation, in-development disclosure and subtle downward invitation.
 
-## TOPOLOGY
-Desktop: a persistent board beside sequential narrative sections, then an anchored close. Mobile: compact sticky board above readable chapter text. Chapter links offer direct navigation. Footer connects to working setup and system routes.
+## STORY AND FORM
+Desktop explanations alternate beside the centered cable. Mobile cable occupies the upper reading area and narrative the lower area. Persistent chapter links support direct navigation. The close identifies available versus planned functionality.
 
-## SIGNATURE INTERACTION
-Scroll assembles five modules and draws their connections. During investigation a red signal travels backward from production to its associated change. At completion all modules connect; hovering or focusing chapter controls isolates their circuits. Reverse scrolling reverses assembly.
+## SIGNATURE MOTION
+One procedural multi-strand mesh continuously deforms between separate, braided, inspected and looped states. Frame-rate-independent damping smooths native scroll without hijacking it. Custom fragment shaders supply monochrome reflections, surface detail, reversing signal and background grain. Rendering stops after motion settles, off-screen and in hidden tabs.
 
-## MOTION
-Anime.js timeline seeks from native scroll position, no scroll hijacking. Component translation, path drawing, signal motion, camera angle and material highlights share a bounded timeline. Off-screen work is limited to native scroll frames. Reduced-motion users and no-JavaScript visitors see the complete board and all content. No looping decorative motion.
-
-## CONTENT AND CONSTRAINTS
-Capability tour illustrates the planned product; integrations, intelligence and automation are explicitly identified as in development. Real CTA opens the existing foundation. No invented analytics, customers, account creation or live provider state. Use existing Geist and neutral surfaces with amber signal accents. SVG supplies sufficient material detail without shaders or additional services. Keyboard navigation, mobile overflow, reverse scroll, reduced motion and working routes must be checked.
+## FINISH AND RESILIENCE
+Responsive pixel-ratio caps and modest geometry. Static cable fallback for reduced motion, no JavaScript, unavailable WebGL and context loss. Verify actual WebGL output, forward/reverse motion, disposal, context failure, keyboard navigation and preference changes. Inspect desktop/mobile screenshots and complete fresh review/documentation. No backend phase expansion.

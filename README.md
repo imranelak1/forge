@@ -60,7 +60,7 @@ Recharts is pinned for later database-backed analytics; no charts are rendered w
 
 ## Documentation
 
-The [landing-page handoff](docs/landing-page.md) covers the animated circuit tour and its accessibility fallbacks.
+The [landing-page handoff](docs/landing-page.md) covers the centered WebGL cable, monochrome landing page and its accessibility fallbacks.
 
 The [frontend design reference](apps/web/DESIGN.md) records the implemented typography, colors, components and responsive behavior.
 

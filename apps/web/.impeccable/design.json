@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-21T17:57:23.703Z",
+  "generatedAt": "2026-09-21T18:27:45.068Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -258,128 +258,100 @@
       },
       "landing-background": {
         "role": "neutral",
-        "displayName": "Landing graphite",
+        "displayName": "Landing white canvas",
         "tonalRamp": [
-          "oklch(15.00% 0.0066 134.99)",
-          "oklch(26.43% 0.0066 134.99)",
-          "oklch(37.86% 0.0066 134.99)",
-          "oklch(49.29% 0.0066 134.99)",
-          "oklch(60.71% 0.0066 134.99)",
-          "oklch(72.14% 0.0066 134.99)",
-          "oklch(83.57% 0.0066 134.99)",
-          "oklch(95.00% 0.0066 134.99)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       },
       "landing-text": {
         "role": "neutral",
-        "displayName": "Landing warm text",
+        "displayName": "Landing black text",
         "tonalRamp": [
-          "oklch(15.00% 0.0119 106.63)",
-          "oklch(26.43% 0.0119 106.63)",
-          "oklch(37.86% 0.0119 106.63)",
-          "oklch(49.29% 0.0119 106.63)",
-          "oklch(60.71% 0.0119 106.63)",
-          "oklch(72.14% 0.0119 106.63)",
-          "oklch(83.57% 0.0119 106.63)",
-          "oklch(95.00% 0.0119 106.63)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       },
       "landing-muted": {
         "role": "neutral",
-        "displayName": "Landing olive-gray text",
+        "displayName": "Landing gray supporting text",
         "tonalRamp": [
-          "oklch(15.00% 0.0189 120.81)",
-          "oklch(26.43% 0.0189 120.81)",
-          "oklch(37.86% 0.0189 120.81)",
-          "oklch(49.29% 0.0189 120.81)",
-          "oklch(60.71% 0.0189 120.81)",
-          "oklch(72.14% 0.0189 120.81)",
-          "oklch(83.57% 0.0189 120.81)",
-          "oklch(95.00% 0.0189 120.81)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       },
       "landing-line": {
         "role": "neutral",
-        "displayName": "Landing fine rules",
+        "displayName": "Landing fine gray rules",
         "tonalRamp": [
-          "oklch(15.00% 0.0204 130.85)",
-          "oklch(26.43% 0.0204 130.85)",
-          "oklch(37.86% 0.0204 130.85)",
-          "oklch(49.29% 0.0204 130.85)",
-          "oklch(60.71% 0.0204 130.85)",
-          "oklch(72.14% 0.0204 130.85)",
-          "oklch(83.57% 0.0204 130.85)",
-          "oklch(95.00% 0.0204 130.85)"
-        ]
-      },
-      "landing-accent": {
-        "role": "primary",
-        "displayName": "Landing amber connections",
-        "tonalRamp": [
-          "oklch(15.00% 0.0862 81.89)",
-          "oklch(26.43% 0.0862 81.89)",
-          "oklch(37.86% 0.0862 81.89)",
-          "oklch(49.29% 0.0862 81.89)",
-          "oklch(60.71% 0.0862 81.89)",
-          "oklch(72.14% 0.0862 81.89)",
-          "oklch(83.57% 0.0862 81.89)",
-          "oklch(95.00% 0.0862 81.89)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       },
       "landing-button": {
         "role": "primary",
-        "displayName": "Landing action fill",
+        "displayName": "Landing near-black action",
         "tonalRamp": [
-          "oklch(15.00% 0.0754 81.84)",
-          "oklch(26.43% 0.0754 81.84)",
-          "oklch(37.86% 0.0754 81.84)",
-          "oklch(49.29% 0.0754 81.84)",
-          "oklch(60.71% 0.0754 81.84)",
-          "oklch(72.14% 0.0754 81.84)",
-          "oklch(83.57% 0.0754 81.84)",
-          "oklch(95.00% 0.0754 81.84)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       },
       "landing-button-text": {
         "role": "neutral",
-        "displayName": "Landing action text",
+        "displayName": "Landing white action text",
         "tonalRamp": [
-          "oklch(15.00% 0.0191 125.47)",
-          "oklch(26.43% 0.0191 125.47)",
-          "oklch(37.86% 0.0191 125.47)",
-          "oklch(49.29% 0.0191 125.47)",
-          "oklch(60.71% 0.0191 125.47)",
-          "oklch(72.14% 0.0191 125.47)",
-          "oklch(83.57% 0.0191 125.47)",
-          "oklch(95.00% 0.0191 125.47)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       },
       "landing-button-hover": {
         "role": "primary",
-        "displayName": "Landing action hover",
+        "displayName": "Landing gray action hover",
         "tonalRamp": [
-          "oklch(15.00% 0.0631 85.88)",
-          "oklch(26.43% 0.0631 85.88)",
-          "oklch(37.86% 0.0631 85.88)",
-          "oklch(49.29% 0.0631 85.88)",
-          "oklch(60.71% 0.0631 85.88)",
-          "oklch(72.14% 0.0631 85.88)",
-          "oklch(83.57% 0.0631 85.88)",
-          "oklch(95.00% 0.0631 85.88)"
-        ]
-      },
-      "landing-incident": {
-        "role": "secondary",
-        "displayName": "Landing investigation signal",
-        "tonalRamp": [
-          "oklch(15.00% 0.1401 32.96)",
-          "oklch(26.43% 0.1401 32.96)",
-          "oklch(37.86% 0.1401 32.96)",
-          "oklch(49.29% 0.1401 32.96)",
-          "oklch(60.71% 0.1401 32.96)",
-          "oklch(72.14% 0.1401 32.96)",
-          "oklch(83.57% 0.1401 32.96)",
-          "oklch(95.00% 0.1401 32.96)"
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
         ]
       }
     },
@@ -394,7 +366,7 @@
       },
       "landing-display": {
         "displayName": "Landing hero",
-        "purpose": "Public landing only; warm Geist display type scales across desktop, tablet, and narrow mobile."
+        "purpose": "Public landing only; large centered black Geist display type scales across desktop and mobile."
       },
       "landing-chapter": {
         "displayName": "Landing chapter",
@@ -420,28 +392,23 @@
       },
       {
         "name": "landing-control-transition",
-        "value": "background 180ms, border-color 180ms; chapter links color 180ms, border-color 180ms",
+        "value": "background 200ms; border-color 200ms; chapter links color 200ms, border-color 200ms",
         "purpose": "Scoped landing control feedback; disabled for reduced motion."
       },
       {
-        "name": "landing-scroll-assembly",
-        "value": "Paused Anime.js timeline: 5000 units, 1000 per chapter; native scroll seek",
-        "purpose": "Five modules fade and descend 38px over 450 units with out(3); traces draw over 750 units from chapter offset +150, nodes fade over 300 units from +350. Reverse scroll reverses assembly. One requested animation frame per scroll/resize update; no autoplay or loop."
+        "name": "landing-scroll-deformation",
+        "value": "Shader progress 0 to 5; damping factor 1 - exp(-delta * 9), delta capped at 0.05 seconds",
+        "purpose": "Native scroll joins five strands, carries a signal, opens the cable for inspection, reverses the investigation signal, and closes a loop. Reverse scroll reverses the deformation. Rendering stops after settling, off-screen, and in hidden tabs."
       },
       {
-        "name": "landing-camera",
-        "value": "perspective: 1300px; rotateX: 32deg to 8deg; rotateZ: -24deg to 0deg",
-        "purpose": "Bounded object rotation across assembly; reduced motion removes the transform."
-      },
-      {
-        "name": "landing-investigation",
-        "value": "Signal path traversal: timeline 3100?3950; incident route draw: 3000?3900; route fade: 4100?4400",
-        "purpose": "Coral signal travels backward through the illustrated investigation; hidden in static default markup."
+        "name": "landing-pointer-response",
+        "value": "Mouse x normalized to -1..1; shader rotation = uPointer * 0.075 radians",
+        "purpose": "A small damped orientation response on the decorative cable; chapter hover or focus separately emphasizes an individual strand."
       },
       {
         "name": "landing-static-fallback",
-        "value": "Complete SVG by default; no timeline when prefers-reduced-motion: reduce",
-        "purpose": "No-JavaScript visitors retain the complete tilted board, text, and anchors. Reduced motion also removes rotation and transitions. Preference changes revert and rebuild the timeline."
+        "value": "Static five-path SVG by default; no WebGL initialization when prefers-reduced-motion: reduce",
+        "purpose": "No JavaScript, unavailable WebGL, shader failure, and context loss retain the static cable with independent HTML content and native anchors. Live preference changes dispose or initialize the renderer."
       }
     ],
     "breakpoints": [
@@ -454,24 +421,20 @@
         "value": "760px"
       },
       {
-        "name": "landing-wide",
-        "value": "min-width: 1600px"
-      },
-      {
         "name": "landing-compact-desktop",
-        "value": "900px to 1150px"
+        "value": "min-width: 800px and max-width: 1100px; 34% center column"
       },
       {
-        "name": "landing-single-column",
-        "value": "max-width: 899px; 375px board stage; 300px illustration"
+        "name": "landing-mobile",
+        "value": "max-width: 799px; 72px header; cable above chapter copy"
       },
       {
         "name": "landing-narrow-mobile",
-        "value": "max-width: 480px; 350px board stage; 280px illustration"
+        "value": "max-width: 380px; 56px hero heading; 22px chapter side padding"
       },
       {
-        "name": "landing-short-mobile",
-        "value": "max-width: 899px and max-height: 600px; board in normal flow; 24px chapter scroll margin"
+        "name": "landing-short-viewport",
+        "value": "max-height: 600px; 400px cable stage in normal flow; 550px minimum chapter height"
       }
     ]
   },
@@ -543,27 +506,27 @@
       "name": "Landing primary action",
       "kind": "button",
       "refersTo": "landing-button",
-      "description": "Public landing action opens the working application; warm fill and 4px corners are scoped to the landing.",
-      "html": "<a class=\"ds-landing-button\" href=\"/app\">Explore Forge <svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a>",
-      "css": ".ds-landing-button{display:inline-flex;align-items:center;justify-content:center;gap:25px;padding:13px 20px;border:1px solid #e0c38f;border-radius:4px;background:#e0c38f;color:#20241a;font:560 14px/1.55 var(--font-sans,\"Geist Variable\",sans-serif);text-decoration:none;transition:background .18s,border-color .18s}.ds-landing-button:hover{background:#efdaad;border-color:#efdaad}.ds-landing-button:focus-visible{outline:2px solid #dbba7e;outline-offset:4px}@media(max-width:480px){.ds-landing-button{padding:12px 16px;gap:17px;font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-landing-button{transition:none}}"
+      "description": "Public landing action opens the working application; near-black fill, white label, and 3px corners are scoped to the landing.",
+      "html": "<a class=\"ds-landing-button\" href=\"/app\">Explore Forge <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a>",
+      "css": ".ds-landing-button{display:inline-flex;align-items:center;justify-content:center;gap:24px;padding:12px 20px;border:1px solid #171717;border-radius:3px;background:#171717;color:#fff;font:500 13px/1.55 var(--font-sans,\"Geist Variable\",sans-serif);text-decoration:none;transition:background .2s}.ds-landing-button:hover{background:#383838}.ds-landing-button:focus-visible{outline:2px solid #111;outline-offset:4px}@media(max-width:799px){.ds-landing-button{padding:12px 16px;gap:17px;font-size:12px}}@media(prefers-reduced-motion:reduce){.ds-landing-button{transition:none}}"
     },
     {
-      "name": "Landing circuit chapter link",
+      "name": "Landing cable chapter links",
       "kind": "nav",
-      "description": "Five equal native anchors accompany the sticky SVG board. The current chapter has aria-current=step; focus or hover highlights its circuit. Mobile hides overline, caption, and numbers while preserving all five links.",
-      "html": "<nav class=\"ds-circuit-nav\" aria-label=\"Circuit chapters\"><a href=\"#connect\" aria-current=\"step\"><span>01</span>Connect</a><a href=\"#trace\"><span>02</span>Trace</a><a href=\"#understand\"><span>03</span>Understand</a><a href=\"#investigate\"><span>04</span>Investigate</a><a href=\"#automate\"><span>05</span>Automate</a></nav>",
-      "css": ".ds-circuit-nav{display:flex;background:#151714;border-top:1px solid #353b30;font-family:var(--font-sans,\"Geist Variable\",sans-serif)}.ds-circuit-nav a{display:flex;flex:1;min-width:0;flex-direction:column;gap:6px;padding:16px 8px 10px;margin-top:-1px;border-top:1px solid transparent;color:#a7ad9b;font-size:11px;line-height:1.55;text-decoration:none;transition:color .18s,border-color .18s}.ds-circuit-nav a span{font-size:10px;color:#808975;font-variant-numeric:tabular-nums}.ds-circuit-nav a:hover,.ds-circuit-nav a:focus-visible,.ds-circuit-nav a[aria-current=\"step\"]{color:#eddbb7;border-top-color:#dbba7e}.ds-circuit-nav a:focus-visible{outline:2px solid #dbba7e;outline-offset:4px}.ds-circuit-nav a[aria-current=\"step\"] span{color:#c8ae7e}@media(max-width:899px){.ds-circuit-nav a{font-size:10px;gap:3px;padding:10px 3px;align-items:center;min-height:46px}.ds-circuit-nav a span{display:none}}@media(prefers-reduced-motion:reduce){.ds-circuit-nav a{transition:none}}"
+      "description": "Five native anchors accompany the centered sticky cable. The current chapter has aria-current=step; hover or focus emphasizes one strand. All links remain visible on mobile.",
+      "html": "<nav class=\"ds-cable-nav\" aria-label=\"Story chapters\"><a href=\"#connect\" aria-current=\"step\">Connect</a><a href=\"#trace\">Trace</a><a href=\"#understand\">Understand</a><a href=\"#investigate\">Investigate</a><a href=\"#automate\">Automate</a></nav>",
+      "css": ".ds-cable-nav{display:flex;justify-content:center;gap:30px;background:#fafafa;font-family:var(--font-sans,\"Geist Variable\",sans-serif)}.ds-cable-nav a{position:relative;color:#6a6a6a;font-size:12px;line-height:1.55;padding:10px 2px;border-bottom:1px solid transparent;text-decoration:none;transition:color .2s,border-color .2s}.ds-cable-nav a:hover,.ds-cable-nav a[aria-current=\"step\"]{color:#111;border-bottom-color:#111}.ds-cable-nav a:focus-visible{outline:2px solid #111;outline-offset:4px}@media(max-width:799px){.ds-cable-nav{gap:0;justify-content:space-between}.ds-cable-nav a{font-size:10px;min-height:44px;display:flex;align-items:center;padding:6px 3px}}@media(prefers-reduced-motion:reduce){.ds-cable-nav a{transition:none}}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` adds a scoped material illustration: an olive-graphite circuit board, warm type, amber connections, and scroll-driven assembly. Its display scale, material gradients, and narrative motion belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` adds a scoped monochrome material illustration: a centered graphite cable on a white canvas, large black Geist type, and smooth scroll-driven deformation. Its display scale, shader reflections, and narrative motion belong to this marketing surface. The application retains the compact, flat, neutral conventions below. The simple wordmark remains in use; a new 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
       "Restrained controls and explicit, text-supported service states.",
       "Responsive navigation and locally scrollable technical content.",
-      "A scoped public landing with a detailed SVG circuit board and five connected capability chapters."
+      "A scoped public landing with a procedural five-strand WebGL cable and five connected capability chapters."
     ],
     "rules": [
       {
@@ -578,8 +541,8 @@
       "**Do** preserve unknown, checking, unavailable, and healthy as distinct states.",
       "**Do** keep mobile technical content locally scrollable with a visible cue when needed.",
       "**Do** use real navigation targets and neutral descriptions of health checks.",
-      "**Do** scope the landing palette, display typography, SVG materials, and assembly motion to the public marketing surface.",
-      "**Do** keep the complete board and chapter content available with reduced motion or JavaScript disabled."
+      "**Do** scope the monochrome landing palette, display typography, shader materials, and cable motion to the public marketing surface.",
+      "**Do** keep the static cable, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL."
     ],
     "donts": [
       "**Don't** fabricate metrics, customer data, connected sources, or working planned controls.",
