@@ -1,0 +1,10 @@
+package-lock.json
+uv.lock
+.venv/
+.next/
+node_modules/
+.impeccable/
+.artifacts/
+playwright-report/
+test-results/
+apps/api/

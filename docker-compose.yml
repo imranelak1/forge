@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:17-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${FORGE_DATABASE_NAME:-forge}
+      POSTGRES_USER: forge_bootstrap
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure .env first}
+      FORGE_DATABASE_PASSWORD: ${FORGE_DATABASE_PASSWORD:?Configure .env first}
+      FORGE_MIGRATION_PASSWORD: ${FORGE_MIGRATION_PASSWORD:?Configure .env first}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-15432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/10-roles.sh:/docker-entrypoint-initdb.d/10-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U forge_bootstrap -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./apps/api
+      dockerfile: ../../infrastructure/docker/api.Dockerfile
+      target: runtime
+    restart: unless-stopped
+    environment:
+      FORGE_ENVIRONMENT: ${FORGE_ENVIRONMENT:-development}
+      FORGE_LOG_LEVEL: ${FORGE_LOG_LEVEL:-INFO}
+      FORGE_DATABASE_HOST: postgres
+      FORGE_DATABASE_PORT: 5432
+      FORGE_DATABASE_NAME: ${FORGE_DATABASE_NAME:-forge}
+      FORGE_DATABASE_PASSWORD: ${FORGE_DATABASE_PASSWORD:?Configure .env first}
+      FORGE_MIGRATION_PASSWORD: ${FORGE_MIGRATION_PASSWORD:?Configure .env first}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=5)"
+      interval: 10s
+      timeout: 6s
+      retries: 6
+      start_period: 20s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/web.Dockerfile
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://backend:8000
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+volumes:
+  postgres_data:

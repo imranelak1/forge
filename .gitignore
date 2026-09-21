@@ -1,0 +1,36 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# JavaScript / web
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+
+# Local tooling
+.impeccable/review/
+.impeccable/build/
+.impeccable/config.local.json
+.impeccable/cache/
+.DS_Store
+Thumbs.db
+*.log
+.artifacts/
