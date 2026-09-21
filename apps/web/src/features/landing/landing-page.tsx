@@ -17,7 +17,7 @@ const chapters = [
     detail: "One example throughout this tour",
     items: ["Checkout service", "PR #184", "Commit 8f3a2c1"],
     caption:
-      "Connect: electronics dock around the optical payload, just as tool events join one delivery story.",
+      "Connect: four source records share commit 8f3a2c1. Select a record to inspect its example event.",
   },
   {
     id: "trace",
@@ -27,7 +27,7 @@ const chapters = [
     detail: "The same checkout change",
     items: ["PR #184", "CI #928", "Release 8f3a2c1"],
     caption:
-      "Trace: a signal travels through the connected hardware, following the delivery from source to release.",
+      "Trace: the pull request, passing CI run and production error line up around the same commit.",
   },
   {
     id: "understand",
@@ -37,7 +37,7 @@ const chapters = [
     detail: "Reproduction after the production error",
     items: ["CI #929", "Null coupon", "Failing test"],
     caption:
-      "Understand: the lens opens and exposes the sensor, bringing the failing case into focus.",
+      "Understand: open the new regression test. Checkout without a coupon reproduces the error.",
   },
   {
     id: "investigate",
@@ -47,7 +47,7 @@ const chapters = [
     detail: "Evidence before conclusions",
     items: ["Sentry error", "Related commit", "Candidate diff"],
     caption:
-      "Investigate: the optical payload slides out along its mounts so you can inspect the part behind the signal.",
+      "Investigate: compare the production error with a candidate change, then verify it with the failing test.",
   },
   {
     id: "automate",
@@ -57,7 +57,7 @@ const chapters = [
     detail: "An explicit, reviewable response",
     items: ["Failed test", "Request review", "Human decision"],
     caption:
-      "Automate: the frame closes, panels unfold and antenna deploys. The connected system can transmit a response.",
+      "Automate: collect the linked evidence into a review request. A person decides what happens next.",
   },
 ];
 
@@ -66,9 +66,7 @@ export function LandingPage() {
   useLandingTextMotion(landing);
   const story = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(-1);
-  const [focus, setFocus] = useState(-1);
   const [selectedTool, setSelectedTool] = useState(0);
-  const [showTool, setShowTool] = useState(false);
   return (
     <div className="landing" ref={landing}>
       <a className="skip-link" href="#landing-content">
@@ -91,43 +89,17 @@ export function LandingPage() {
       <main id="landing-content" tabIndex={-1}>
         <div className="core-story" ref={story}>
           <div className="core-stage" data-active={active >= 0 ? chapters[active].id : "intro"}>
-            <CoreScene story={story} onStageChange={setActive} focus={focus} />
-            <div className="core-ports" aria-label="Explore planned integrations">
-              {integrations.map((tool, i) => (
-                <button
-                  key={tool.id}
-                  type="button"
-                  data-core-port={tool.id}
-                  className="core-port"
-                  aria-label={tool.name}
-                  aria-pressed={selectedTool === i}
-                  onClick={() => {
-                    setSelectedTool(i);
-                    setFocus(i);
-                    setShowTool(true);
-                  }}
-                >
-                  <ToolLogo id={tool.id} />
-                  <span className="port-name">{tool.name}</span>
-                  <span className="port-role">{["Code", "Build", "Tests", "Production"][i]}</span>
-                  <span className="port-connector" aria-hidden="true" />
-                </button>
-              ))}
-              <span className="core-evidence-label" aria-hidden="true">
-                Evidence
-              </span>
-              {showTool && (
-                <div className="core-port-note" role="status">
-                  <strong>{integrations[selectedTool].name}</strong>
-                  <p>{integrations[selectedTool].detail}</p>
-                  <span>Planned integration</span>
-                </div>
-              )}
-            </div>
+            <CoreScene
+              story={story}
+              onStageChange={setActive}
+              active={active}
+              selected={selectedTool}
+              onSelect={setSelectedTool}
+            />
           </div>
           <div className="core-stage-footer">
             <div className="core-scrubber">
-              <label htmlFor="story-progress">Explore the core</label>
+              <label htmlFor="story-progress">Follow the change</label>
               <input
                 id="story-progress"
                 data-story-scrubber
@@ -140,29 +112,27 @@ export function LandingPage() {
                 aria-valuetext="Introduction"
                 onChange={(event) => seekStory(story.current, Number(event.target.value))}
               />
-              <button type="button" className="core-reset" aria-label="Reset core rotation">
+              <button
+                type="button"
+                className="core-reset"
+                aria-label="Restart story"
+                onClick={() => seekStory(story.current, 0)}
+              >
                 <RotateCcw size={13} aria-hidden="true" />
-                <span>Reset</span>
+                <span>Restart</span>
               </button>
             </div>
             <p className="core-caption">
               {active >= 0
                 ? chapters[active].caption
-                : "An optical payload becomes a satellite. Follow one change through the whole system."}
+                : "One checkout change. Follow its code, tests and production error."}
             </p>
-            <nav
-              className="core-navigation"
-              aria-label="Story chapters"
-              onMouseLeave={() => setFocus(-1)}
-            >
+            <nav className="core-navigation" aria-label="Story chapters">
               {chapters.map((chapter, i) => (
                 <a
                   key={chapter.id}
                   href={`#${chapter.id}`}
                   aria-current={active === i ? "step" : undefined}
-                  onMouseEnter={() => setFocus(i)}
-                  onFocus={() => setFocus(i)}
-                  onBlur={() => setFocus(-1)}
                 >
                   {chapterNames[i]}
                 </a>
@@ -184,7 +154,7 @@ export function LandingPage() {
                   Explore Forge <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
                 <a href="#connect" className="landing-link">
-                  Explore the core <ArrowDown size={15} aria-hidden="true" />
+                  Follow a change <ArrowDown size={15} aria-hidden="true" />
                 </a>
               </div>
               <p className="preview-note">
@@ -249,7 +219,6 @@ export function LandingPage() {
                           aria-pressed={selectedTool === n}
                           onClick={() => {
                             setSelectedTool(n);
-                            setFocus(n);
                           }}
                         >
                           <ToolLogo id={tool.id} />
@@ -265,7 +234,6 @@ export function LandingPage() {
                         reverse={i === 3}
                         onSelect={(step) => {
                           setSelectedTool(step);
-                          setFocus(step);
                         }}
                       />
                       <div className="tool-explanation" aria-live="polite">

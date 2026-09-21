@@ -132,31 +132,26 @@ test("the tour remains readable and navigable without JavaScript", async ({
   await context.close();
 });
 
-test("the core responds to keyboard rotation, drag and reset", async ({ page }) => {
+test("delivery records open relevant evidence and the story can restart", async ({ page }) => {
   await page.goto("/");
   const renderer = page.locator(".core-renderer");
   await expect(renderer).toHaveAttribute("data-renderer", "webgl");
-  const grip = page.getByRole("button", { name: "Rotate mechanical core", exact: false });
-  await grip.focus();
-  await grip.press("ArrowRight");
-  await expect
-    .poll(async () => Number(await renderer.getAttribute("data-rotation")))
-    .toBeGreaterThan(0.19);
-  const bounds = await grip.boundingBox();
-  if (!bounds) throw new Error("Missing rotation control");
-  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(bounds.x + bounds.width / 2 + 55, bounds.y + bounds.height / 2, {
-    steps: 8,
-  });
-  await page.mouse.up();
-  await expect
-    .poll(async () => Number(await renderer.getAttribute("data-rotation")))
-    .toBeGreaterThan(0.5);
-  await page.getByRole("button", { name: "Reset core rotation", exact: true }).click();
-  await expect
-    .poll(async () => Number(await renderer.getAttribute("data-rotation")))
-    .toBeLessThan(0.01);
+  await expect(renderer).toHaveAttribute("data-configuration", "pull-request");
+  await expect(renderer.locator('[data-record="3"]')).toHaveJSProperty("inert", true);
+  await goToChapter(page, "connect", 0.99);
+  const record = page.getByRole("button", { name: "Select Sentry record" });
+  await record.focus();
+  await record.press("Enter");
+  await expect(record).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#connect figcaption")).toContainText("sentry-event.json");
+  await goToChapter(page, "understand", 2.99);
+  await expect(renderer.locator('[data-record="2"]')).toContainText("total(100, null)");
+  await expect(renderer.locator('[data-record="2"]')).toHaveAttribute("data-expanded", "true");
+  await goToChapter(page, "automate", 4.99);
+  await expect(renderer.locator('[data-record="4"]')).toContainText("Human review required");
+  await page.getByRole("button", { name: "Restart story", exact: true }).click();
+  await expect(renderer).toHaveAttribute("data-configuration", "pull-request");
+  await expect(renderer).toHaveAttribute("data-moving", "false");
 });
 
 test("scrubber navigates the story and authentic local integration logos load", async ({
@@ -164,8 +159,6 @@ test("scrubber navigates the story and authentic local integration logos load", 
 }) => {
   await page.goto("/");
   await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "webgl");
-  await page.getByRole("button", { name: "Sentry", exact: true }).click();
-  await expect(page.locator(".core-port-note")).toContainText("Production errors and releases");
   const range = page.getByRole("slider", { name: "Story progress" });
   await range.focus();
   await range.press("End");

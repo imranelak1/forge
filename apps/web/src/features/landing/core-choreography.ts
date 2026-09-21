@@ -1,28 +1,51 @@
-/** One optical payload becomes a complete observation satellite; no unrelated stage spins. */
+/** Persistent delivery records reorganize into a trace, test report and investigation. */
 export function createChoreography() {
-  const motion = {
-    lift: -2.1,
-    scale: 1.42,
-    reveal: 0,
-    assembly: 0,
-    spread: 0,
-    deploy: 0,
-    inspect: 0,
-    signal: 0,
-    aperture: 0.25,
-  };
+  const motion = { lift: -2.1, scale: 1, reveal: 0, links: 0, route: 0, signal: 0 };
   const parts = Array.from({ length: 5 }, (_, i) => ({
     x: 0,
     y: 0,
-    z: 0,
-    size: i === 2 ? 1 : 0.001,
+    width: i ? 2 : 4.2,
+    height: i ? 1 : 3.2,
+    opacity: i ? 0 : 1,
   }));
-  const stack = (gap: number) => Array.from({ length: 5 }, (_, i) => [0, (i - 2) * gap, 0, 1]);
-  const connect = stack(1.15);
-  const trace = stack(0.73);
-  const understand = stack(1.05);
-  const investigate = stack(0.9);
-  investigate[2] = [0, 0.15, 1.45, 1.12];
-  const complete = stack(0.48);
-  return { motion, parts, connect, trace, understand, investigate, complete };
+  const layouts = [
+    [
+      [-1.45, 1.65, 2.55, 1.5],
+      [1.45, 1.65, 2.55, 1.5],
+      [-1.45, -1.65, 2.55, 1.5],
+      [1.45, -1.65, 2.55, 1.5],
+      [0, 0, 2.5, 0.95],
+    ],
+    [
+      [0, 2.65, 3.7, 1.02],
+      [0, 1.35, 3.7, 1.02],
+      [0, 0.05, 3.7, 1.02],
+      [0, -1.25, 3.7, 1.02],
+      [0, -2.55, 3.7, 0.72],
+    ],
+    [
+      [-1.4, 2.65, 2.5, 0.8],
+      [1.4, 2.65, 2.5, 0.8],
+      [0, 0.1, 5.3, 3.55],
+      [-1.4, -2.5, 2.5, 0.8],
+      [1.4, -2.5, 2.5, 0.8],
+    ],
+    [
+      [1.4, 0, 2.6, 3.6],
+      [-1.4, 2.5, 2.5, 0.8],
+      [1.4, 2.5, 2.5, 0.8],
+      [-1.4, 0, 2.6, 3.6],
+      [0, -2.5, 5.4, 0.8],
+    ],
+    [
+      [-2.06, 2.2, 1.26, 0.8],
+      [-0.69, 2.2, 1.26, 0.8],
+      [0.69, 2.2, 1.26, 0.8],
+      [2.06, 2.2, 1.26, 0.8],
+      [0, -0.25, 5.4, 3.6],
+    ],
+  ];
+  return { motion, parts, layouts };
 }
+
+export type DeliveryPart = ReturnType<typeof createChoreography>["parts"][number];

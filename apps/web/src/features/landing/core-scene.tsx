@@ -3,6 +3,8 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { createChoreography } from "./core-choreography";
 import { coreBackground, coreColors } from "./landing-palette";
+import { DeliveryRecords } from "./delivery-records";
+import "./delivery-records.css";
 
 export const chapterNames = ["Connect", "Trace", "Understand", "Investigate", "Automate"];
 
@@ -25,34 +27,28 @@ export function seekStory(root: HTMLDivElement | null, progress: number) {
 export function CoreScene({
   story,
   onStageChange,
-  focus,
+  active,
+  selected,
+  onSelect,
 }: {
   story: RefObject<HTMLDivElement | null>;
   onStageChange: (stage: number) => void;
-  focus: number;
+  active: number;
+  selected: number;
+  onSelect: (source: number) => void;
 }) {
   const host = useRef<HTMLDivElement>(null);
-  const focusRef = useRef(focus);
-  const invalidate = useRef<() => void>(() => {});
-  useEffect(() => {
-    focusRef.current = focus;
-    invalidate.current();
-  }, [focus]);
-
   useEffect(() => {
     const element = host.current;
     const root = story.current;
     if (!element || !root) return;
-    let cancelled = false;
-    let generation = 0;
+    let cancelled = false,
+      generation = 0;
     let destroy: (() => void) | undefined;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
     const stage = root.querySelector<HTMLElement>(".core-stage")!;
     const scrubber = root.querySelector<HTMLInputElement>("[data-story-scrubber]")!;
-    const grip = element.querySelector<HTMLButtonElement>(".core-grip")!;
-    const reset = root.querySelector<HTMLButtonElement>(".core-reset")!;
-    const ports = Array.from(root.querySelectorAll<HTMLElement>("[data-core-port]"));
-    const evidenceLabel = root.querySelector<HTMLElement>(".core-evidence-label")!;
+    const records = Array.from(element.querySelectorAll<HTMLElement>("[data-record]"));
     const staticScroll = () => {
       if (element.dataset.renderer === "webgl") return;
       let active = -1;
@@ -73,11 +69,10 @@ export function CoreScene({
       element!.dataset.reducedMotion = String(preference.matches);
       staticScroll();
       if (preference.matches) return;
-      const [THREE, { createCore }, { createTimeline }, { RoomEnvironment }] = await Promise.all([
+      const [THREE, { createCore }, { createTimeline }] = await Promise.all([
         import("three"),
         import("./core-model"),
         import("animejs"),
-        import("three/addons/environments/RoomEnvironment.js"),
       ]);
       if (cancelled || version !== generation) return;
       let renderer: InstanceType<typeof THREE.WebGLRenderer>;
@@ -102,89 +97,50 @@ export function CoreScene({
         renderer.dispose();
         renderer.forceContextLoss();
         canvas.remove();
-        ports.forEach((port) => port.removeAttribute("style"));
+        records.forEach((record) => {
+          record.removeAttribute("style");
+          record.inert = false;
+        });
         stage.removeAttribute("style");
-        delete stage.dataset.unfolded;
-        evidenceLabel.removeAttribute("style");
-        invalidate.current = () => {};
       };
       renderer.setClearColor(coreBackground);
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 0.95;
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-8, 8, 6, -6, 0.1, 100);
       camera.position.set(0, 0, 16);
-      const environment = new RoomEnvironment();
-      const pmrem = new THREE.PMREMGenerator(renderer);
-      const reflection = pmrem.fromScene(environment, 0.04);
-      scene.environment = reflection.texture;
-      environment.dispose();
-      pmrem.dispose();
-      disposables.push(reflection);
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x555555, 1));
-      const key = new THREE.DirectionalLight(0xffffff, 2);
-      key.position.set(-5, 6, 8);
-      scene.add(key);
-      const fill = new THREE.DirectionalLight(0xffffff, 1);
-      fill.position.set(5, -2, -3);
-      scene.add(fill);
       const core = createCore();
       scene.add(core.root);
       disposables.push(core);
-
-      const { motion, parts, connect, trace, understand, investigate, complete } =
-        createChoreography();
+      const { motion, parts, layouts } = createChoreography();
       const timeline = createTimeline({
         autoplay: false,
         defaults: { duration: 650, ease: "inOut(3)" },
       });
-      const arrange = (layout: number[][], start: number, duration = 600) => {
+      layouts.forEach((layout, step) => {
         parts.forEach((part, i) =>
           timeline.add(
             part,
             {
               x: layout[i][0],
               y: layout[i][1],
-              z: layout[i][2],
-              size: layout[i][3],
-              duration,
+              width: layout[i][2],
+              height: layout[i][3],
+              opacity: 1,
+              duration: 720,
             },
-            start + i * 35,
+            step * 1000 + 70 + i * 28,
           ),
         );
-      };
-      // The optical payload stays identifiable while electronics and frame assemble around it.
-      arrange(connect, 80, 650);
-      timeline.add(
-        motion,
-        { reveal: 1, assembly: 0.65, spread: 1, lift: 0, scale: 0.95, duration: 900 },
-        0,
-      );
-      arrange(trace, 1080, 600);
-      timeline.add(motion, { assembly: 0.82, spread: 0.4, signal: 1, duration: 850 }, 1100);
-      arrange(understand, 2050, 500);
-      timeline.add(
-        motion,
-        { spread: 0.9, inspect: 0.85, aperture: 1, signal: 0.5, duration: 800 },
-        2100,
-      );
-      arrange(investigate, 3060, 620);
-      timeline.add(motion, { spread: 0.65, inspect: 1, signal: 0, duration: 850 }, 3100);
-      arrange(complete, 4020, 600);
-      timeline.add(
-        motion,
-        { spread: 0, inspect: 0, assembly: 1, aperture: 0.3, scale: 0.86, duration: 650 },
-        4100,
-      );
-      timeline.add(motion, { deploy: 1, signal: 1, duration: 330 }, 4670);
+        if (step) timeline.add(motion, { route: step, duration: 800 }, step * 1000 + 70);
+      });
+      timeline.add(motion, { reveal: 1, lift: 0, links: 1, duration: 950 }, 0);
+      timeline.add(motion, { signal: 4, duration: 900 }, 1100);
+      timeline.add(motion, { signal: 0, duration: 800 }, 3100);
+      // Preserve the final hold so seeking 5 maps to the complete review request.
+      timeline.add(motion, { scale: 1, duration: 100 }, 4900);
       let frame = 0,
         lastTime = 0,
         target = 0,
         progress = 0;
-      let pointerX = 0,
-        pointerY = 0,
-        rotationX = 0,
-        rotationY = 0;
       let visible = true,
         contextLost = false,
         shaderFailed = false,
@@ -194,22 +150,21 @@ export function CoreScene({
         mobile = false,
         short = false;
       let anchors: number[] = [];
-      let dragging = false,
-        pointerId = -1,
-        lastX = 0,
-        lastY = 0;
+      let viewHeight = 12;
       const projected = new THREE.Vector3();
       renderer.debug.onShaderError = () => {
         shaderFailed = true;
         element!.dataset.renderer = "fallback";
       };
-
       const measure = () => {
         width = element!.clientWidth;
         height = element!.clientHeight;
         mobile = width < 800;
         short = innerHeight <= 600;
-        camera.left = (-6 * width) / Math.max(1, height);
+        viewHeight = short ? 7.5 : 12;
+        camera.top = viewHeight / 2;
+        camera.bottom = -viewHeight / 2;
+        camera.left = ((-viewHeight / 2) * width) / Math.max(1, height);
         camera.right = -camera.left;
         camera.updateProjectionMatrix();
         renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.25 : 1.6));
@@ -248,73 +203,41 @@ export function CoreScene({
         if (!visible || document.hidden || contextLost || shaderFailed) return;
         const dt = Math.min((time - lastTime) / 1000 || 0.016, 0.05);
         lastTime = time;
-        const damping = 1 - Math.exp(-dt * 10);
-        progress += (target - progress) * damping;
-        rotationX += (pointerX - rotationX) * damping;
-        rotationY += (pointerY - rotationY) * damping;
+        progress += (target - progress) * (1 - Math.exp(-dt * 10));
         timeline.seek(progress * 1000, true);
-        const reveal = motion.reveal;
-        const lift = short ? 0.7 : mobile ? -1.8 + reveal * 4.35 : motion.lift;
+        const lift = short ? 0.3 : mobile ? -1.85 + motion.reveal * 4.75 : motion.lift;
         const scale = short
-          ? 0.86
+          ? 0.95
           : mobile
-            ? (motion.scale + (1 - reveal) * 0.28) * (0.76 - reveal * 0.12)
-            : motion.scale;
+            ? 0.95 - motion.reveal * 0.09
+            : Math.min(1.15, (width * 0.3) / ((5.4 * height) / 12));
         core.root.position.set(0, lift, 0);
         core.root.scale.setScalar(scale);
-        // One fixed technical view; rotation is exclusively a direct user action.
-        core.root.rotation.set(0.58 + rotationY, 0.48 + rotationX, -0.12);
-        core.layers.forEach(({ group }, i) => {
-          const part = parts[i];
-          group.position.set(part.x, part.y, part.z);
-          group.scale.setScalar(part.size);
-        });
-        core.update(motion, focusRef.current);
+        core.update(parts, motion.route, motion.links, motion.signal);
         renderer.render(scene, camera);
-        // DOM logos share scene coordinates, preserving crisp, undistorted source marks.
-        ports.forEach((port, i) => {
-          const side = i % 2 ? 1 : -1;
-          const x = side * (mobile ? 2.2 : 3.3 - reveal * 0.32);
-          const y = lift + (i < 2 ? 0.85 : -0.82) * (mobile ? 1 : 1.25);
-          projected.set(x, y, 0);
-          if (motion.reveal > 0.98) {
-            projected.set(0, 0, 0);
-            core.layers[i].port.localToWorld(projected);
-          }
-          projected.project(camera);
-          const labelX =
-            motion.reveal > 0.98
-              ? width / 2 + side * (mobile ? 126 : Math.min(185, width * 0.135))
-              : (projected.x * 0.5 + 0.5) * width;
-          port.style.transform = `translate(${labelX}px,${(-projected.y * 0.5 + 0.5) * height}px) translate(-50%,-50%)`;
-          port.style.setProperty("--port-label-offset", "27px");
-          port.style.opacity = String(progress < 0.1 ? 1 : motion.reveal);
+        core.root.updateMatrixWorld();
+        records.forEach((record, i) => {
+          const part = parts[i];
+          projected.set(part.x, part.y, 0);
+          core.root.localToWorld(projected).project(camera);
+          record.style.transform = `translate3d(${(projected.x * 0.5 + 0.5) * width}px,${(-projected.y * 0.5 + 0.5) * height}px,0) translate(-50%,-50%)`;
+          record.style.width = `${((part.width * height) / viewHeight) * scale}px`;
+          record.style.height = `${((part.height * height) / viewHeight) * scale}px`;
+          record.style.opacity = String(part.opacity);
+          record.inert = part.opacity < 0.95;
         });
-        stage.dataset.unfolded = String(motion.reveal > 0.98);
-        projected.set(0, 0, 0);
-        core.layers[4].group.localToWorld(projected).project(camera);
-        evidenceLabel.style.transform = `translate(${(projected.x * 0.5 + 0.5) * width}px,${(-projected.y * 0.5 + 0.5) * height}px) translate(-50%,-50%)`;
-        stage.style.setProperty("--core-center", `${((1 - lift / 6) * height) / 2}px`);
         stage.style.setProperty("--story-progress", `${(progress / 5) * 100}%`);
         element!.dataset.progress = progress.toFixed(3);
-        element!.dataset.rotation = rotationX.toFixed(3);
-        element!.dataset.configuration =
-          progress < 0.5
-            ? "optical-payload"
-            : progress < 1.5
-              ? "connected-stack"
-              : progress < 2.5
-                ? "signal-bus"
-                : progress < 3.5
-                  ? "sensor-inspection"
-                  : progress < 4.5
-                    ? "payload-exploded"
-                    : "satellite";
+        element!.dataset.configuration = [
+          "pull-request",
+          "linked-sources",
+          "delivery-trace",
+          "test-failure",
+          "investigation",
+          "review-request",
+        ][Math.min(5, Math.floor(progress + 0.5))];
         element!.dataset.renderer = shaderFailed ? "fallback" : "webgl";
-        const moving =
-          Math.abs(target - progress) > 0.001 ||
-          Math.abs(pointerX - rotationX) > 0.001 ||
-          Math.abs(pointerY - rotationY) > 0.001;
+        const moving = Math.abs(target - progress) > 0.001;
         element!.dataset.moving = String(moving);
         if (moving) frame = requestAnimationFrame(draw);
       };
@@ -322,7 +245,6 @@ export function CoreScene({
         if (!frame && visible && !document.hidden && !contextLost)
           frame = requestAnimationFrame(draw);
       };
-      invalidate.current = requestDraw;
       const onScroll = () => {
         readProgress();
         requestDraw();
@@ -330,46 +252,6 @@ export function CoreScene({
       const onResize = () => {
         measure();
         readProgress();
-        requestDraw();
-      };
-      const onDown = (event: PointerEvent) => {
-        if (event.button !== 0) return;
-        dragging = true;
-        pointerId = event.pointerId;
-        lastX = event.clientX;
-        lastY = event.clientY;
-        grip.setPointerCapture(pointerId);
-        grip.dataset.dragging = "true";
-      };
-      const onMove = (event: PointerEvent) => {
-        if (!dragging || event.pointerId !== pointerId) return;
-        pointerX = Math.max(-1.8, Math.min(1.8, pointerX + (event.clientX - lastX) * 0.008));
-        pointerY = Math.max(-0.55, Math.min(0.55, pointerY + (event.clientY - lastY) * 0.006));
-        lastX = event.clientX;
-        lastY = event.clientY;
-        requestDraw();
-      };
-      const onUp = () => {
-        dragging = false;
-        grip.dataset.dragging = "false";
-      };
-      const onKey = (event: KeyboardEvent) => {
-        const delta = { ArrowLeft: -0.2, ArrowRight: 0.2 }[event.key];
-        if (delta !== undefined) {
-          event.preventDefault();
-          pointerX = Math.max(-1.8, Math.min(1.8, pointerX + delta));
-          requestDraw();
-        }
-        if (event.key === "Home") {
-          event.preventDefault();
-          pointerX = 0;
-          pointerY = 0;
-          requestDraw();
-        }
-      };
-      const onReset = () => {
-        pointerX = 0;
-        pointerY = 0;
         requestDraw();
       };
       const onVisibility = () => {
@@ -400,18 +282,10 @@ export function CoreScene({
       observer.observe(root!);
       const resize = new ResizeObserver(onResize);
       resize.observe(element!);
-      // Source previews have different heights; their layout changes move every later chapter.
       resize.observe(root!);
       window.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("resize", onResize);
       document.addEventListener("visibilitychange", onVisibility);
-      grip.addEventListener("pointerdown", onDown);
-      grip.addEventListener("pointermove", onMove);
-      grip.addEventListener("pointerup", onUp);
-      grip.addEventListener("pointercancel", onUp);
-      grip.addEventListener("lostpointercapture", onUp);
-      grip.addEventListener("keydown", onKey);
-      reset.addEventListener("click", onReset);
       canvas.addEventListener("webglcontextlost", lost);
       canvas.addEventListener("webglcontextrestored", restored);
       stop = () => {
@@ -422,13 +296,6 @@ export function CoreScene({
         window.removeEventListener("scroll", onScroll);
         window.removeEventListener("resize", onResize);
         document.removeEventListener("visibilitychange", onVisibility);
-        grip.removeEventListener("pointerdown", onDown);
-        grip.removeEventListener("pointermove", onMove);
-        grip.removeEventListener("pointerup", onUp);
-        grip.removeEventListener("pointercancel", onUp);
-        grip.removeEventListener("lostpointercapture", onUp);
-        grip.removeEventListener("keydown", onKey);
-        reset.removeEventListener("click", onReset);
         canvas.removeEventListener("webglcontextlost", lost);
         canvas.removeEventListener("webglcontextrestored", restored);
       };
@@ -458,54 +325,44 @@ export function CoreScene({
   }, [story, onStageChange]);
 
   return (
-    <div className="core-renderer" ref={host} data-renderer="static">
-      <svg className="core-fallback" viewBox="0 0 500 440" fill="none" aria-hidden="true">
-        <path
-          d="M155 115 290 90 347 135 347 310 215 345 155 300Z"
-          fill="#292725"
-          stroke="#93908d"
-          strokeWidth="5"
-        />
-        <path
-          d="m155 115 60 45 132-25M215 160v185M290 90v180l57 40"
-          stroke="#615e5b"
-          strokeWidth="4"
-        />
-        <path
-          d="m155 160-120 30 3 110 117-30m192-91 116-30 2 110-118 31"
-          fill="#233f57"
-          stroke="#93908d"
-          strokeWidth="3"
-        />
-        <path
-          d="m76 180 2 108m39-119 1 108m266-108 1 110m39-120 1 110M36 226l119-29m192 20 117-31M37 264l118-29m192 18 118-30"
-          stroke="#4d9cff"
-        />
-        {[0, 1, 2, 3, 4].map((i) => (
-          <path
-            key={i}
-            d={"M164 " + (155 + i * 32) + " 217 " + (190 + i * 32) + " 337 " + (163 + i * 32)}
-            stroke={"#" + coreColors[i].toString(16).padStart(6, "0")}
-            strokeWidth="3"
-          />
+    <div className="core-renderer" ref={host} data-renderer="static" data-view={active}>
+      <DeliveryRecords active={active} selected={selected} onSelect={onSelect} />
+      <svg
+        className="core-fallback"
+        viewBox="0 0 500 380"
+        fill="none"
+        role="img"
+        aria-label="Example delivery: pull request 184 connects to CI run 928, its tests and a checkout production error through commit 8f3a2c1."
+      >
+        <path d="M250 62V320" stroke="#85827e" strokeWidth="2" />
+        {[
+          "GitHub · PR #184",
+          "Actions · CI #928 passed",
+          "JUnit · 3 tests passed",
+          "Sentry · checkout error",
+        ].map((label, i) => (
+          <g key={label}>
+            <rect
+              x="78"
+              y={22 + i * 88}
+              width="344"
+              height="64"
+              rx="3"
+              fill="#2a2928"
+              stroke={"#" + coreColors[i].toString(16).padStart(6, "0")}
+            />
+            <circle
+              cx="104"
+              cy={54 + i * 88}
+              r="4"
+              fill={"#" + coreColors[i].toString(16).padStart(6, "0")}
+            />
+            <text x="125" y={60 + i * 88} fill="#f6f4f2" fontSize="17" fontFamily="monospace">
+              {label}
+            </text>
+          </g>
         ))}
-        <ellipse
-          cx="247"
-          cy="121"
-          rx="39"
-          ry="19"
-          fill="#171615"
-          stroke="#a39b91"
-          strokeWidth="9"
-        />
-        <ellipse cx="247" cy="121" rx="22" ry="10" fill="#073b45" stroke="#05dbe9" />
-        <path d="m247 100 0-45m0 12L116 47m131 20 129-34" stroke="#b18754" strokeWidth="3" />
       </svg>
-      <button
-        type="button"
-        className="core-grip"
-        aria-label="Rotate mechanical core. Drag or use left and right arrow keys."
-      />
     </div>
   );
 }
