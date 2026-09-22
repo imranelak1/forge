@@ -13,6 +13,8 @@ from forge.repositories.identity import IdentityRepository
 from forge.repositories.webhooks import WebhookRepository
 
 SUPPORTED_ACTIONS = {
+    "pull_request_review": {"submitted", "edited", "dismissed"},
+    "issues": {"opened", "edited", "closed", "reopened", "transferred"},
     "pull_request": {
         "opened",
         "edited",
@@ -128,7 +130,7 @@ class GitHubWebhookService:
                 reason = reason or "integration_unavailable"
             elif integration["status"] == "disconnected":
                 reason = "integration_disconnected"
-            elif event in {"push", "pull_request"}:
+            elif event in {"push", "pull_request", "pull_request_review", "issues"}:
                 assert organization_id is not None and integration_id is not None
                 if integration["status"] != "active":
                     reason = "integration_inactive"

@@ -221,6 +221,7 @@ function RepositoryRow({
             )}
           </div>
           <p className="repository-meta">
+            {repo.is_demo ? "Generated demo · " : ""}
             {repo.is_private ? "Private" : "Public"}
             {repo.archived ? " · Archived" : ""} · {repo.language ?? "Language not reported"}
           </p>
@@ -238,19 +239,41 @@ function RepositoryRow({
         </td>
         <td data-label="Imported history">
           <p className="repository-count">
-            {repo.open_pull_request_count.toLocaleString()} open PRs
+            <Link
+              className="text-link"
+              href={`/app/pull-requests?repository=${repo.id}&state=open`}
+            >
+              {repo.open_pull_request_count.toLocaleString()} open PRs
+            </Link>
           </p>
-          <p>{repo.pull_request_count.toLocaleString()} total PRs</p>
-          <p>{repo.commit_count.toLocaleString()} commits</p>
+          <p>
+            <Link className="text-link" href={`/app/pull-requests?repository=${repo.id}`}>
+              {repo.pull_request_count.toLocaleString()} total PRs
+            </Link>
+          </p>
+          <p>
+            <Link className="text-link" href={`/app/commits?repository=${repo.id}`}>
+              {repo.commit_count.toLocaleString()} commits
+            </Link>
+          </p>
+          <p>
+            <Link className="text-link" href={`/app/repositories/${repo.id}/issues`}>
+              Issues
+            </Link>
+          </p>
         </td>
         <td data-label="Synchronization">
-          {!repo.authorized ? (
+          {repo.is_demo ? (
+            <span>Generated demonstration history</span>
+          ) : !repo.authorized ? (
             <span className="state-warning">GitHub access removed</span>
           ) : (
             <SyncState run={repo.latest_sync} />
           )}
           <p className="repository-meta">
-            {repo.last_synced_at ? (
+            {repo.is_demo ? (
+              "Live GitHub sync is disabled for demo repositories."
+            ) : repo.last_synced_at ? (
               <>
                 Last synced{" "}
                 <time dateTime={repo.last_synced_at}>{formatDate(repo.last_synced_at)}</time>
@@ -266,7 +289,7 @@ function RepositoryRow({
               <Button
                 variant="outline"
                 size="sm"
-                disabled={busy || !repo.authorized || activeSync(repo.latest_sync)}
+                disabled={busy || repo.is_demo || !repo.authorized || activeSync(repo.latest_sync)}
                 onClick={onSync}
               >
                 {activeSync(repo.latest_sync)

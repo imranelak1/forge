@@ -46,6 +46,7 @@ REPOSITORY_FIELDS = (
     "archived",
     "authorized",
     "selected",
+    "is_demo",
     "pushed_at",
     "last_synced_at",
     "pull_request_count",
@@ -524,6 +525,13 @@ class GitHubService:
             row = await self.repository.repository(connection, organization, identifier)
             if row is None:
                 raise not_found()
+            if row["is_demo"]:
+                raise DomainError(
+                    409,
+                    "demo_repository",
+                    "This repository contains generated demonstration history "
+                    "and has no live GitHub source.",
+                )
             source = await self.repository.integration(
                 connection, organization, row["integration_id"], lock=True
             )

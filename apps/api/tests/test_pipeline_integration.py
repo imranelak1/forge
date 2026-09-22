@@ -11,6 +11,7 @@ from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncConnection
 from test_auth import AuthHarness, auth  # noqa: F401
 
 from forge.integrations.github import GitHubApp, GitHubFailure
@@ -181,11 +182,24 @@ class Pipeline:
         return identifier
 
 
+class CorePipelineRepository(PipelineRepository):
+    """Keep the Phase 3 checkpoint tests scoped to core jobs.
+
+    test_enrichment_integration replaces this with the real repository and exercises
+    automatic scheduling, child pagination, cancellation, and revision invalidation.
+    """
+
+    async def queue_enrichment(
+        self, connection: AsyncConnection, *args: Any, **kwargs: Any
+    ) -> None:
+        return None
+
+
 @pytest.fixture
 async def pipeline(auth: AuthHarness) -> AsyncIterator[Pipeline]:  # noqa: F811
     owner = await auth.register()
     organization = UUID(await auth.organization(owner))
-    repository = PipelineRepository(await auth.engine())
+    repository = CorePipelineRepository(await auth.engine())
     # Tests share one dedicated database but no live worker. Retire background jobs left by
     # completed API fixtures so this test exercises the real global dispatcher deterministically.
     migrator = await auth.engine(migration=True)

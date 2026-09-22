@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CircleHelp,
   GitBranch,
+  GitCommitHorizontal,
   GitPullRequest,
   LayoutDashboard,
   Monitor,
@@ -41,13 +42,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     ? [
         navigation[0],
         { href: "/app/repositories", label: "Repositories", icon: GitBranch },
+        { href: "/app/pull-requests", label: "Pull requests", icon: GitPullRequest },
+        { href: "/app/commits", label: "Commits", icon: GitCommitHorizontal },
         { href: "/app/integrations", label: "Integrations", icon: Plug },
         ...navigation.slice(1),
         { href: "/app/settings", label: "Organization settings", icon: Settings },
         { href: "/app/account", label: "Account", icon: UserRound },
       ]
     : navigation;
-  const current = links.find((item) => item.href === pathname)?.label ?? "Forge";
+  const active = (href: string) =>
+    pathname === href || (href !== "/app" && pathname.startsWith(`${href}/`));
+  const current = links.find((item) => active(item.href))?.label ?? "Forge";
   if (
     pathname === "/" ||
     [
@@ -126,8 +131,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link
               key={href}
               href={href}
-              aria-current={pathname === href ? "page" : undefined}
-              className={cn("nav-link", pathname === href && "nav-link-active")}
+              aria-current={active(href) ? "page" : undefined}
+              className={cn("nav-link", active(href) && "nav-link-active")}
             >
               <Icon size={17} aria-hidden="true" />
               {label}
@@ -139,7 +144,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Engineering tools <span>Planned</span>
           </p>
           {[
-            { icon: GitPullRequest, label: "Pull requests" },
             { icon: Workflow, label: "CI & deployments" },
             { icon: ShieldCheck, label: "Test intelligence" },
             { icon: Boxes, label: "Errors & automation" },
@@ -168,7 +172,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ChevronRight size={14} aria-hidden="true" />
             <span>{current}</span>
           </div>
-          <span className="build-label">Phase 3 · GitHub integration</span>
+          <span className="build-label">Phase 4 · Pull request analytics</span>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>
           {children}

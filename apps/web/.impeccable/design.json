@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T15:45:40.673Z",
+  "generatedAt": "2026-09-22T19:37:24.080Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -523,7 +523,7 @@
       "name": "Workspace access build badge",
       "kind": "chip",
       "description": "Static context label, not a filter or action.",
-      "html": "<span class=\"ds-build\">Phase 3 · GitHub integration</span>",
+      "html": "<span class=\"ds-build\">Phase 4 · Pull request analytics</span>",
       "css": ".ds-build{display:inline-block;border:1px solid var(--border,#303030);padding:2px 7px;border-radius:4px;color:var(--muted-foreground,#a6a6a6);font:11px/1.55 var(--font-sans,\"Geist Variable\",sans-serif)}"
     },
     {
@@ -586,17 +586,25 @@
       "description": "Real repository records in a desktop table; labeled divided rows on mobile. Stored import counts remain distinct from synchronization state. Active work polls every four seconds, with explicit retry and history controls.",
       "html": "<div class=\"ds-repository\"><strong>Repository name</strong><span>Private · main</span><span class=\"ds-sync\">Queued</span><span>No completed sync yet</span></div>",
       "css": ".ds-repository{display:grid;gap:6px;border-block:1px solid #303030;padding:16px 0;font:12px/1.55 \"Geist Variable\",sans-serif;color:#a6a6a6}.ds-repository strong{font-size:13px;color:#ededed;font-weight:500}.ds-sync{color:#ededed}"
+    },
+    {
+      "name": "Analytics evidence",
+      "kind": "custom",
+      "description": "Server-calculated timing distributions lead to included and excluded PR records. Null durations remain unavailable. Coverage, UTC windows and explicit relationships accompany paginated history. Mobile filters collapse; tables become labeled rows.",
+      "html": "<table class=\"ds-evidence\"><thead><tr><th>Metric</th><th>Median</th><th>Evidence</th></tr></thead><tbody><tr><th>Review wait</th><td>Not available</td><td>Import pending</td></tr></tbody></table>",
+      "css": ".ds-evidence{border-collapse:collapse;text-align:left;font:12px/1.55 \"Geist Variable\",sans-serif;color:#ededed;width:100%}.ds-evidence th,.ds-evidence td{padding:12px;border-bottom:1px solid #303030;font-weight:400}.ds-evidence thead{background:#171717;color:#a6a6a6}.ds-evidence td:last-child{color:#dfba7b}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access and Phase 3 GitHub ingestion in `apps/web`: accounts and social sign-in, organizations and permissions, GitHub App authorization, installation selection, repository selection, imported history and synchronization. System status and the setup guide remain public. Engineering analytics, CI, test and production charts remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access, GitHub ingestion and Phase 4 pull request analytics in `apps/web`: accounts and social sign-in, organizations and permissions, GitHub App authorization, selected repositories, synchronization, PR and commit history, timing distributions and their evidence. System status and the setup guide remain public. CI, test and production analytics remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
       "Restrained controls and explicit, text-supported service states.",
       "Responsive navigation and locally scrollable technical content.",
       "Persistent form labels, visible access roles, and divided settings sections.",
+      "Table-based timing distributions with sample counts, exclusions, coverage and direct evidence links.",
       "A scoped public landing with a continuous delivery track, tool checkpoints and five code examples."
     ],
     "rules": [

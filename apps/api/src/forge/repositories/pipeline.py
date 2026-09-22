@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from forge.repositories.identity import IdentityRepository
+from forge.repositories.enrichment import SUBJECTS, EnrichmentRepository
 
 ACTIVE_RUNS = "('queued','running','retrying')"
 
@@ -33,9 +33,10 @@ class Work:
     run: Mapping[str, Any] | None
     repository: Mapping[str, Any] | None
     inbox: Mapping[str, Any] | None
+    subject: Mapping[str, Any] | None = None
 
 
-class PipelineRepository(IdentityRepository):
+class PipelineRepository(EnrichmentRepository):
     async def enqueue_sync(
         self,
         connection: AsyncConnection,
@@ -59,6 +60,24 @@ class PipelineRepository(IdentityRepository):
         )
         if not integration:
             raise ValueError("integration_unavailable")
+        if repository_id is not None and (requested_by is not None or kind == "history"):
+            source = await self.one(
+                connection,
+                "SELECT * FROM forge.repositories WHERE organization_id=:org AND id=:id "
+                "AND selected AND authorized AND NOT is_demo",
+                org=organization_id,
+                id=repository_id,
+            )
+            if source:
+                await self.queue_enrichment(
+                    connection,
+                    organization_id,
+                    integration_id,
+                    repository_id,
+                    "repository",
+                    source,
+                    force=True,
+                )
         active = await self.one(
             connection,
             f"""SELECT * FROM forge.sync_runs WHERE organization_id=:org
@@ -171,7 +190,7 @@ class PipelineRepository(IdentityRepository):
         job_condition = (
             "integration_id=:target"
             if condition.startswith("integration_id")
-            else "sync_run_id IN (SELECT id FROM forge.sync_runs "
+            else "repository_id=:target OR sync_run_id IN (SELECT id FROM forge.sync_runs "
             "WHERE organization_id=:org AND repository_id=:target) OR inbox_id IN "
             "(SELECT w.id FROM forge.webhook_inbox w JOIN forge.repositories r "
             "ON r.organization_id=w.organization_id AND r.integration_id=w.integration_id "
@@ -242,6 +261,7 @@ class PipelineRepository(IdentityRepository):
         run = None
         inbox = None
         repo = None
+        subject = None
         if job["sync_run_id"]:
             run = await self.one(
                 connection,
@@ -276,17 +296,43 @@ class PipelineRepository(IdentityRepository):
                     integration=job["integration_id"],
                     provider=provider_id,
                 )
-        requires_repo = bool(run and run["repository_id"]) or bool(
-            inbox and inbox["event"] in {"push", "pull_request"}
+        elif job["kind"] == "enrichment":
+            repo = await self.one(
+                connection,
+                "SELECT * FROM forge.repositories WHERE organization_id=:org AND id=:id FOR UPDATE",
+                org=lease.organization_id,
+                id=job["repository_id"],
+            )
+            kind = job["payload"].get("kind")
+            if kind in SUBJECTS:
+                subject = await self.one(
+                    connection,
+                    f"SELECT * FROM forge.{SUBJECTS[kind]} WHERE organization_id=:org AND id=:id "
+                    + ("AND repository_id=:repo " if kind != "repository" else "AND id=:repo ")
+                    + "FOR UPDATE",
+                    org=lease.organization_id,
+                    id=UUID(job["payload"]["subject_id"]),
+                    repo=job["repository_id"],
+                )
+        requires_repo = (
+            job["kind"] == "enrichment"
+            or bool(run and run["repository_id"])
+            or bool(
+                inbox
+                and inbox["event"] in {"push", "pull_request", "pull_request_review", "issues"}
+            )
         )
         control = bool(inbox and inbox["event"] in {"installation", "installation_repositories"})
         if (
             not integration
             or integration["status"] == "disconnected"
             or (integration["status"] != "active" and not control)
-            or (requires_repo and (not repo or not repo["authorized"] or not repo["selected"]))
+            or (
+                requires_repo
+                and (not repo or not repo["authorized"] or not repo["selected"] or repo["is_demo"])
+            )
             or (run and run["status"] not in {"queued", "running", "retrying"})
-            or (not run and not inbox)
+            or (not run and not inbox and not subject)
         ):
             await self.finish_job(connection, lease, state="canceled")
             if run and run["status"] in {"queued", "running", "retrying"}:
@@ -303,7 +349,7 @@ class PipelineRepository(IdentityRepository):
                     connection, lease.organization_id, inbox["id"], "ignored", "access_changed"
                 )
             return None
-        return Work(job, integration, run, repo, inbox)
+        return Work(job, integration, run, repo, inbox, subject)
 
     async def load(self, lease: Lease) -> Work | None:
         async with self.transaction() as connection:
@@ -431,19 +477,34 @@ class PipelineRepository(IdentityRepository):
         integration: UUID,
         repo: UUID,
         record: Mapping[str, Any],
-    ) -> None:
+        *,
+        schedule: bool = True,
+        force: bool = False,
+    ) -> Mapping[str, Any]:
+        old = await self.one(
+            connection,
+            """SELECT * FROM forge.pull_requests
+            WHERE organization_id=:org AND repository_id=:repo AND number=:number FOR UPDATE""",
+            org=org,
+            repo=repo,
+            number=record["number"],
+        )
         await self.execute(
             connection,
             """INSERT INTO forge.pull_requests
             (organization_id,id,repository_id,provider_id,number,title,state,draft,author_login,
-             head_sha,base_ref,opened_at,updated_at,closed_at,merged_at,html_url)
+             head_sha,base_ref,opened_at,updated_at,closed_at,merged_at,html_url,author_type,
+             merge_commit_sha,provider_commit_count)
             VALUES (:org,:id,:repo,:provider_id,:number,:title,:state,:draft,:author_login,
-             :head_sha,:base_ref,:opened_at,:updated_at,:closed_at,:merged_at,:html_url)
+             :head_sha,:base_ref,:opened_at,:updated_at,:closed_at,:merged_at,:html_url,:author_type,
+             :merge_commit_sha,:provider_commit_count)
             ON CONFLICT (organization_id,repository_id,number) DO UPDATE SET
             provider_id=EXCLUDED.provider_id,title=EXCLUDED.title,state=EXCLUDED.state,
             draft=EXCLUDED.draft,author_login=EXCLUDED.author_login,head_sha=EXCLUDED.head_sha,
             base_ref=EXCLUDED.base_ref,updated_at=EXCLUDED.updated_at,closed_at=EXCLUDED.closed_at,
-            merged_at=EXCLUDED.merged_at,html_url=EXCLUDED.html_url
+            merged_at=EXCLUDED.merged_at,html_url=EXCLUDED.html_url,
+            author_type=EXCLUDED.author_type,merge_commit_sha=EXCLUDED.merge_commit_sha,
+            provider_commit_count=COALESCE(EXCLUDED.provider_commit_count,forge.pull_requests.provider_commit_count)
             WHERE forge.pull_requests.updated_at<=EXCLUDED.updated_at""",
             org=org,
             id=uuid4(),
@@ -460,6 +521,26 @@ class PipelineRepository(IdentityRepository):
             record["updated_at"],
             {"number": record["number"], "state": record["state"]},
         )
+        current = await self.one(
+            connection,
+            """SELECT * FROM forge.pull_requests
+            WHERE organization_id=:org AND repository_id=:repo AND number=:number""",
+            org=org,
+            repo=repo,
+            number=record["number"],
+        )
+        assert current
+        if schedule:
+            await self.queue_enrichment(
+                connection,
+                org,
+                integration,
+                repo,
+                "pull_request",
+                current,
+                force=force or bool(old and current["updated_at"] > old["updated_at"]),
+            )
+        return current
 
     async def upsert_commit(
         self,
@@ -468,7 +549,7 @@ class PipelineRepository(IdentityRepository):
         integration: UUID,
         repo: UUID,
         record: Mapping[str, Any],
-    ) -> None:
+    ) -> Mapping[str, Any]:
         await self.execute(
             connection,
             """INSERT INTO forge.commits
@@ -492,6 +573,17 @@ class PipelineRepository(IdentityRepository):
             record["committed_at"],
             {"sha": record["sha"]},
         )
+        current = await self.one(
+            connection,
+            """SELECT * FROM forge.commits
+            WHERE organization_id=:org AND repository_id=:repo AND sha=:sha""",
+            org=org,
+            repo=repo,
+            sha=record["sha"],
+        )
+        assert current
+        await self.queue_enrichment(connection, org, integration, repo, "commit", current)
+        return current
 
     async def event(
         self,

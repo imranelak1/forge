@@ -2,6 +2,8 @@
 
 Date: 2026-09-22. Scope: GitHub App repository authorization, selection, historical sync and signed webhooks. The approved landing remains unchanged. PR and commit analytics are Phase 4.
 
+Follow-up setup completed on 2026-09-22: the private `forge-local-imrane` App is connected, a real signed webhook was acknowledged with HTTP 202, 26 accessible repositories were cataloged, and the user's one selected repository successfully imported 30 commits. Setup-required statements below describe the original phase handoff. [Phase 4](phase-4-review.md) records the subsequent analytics work.
+
 ## Delivered behavior
 
 A verified Forge owner/admin can authorize a GitHub App, prove ownership of the source account, bind an installation to one organization, select accessible repositories and monitor their imports. GitHub/Google sign-in remains independent. Source authorization requires the personal GitHub account owner or an active GitHub organization administrator; repository access alone is insufficient.

@@ -17,6 +17,7 @@ from forge.integrations.github import GitHubApp, GitHubFailure
 from forge.observability.logging import configure_logging
 from forge.repositories.database import create_database_engine
 from forge.repositories.pipeline import Lease, LostLease, PipelineRepository, Work
+from forge.workers.enrichment import EnrichmentWorker, EvidencePage
 
 MAX_ATTEMPTS = 8
 MAX_PAGES = 100
@@ -53,6 +54,7 @@ class GitHubWorker:
     def __init__(self, repository: PipelineRepository, provider: GitHubApp) -> None:
         self.repository = repository
         self.provider = provider
+        self.enrichment = EnrichmentWorker(repository, provider)
 
     @staticmethod
     def log(event: str, lease: Lease, error_code: str | None = None) -> None:
@@ -92,7 +94,9 @@ class GitHubWorker:
             await self.failed(lease, GitHubFailure("invalid_response"))
         return True
 
-    async def fetch(self, work: Work) -> Page:
+    async def fetch(self, work: Work) -> Page | EvidencePage:
+        if work.subject:
+            return await self.enrichment.fetch(work)
         if work.inbox:
             return await self.fetch_webhook(work)
         assert work.run
@@ -146,14 +150,33 @@ class GitHubWorker:
             return Page(done=True, reconcile=True, reactivate=True)
         assert work.repository
         repo = work.repository
-        if event == "pull_request":
-            number = normalize.positive_id(payload.get("number"))
+        if event in {"pull_request", "pull_request_review"}:
+            raw_number = (
+                payload.get("number")
+                if event == "pull_request"
+                else normalize.object_value(payload.get("pull_request")).get("number")
+            )
+            number = normalize.positive_id(raw_number)
             token = await self.provider.installation_token(work.integration["installation_id"])
             value = await self.provider.pull_request(token, repo["owner"], repo["name"], number)
             row = normalize.pull_request(value, repo["full_name"])
             if row["number"] != number:
                 raise GitHubFailure("invalid_response")
             return Page([row], "pull_requests", done=True)
+        if event == "issues":
+            number = normalize.positive_id(
+                normalize.object_value(payload.get("issue")).get("number")
+            )
+            token, issues = await self.provider.enrichment_credentials(
+                work.integration["installation_id"]
+            )
+            if not issues:
+                return Page([], "issues_unavailable", done=True)
+            value = await self.provider.issue(token, repo["owner"], repo["name"], number)
+            row = normalize.issue(value, repo["full_name"])
+            if row["number"] != number:
+                raise GitHubFailure("invalid_response")
+            return Page([row], "issues", done=True)
         if event != "push":
             raise GitHubFailure("unsupported_event")
         values = payload.get("commits")
@@ -167,7 +190,7 @@ class GitHubWorker:
         # the bounded default-branch API as well, coalescing repeated pushes into one active run.
         return Page(records, "commits", done=True, reconcile=True)
 
-    async def persist(self, lease: Lease, original: Work, page: Page) -> str:
+    async def persist(self, lease: Lease, original: Work, page: Page | EvidencePage) -> str:
         repository = self.repository
         async with repository.transaction() as connection:
             await repository.tenant(connection, lease.organization_id)
@@ -176,6 +199,8 @@ class GitHubWorker:
                 return "canceled"
             if work.integration["updated_at"] != original.integration["updated_at"]:
                 raise LostLease
+            if isinstance(page, EvidencePage):
+                return await self.enrichment.persist(connection, lease, work, page)
             org, integration = lease.organization_id, work.integration["id"]
             if page.reactivate:
                 await repository.execute(
@@ -195,13 +220,43 @@ class GitHubWorker:
                 elif page.stage == "pull_requests":
                     assert work.repository
                     await repository.upsert_pull_request(
-                        connection, org, integration, work.repository["id"], row
+                        connection,
+                        org,
+                        integration,
+                        work.repository["id"],
+                        row,
+                        force=bool(work.inbox),
                     )
                 elif page.stage == "commits":
                     assert work.repository
                     await repository.upsert_commit(
                         connection, org, integration, work.repository["id"], row
                     )
+                elif page.stage == "issues":
+                    assert work.repository
+                    issue = await repository.upsert_issue(
+                        connection, org, integration, work.repository["id"], row
+                    )
+                    await repository.queue_enrichment(
+                        connection,
+                        org,
+                        integration,
+                        work.repository["id"],
+                        "issue",
+                        issue,
+                        force=True,
+                    )
+            if page.stage == "issues_unavailable":
+                assert work.repository
+                await repository.coverage(
+                    connection,
+                    org,
+                    "repository",
+                    work.repository["id"],
+                    "issues",
+                    "unavailable",
+                    "issues_permission_required",
+                )
             if work.inbox:
                 if page.reconcile:
                     await repository.enqueue_sync(
@@ -325,7 +380,14 @@ class GitHubWorker:
                     await repository.finish_inbox(
                         connection, lease.organization_id, work.inbox["id"], "failed", code
                     )
-                if not retrying and code in ACCESS_FAILURES:
+                if work.subject:
+                    await self.enrichment.failure(
+                        connection, lease.organization_id, work, code, retrying
+                    )
+                # Optional endpoint denial marks that evidence unavailable/failed, never
+                # disables a working integration whose core permissions were just verified.
+                optional_denial = bool(work.subject and code == "access_denied")
+                if not retrying and code in ACCESS_FAILURES and not optional_denial:
                     await repository.execute(
                         connection,
                         """UPDATE forge.integrations

@@ -38,6 +38,18 @@ const routes: [RegExp, string[]][] = [
   [new RegExp(`^organizations/${uuid}/repositories$`), ["GET"]],
   [new RegExp(`^organizations/${uuid}/repositories/${uuid}/sync-runs$`), ["GET"]],
   [new RegExp(`^organizations/${uuid}/repositories/${uuid}/sync$`), ["POST"]],
+  [new RegExp(`^organizations/${uuid}/metrics/pull-requests$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/(pull-requests|commits)$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/(pull-requests|commits|issues)/${uuid}$`), ["GET"]],
+  [
+    new RegExp(
+      `^organizations/${uuid}/pull-requests/${uuid}/(reviews|transitions|commits|issues)$`,
+    ),
+    ["GET"],
+  ],
+  [new RegExp(`^organizations/${uuid}/commits/${uuid}/(files|pull-requests)$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/issues/${uuid}/pull-requests$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/repositories/${uuid}/issues$`), ["GET"]],
   [/^integrations\/github\/callback$/, ["GET"]],
   [/^invitations\/accept$/, ["POST"]],
 ];
@@ -132,6 +144,21 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
   const oauthCallback = /^auth\/oauth\/(github|google)\/callback$/.test(target);
   const githubCallback = target === "integrations/github/callback";
   const callback = oauthCallback || githubCallback;
+  const analyticsList = new RegExp(
+    `^organizations/${uuid}/(metrics/pull-requests|pull-requests|commits|repositories/${uuid}/issues)$`,
+  ).test(target);
+  const pullRequestList = new RegExp(`^organizations/${uuid}/pull-requests$`).test(target);
+  const issueList = new RegExp(`^organizations/${uuid}/repositories/${uuid}/issues$`).test(target);
+  const analyticsParameters: Record<string, number> = analyticsList
+    ? {
+        from: 40,
+        to: 40,
+        author: 100,
+        ...(!issueList ? { repository: 36 } : {}),
+        ...(pullRequestList ? { state: 12, cohort: 12, metric: 24, eligibility: 12 } : {}),
+        ...(issueList ? { state: 12 } : {}),
+      }
+    : {};
   const upstream = new URL(
     `/api/v1/${target}`,
     process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000",
@@ -160,7 +187,9 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
         : undefined
       : ["cursor", "limit"].includes(key)
         ? 2048
-        : undefined;
+        : Object.hasOwn(analyticsParameters, key)
+          ? analyticsParameters[key]
+          : undefined;
     if (
       request.method !== "GET" ||
       !maximum ||
@@ -168,6 +197,28 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       upstream.searchParams.has(key)
     )
       return reply(400, "Unsupported query parameters.");
+    if (analyticsList && Object.hasOwn(analyticsParameters, key)) {
+      const valid =
+        key === "repository"
+          ? new RegExp(`^${uuid}$`).test(value)
+          : key === "from" || key === "to"
+            ? /^\d{4}-\d{2}-\d{2}T/.test(value) &&
+              /(?:Z|[+-]\d{2}:\d{2})$/.test(value) &&
+              Number.isFinite(Date.parse(value))
+            : key === "state"
+              ? (issueList
+                  ? ["all", "open", "closed"]
+                  : ["all", "open", "closed", "merged"]
+                ).includes(value)
+              : key === "cohort"
+                ? ["activity", "merged"].includes(value)
+                : key === "metric"
+                  ? ["cycle_time", "review_wait", "approval_to_merge"].includes(value)
+                  : key === "eligibility"
+                    ? ["eligible", "excluded", "all"].includes(value)
+                    : !/[\u0000-\u001f\u007f]/.test(value);
+      if (!valid) return reply(400, "Unsupported query parameters.");
+    }
     upstream.searchParams.set(key, value);
   }
 

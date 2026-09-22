@@ -1,6 +1,6 @@
 # Integration architecture
 
-Status: GitHub App authorization, repository catalog, PR/commit history sync and signed push/pull-request/installation webhook ingestion are implemented in Phase 3. See [setup and limits](github-setup.md). Actions, reviews, deployments, JUnit and Sentry below remain later milestones.
+Status: GitHub App authorization, repository catalog, PR/commit history sync and signed push/pull-request/installation webhook ingestion are implemented in Phase 3. See [setup and limits](github-setup.md). Phase 4 adds review/lifecycle/commit-file enrichment, explicit PR membership and optional issue references. Actions, deployments, JUnit and Sentry below remain later milestones.
 
 ## Common adapter contract
 
@@ -14,13 +14,13 @@ Use GitHub OAuth authorization for user sign-in/linking and a GitHub App install
 
 Installation binding requires an authenticated Forge admin, a one-use state tied to the target organization, and a server-side check that the authorizing GitHub identity owns the personal installation account or has active administrator membership in its GitHub organization. The app must own the installation, and current user access is checked again when binding. Initially one installation belongs to one Forge organization; supporting shared installations later requires an explicit mapping and routing ADR. Refresh permission/repository mappings on installation changes. Revocation suspends jobs and actions using that connection.
 
-Phase 3 requests read-only repository metadata, contents and pull requests, plus organization members to verify source administration. Issues, Actions and deployment permissions are deferred until their collection phases. Subscribe to installation/repository changes for access reconciliation. Write permissions are not required for the initial outbound customer webhook action. The GitHub App private key and client secret remain server-side; short-lived installation tokens are encrypted if persisted and refreshed before expiry.
+Phase 3 requests read-only repository metadata, contents and pull requests, plus organization members to verify source administration. Phase 4 optionally uses Issues read access; a missing grant produces unavailable issue coverage without blocking PR/commit ingestion. Actions and deployment permissions remain deferred. Subscribe to installation/repository changes for access reconciliation. Write permissions are not required for the initial outbound customer webhook action. The GitHub App private key and client secret remain server-side; short-lived installation tokens are encrypted if persisted and refreshed before expiry.
 
 OAuth uses state, session/purpose binding, allowlisted redirects, and PKCE where supported by the chosen provider flow. Account linking requires an existing authenticated session or explicit account recovery proof. Never merge accounts solely by a returned email address. Phase 3 App authorization requires a verified Forge email and current owner/admin membership; social login has its own provider scopes and explicit account-linking policy.
 
 ## Historical and incremental synchronization
 
-Connecting a repository creates a durable SyncRun and returns immediately. Phase 3 uses a fixed 90-day initial history window; configurability is a future extension. Enumerate repository metadata, issues/PRs, reviews and transitions, related commits and file summaries, workflow runs/attempts/jobs, deployments/statuses in resumable stages. Phase 3 ships the ingestion framework and repository/PR/commit seed sync; later phases add their datasets. Do not imply reviews, Actions or tests are available before their phase.
+Connecting a repository creates a durable SyncRun and returns immediately. Phase 3 uses a fixed 90-day initial history window; configurability is a future extension. Enumerate repository metadata, issues/PRs, reviews and transitions, related commits and file summaries, workflow runs/attempts/jobs, deployments/statuses in resumable stages. Phase 3 ships the ingestion framework; Phase 4 adds reviews, transitions, explicit commit associations, file metadata and optional issues. Actions and tests remain unavailable until their phases.
 
 Use provider pagination and stable updated-time filters where available. Persist each accepted page with checkpoint advancement in one transaction. A page failure leaves the previous checkpoint intact. Overlap incremental time windows (initially 10 minutes) and upsert by natural key to catch late arrivals. For sources lacking updated-time filters, use bounded scans and scheduled reconciliation; never pretend a creation-time cursor captures all later updates. Re-fetch changed PR details/reviews and deployment statuses as needed.
 

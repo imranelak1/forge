@@ -67,6 +67,7 @@ const repo: Repository = {
   language: "Python",
   default_branch: "main",
   is_private: true,
+  is_demo: false,
   archived: false,
   authorized: true,
   selected: false,

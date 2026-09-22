@@ -8,6 +8,7 @@ from uuid import uuid4
 from forge.config import Settings
 from forge.domain.identity import Actor
 from forge.repositories.database import create_database_engine
+from forge.repositories.demo import DemoRepository
 from forge.repositories.identity import IdentityRepository
 from forge.security.identity import PASSWORDS
 from forge.services.identity import IdentityService
@@ -44,9 +45,16 @@ async def seed() -> None:
             slug = f"forge-demo-{number}"
             match = next((item for item in existing["data"] if item["slug"] == slug), None)
             if match is None:
-                await organizations.create(actor, name, slug, demo=True)
+                match = await organizations.create(actor, name, slug, demo=True)
             elif not match["is_demo"]:
                 raise SystemExit("A demo URL is already used by a non-demo organization.")
+            counts = await DemoRepository(repository, settings.environment).seed(
+                identifier, match["id"], number
+            )
+            print(
+                f"{name}: {counts['pull_requests']} generated PRs and "
+                f"{counts['commits']} generated commits; live sources are disconnected."
+            )
             if created:
                 print(f"Created synthetic demo identity: {email}\nPassword: {password}")
             else:

@@ -1,6 +1,6 @@
 # Connect GitHub repositories
 
-GitHub and Google **sign-in** use the settings in [social-login.md](social-login.md). Repository access uses a separate **GitHub App**. Signing in does not grant repository access. Phase 3 imports repository metadata, pull request snapshots and commits; reviews, Actions, deployments, tests and analytics arrive in later phases.
+GitHub and Google **sign-in** use the settings in [social-login.md](social-login.md). Repository access uses a separate **GitHub App**. Signing in does not grant repository access. Phase 4 imports PR reviews, lifecycle transitions, explicit commit associations and file metadata, and serves PR/commit analytics. Issues and explicit references are supported with optional Issues read permission. Actions, deployments and tests arrive in later phases.
 
 ## Register the GitHub App
 
@@ -22,9 +22,10 @@ Grant only these read permissions:
 - **Repository metadata:** Read (GitHub supplies this automatically).
 - **Repository contents:** Read, for commit history.
 - **Repository pull requests:** Read.
+- **Repository issues:** Read, optional for issue records and explicit PR references. Missing permission leaves issue coverage unavailable and does not stop PR/commit ingestion.
 - **Organization members:** Read, to prove that an organization installation is authorized by a GitHub organization owner. Personal installations require the authenticated GitHub user to own the installation account instead.
 
-Subscribe to **Push**, **Pull request**, and installation/repository access events available in the app settings. Installation events are delivered automatically where GitHub manages the subscription. Do not enable Actions, reviews or deployment events as implemented Forge capabilities yet; unsupported deliveries are acknowledged as ignored with a reason. [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/setting-up-a-github-app/choosing-permissions-for-a-github-app), [webhook events](https://docs.github.com/en/webhooks/webhook-events-and-payloads)
+Subscribe to **Push**, **Pull request**, **Pull request review**, **Issues** (when Issues access is granted), and installation/repository access events available in the app settings. Installation events are delivered automatically where GitHub manages the subscription. Do not enable Actions or deployment events as implemented Forge capabilities yet; unsupported deliveries are acknowledged as ignored with a reason. [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/setting-up-a-github-app/choosing-permissions-for-a-github-app), [webhook events](https://docs.github.com/en/webhooks/webhook-events-and-payloads)
 
 Generate a client secret and download an RSA private key. Put these six values in the ignored root `.env`; they are distinct from `FORGE_GITHUB_CLIENT_ID` and `FORGE_GITHUB_CLIENT_SECRET` used for sign-in:
 
@@ -74,6 +75,6 @@ For a live sandbox check, finish a catalog and repository sync, create or update
 
 An installation request awaiting a GitHub organization owner's approval is not a connected source. Missing app configuration disables connection actions. `access_denied`, `permissions_required`, or a suspended installation requires correction in GitHub and a catalog refresh or fresh connection. Rate limits preserve the checkpoint and show a scheduled retry. If a GitHub sign-in email matches an existing Forge account, use that account's existing sign-in method and connect GitHub in Account settings.
 
-Current bounds: 1 MiB uncompressed webhook bodies, 8 MiB provider responses, 100 records per page, at most 100 pages per stage, eight attempts per failing page, and a 60-second worker lease. Capacity limits remain explicit failures/partial coverage; they are not reported as a complete import. This phase does not implement automated provider delivery-log recovery or scheduled polling. Reviews and analytics need Phase 4.
+Current bounds: 1 MiB uncompressed webhook bodies, 8 MiB provider responses, 100 records per page, at most 100 pages per stage, eight attempts per failing page, and a 60-second worker lease. Capacity limits remain explicit failures/partial coverage; they are not reported as a complete import. This phase does not implement automated provider delivery-log recovery or scheduled polling. PR reviews and analytics are now implemented. Existing installations need to accept newly requested Issues permission, and existing App registrations need the review/issue event subscriptions enabled. Use a manual repository sync to reconcile existing records after changing access.
 
 Processed raw webhook payloads are cleared opportunistically after seven days, at most 100 per tenant job. Idle tenants wait for their next job; failed/queued payloads and receipt deduplication metadata are retained. A scheduled purge and replay operator interface are not included.

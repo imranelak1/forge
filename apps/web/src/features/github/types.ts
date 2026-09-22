@@ -36,6 +36,7 @@ export interface Repository {
   language: string | null;
   default_branch: string;
   is_private: boolean;
+  is_demo: boolean;
   archived: boolean;
   authorized: boolean;
   selected: boolean;

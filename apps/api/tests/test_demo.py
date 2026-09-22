@@ -1,0 +1,122 @@
+"""Demo history is repeatable, tenant-specific and never a live provider source."""
+
+import os
+from datetime import UTC, datetime, timedelta
+from uuid import UUID, uuid4
+
+import pytest
+from test_auth import AuthHarness
+from test_auth import auth as auth_fixture
+
+from forge.domain.demo import TABLES, history, identifier
+from forge.domain.identity import Actor
+from forge.repositories.demo import DemoRepository
+
+auth = auth_fixture
+
+
+def test_generated_history_is_repeatable_and_has_real_record_relationships() -> None:
+    tenant = uuid4()
+    anchor = datetime(2026, 9, 22, 12, tzinfo=UTC)
+    integration = identifier(tenant, "integration")
+    rows = history(tenant, integration, anchor, 2)
+    assert rows == history(tenant, integration, anchor, 2)
+    assert len(rows["pull_requests"]) == 90
+    assert all(row["is_demo"] and not row["authorized"] for row in rows["repositories"])
+    assert all(not row["html_url"] for row in rows["pull_requests"])
+    assert min(row["opened_at"] for row in rows["pull_requests"]) < anchor - timedelta(days=89)
+    assert max(row["opened_at"] for row in rows["pull_requests"]) > anchor - timedelta(days=2)
+    pr_ids = {row["id"]: row["repository_id"] for row in rows["pull_requests"]}
+    pr_authors = {row["id"]: row["author_login"] for row in rows["pull_requests"]}
+    assert any(
+        review["reviewer_login"] == pr_authors[review["pull_request_id"]]
+        for review in rows["pull_request_reviews"]
+    )
+    commits = {row["id"]: row["repository_id"] for row in rows["commits"]}
+    for row in rows["pull_request_commits"]:
+        assert pr_ids[row["pull_request_id"]] == commits[row["commit_id"]] == row["repository_id"]
+    links = [row["commit_id"] for row in rows["pull_request_commits"]]
+    assert len(set(links)) < len(links)
+    for items in rows.values():
+        assert len({row["id"] for row in items}) == len(items)
+        for row in items:
+            assert row["organization_id"] == tenant
+            for value in row.values():
+                if isinstance(value, datetime):
+                    assert value <= anchor
+    other = history(uuid4(), integration, anchor, 2)
+    assert not {row["id"] for row in rows["pull_requests"]} & {
+        row["id"] for row in other["pull_requests"]
+    }
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(os.getenv("FORGE_RUN_DB_TESTS") != "1", reason="Dedicated test DB not supplied")
+async def test_seed_is_idempotent_scoped_and_cannot_queue_live_work(auth: AuthHarness) -> None:
+    owner = await auth.register()
+    await auth.verify(owner)
+    user_id = UUID(owner.user_id)
+    repository = auth.app.state.identity_service.repository
+    seeder = DemoRepository(repository, "test")
+    actor = Actor(user_id, UUID(owner.session_id), "Demo", owner.email, True, "")
+    organizations = auth.app.state.organization_service
+    first = await organizations.create(actor, "Demo One", "forge-demo-1", demo=True)
+    second = await organizations.create(actor, "Demo Two", "forge-demo-2", demo=True)
+    ordinary = await auth.organization(owner)
+    counts = await seeder.seed(user_id, first["id"], 1)
+    assert counts["pull_requests"] == 90
+    await seeder.seed(user_id, second["id"], 2)
+
+    async def snapshot(tenant: UUID) -> dict[str, object]:
+        async with repository.transaction(user_id) as connection:
+            await repository.tenant(connection, tenant)
+            return {
+                table: await repository.one(
+                    connection,
+                    f"SELECT count(*) AS count, md5(string_agg(to_jsonb(t)::text, '' ORDER BY id)) "
+                    f"AS digest FROM forge.{table} t WHERE organization_id=:org",
+                    org=tenant,
+                )
+                for table in (*TABLES, "events", "integrations", "jobs")
+            }
+
+    before = await snapshot(first["id"])
+    assert await seeder.seed(user_id, first["id"], 1) == counts
+    assert await snapshot(first["id"]) == before
+    assert (await snapshot(second["id"]))["pull_requests"] != before["pull_requests"]
+    with pytest.raises(ValueError, match="designated demo"):
+        await seeder.seed(user_id, UUID(ordinary), 1)
+    with pytest.raises(ValueError, match="production"):
+        await DemoRepository(repository, "production").seed(user_id, first["id"], 1)
+    async with repository.transaction(user_id) as connection:
+        await repository.tenant(connection, first["id"])
+        assert (
+            await repository.one(
+                connection, "SELECT id FROM forge.jobs WHERE organization_id=:org", org=first["id"]
+            )
+            is None
+        )
+        assert (
+            await repository.one(
+                connection,
+                "SELECT installation_id FROM forge.github_installation_bindings "
+                "WHERE organization_id=:org",
+                org=first["id"],
+            )
+            is None
+        )
+        repo = await repository.one(
+            connection,
+            "SELECT id FROM forge.repositories WHERE organization_id=:org LIMIT 1",
+            org=first["id"],
+        )
+        assert repo is not None
+    response = await auth.mutate(
+        owner.client, "POST", f"/organizations/{first['id']}/repositories/{repo['id']}/sync"
+    )
+    assert response.status_code == 409
+    assert response.json()["code"] == "demo_repository"
+    metrics = await owner.client.get(f"/api/v1/organizations/{first['id']}/metrics/pull-requests")
+    assert metrics.status_code == 200, metrics.text
+    assert metrics.json()["merged_count"] > 50
+    assert metrics.json()["metrics"]["cycle_time"]["p95_seconds"] > 0

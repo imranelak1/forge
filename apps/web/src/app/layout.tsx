@@ -3,6 +3,7 @@ import "@fontsource-variable/geist";
 import "./globals.css";
 import "@/features/auth/account.css";
 import "@/features/github/github.css";
+import "@/features/analytics/analytics.css";
 import { AppShell } from "@/components/app-shell";
 import { Providers } from "@/components/providers";
 

@@ -1,6 +1,6 @@
 # Ingestion, correlation and automation pipelines
 
-Status: Phase 3 implements the PostgreSQL inbox, fenced job leases, page checkpoints and PR/commit normalization. The worker runs separately from the API. Correlations, action outbox and automation remain Phases 8 and 9; scheduled orchestration remains Phase 10.
+Status: Phase 3 implements the PostgreSQL inbox, fenced job leases, page checkpoints and PR/commit normalization. Phase 4 adds repository-scoped enrichment jobs for reviews, transitions, PR membership, merge commits, file metadata and optional issues. Every page persists evidence and coverage together with a fenced checkpoint. Source revision changes invalidate old completeness; disconnected/demo sources cannot collect. The worker runs separately from the API. Correlations, action outbox and automation remain Phases 8 and 9; scheduled orchestration remains Phase 10.
 
 ## Implemented Phase 3 behavior
 

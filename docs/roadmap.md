@@ -20,7 +20,7 @@ Acceptance: register/login/logout/reset, create organization, invite matching ve
 
 ## Phase 3 — GitHub integration
 
-Implementation delivered; see [Phase 3 handoff](phase-3-review.md) for validation and the remaining live GitHub App setup. Automated validation uses isolated provider fixtures, not a connected customer account.
+Implementation delivered; see [Phase 3 handoff](phase-3-review.md). The private GitHub App has since been connected, its signed webhook delivered successfully and one explicitly selected repository imported. Automated regression validation uses isolated provider fixtures.
 
 Add GitHub OAuth identity, installation binding, repository catalog, inbox/events/jobs, worker, sync runs/cursors and signed webhook ingress. Create minimal PR/commit persistence needed for history sync; analytic extensions arrive in Phase 4. Migrate every new table. Connect only repositories authorized by the verified installation.
 
@@ -28,7 +28,7 @@ Acceptance: connect a sandbox repository, backfill resumably, inspect real sync 
 
 ## Phase 4 — Pull request and commit analytics
 
-Add review/transition/file/issue relations, cycle/review/approval-to-merge metrics and traceable drill-down. Introduce database-backed PR sections of the overview. Seed 90-day PR history.
+Implementation and validation are recorded in [Phase 4 handoff](phase-4-review.md). Scope: review/transition/file/issue relations, cycle/review/approval-to-merge metrics and traceable drill-down; database-backed PR sections of the overview and isolated 90-day generated PR history.
 
 Acceptance: hand-calculated mean/median/P75/P95 fixtures match queries; missing approvals/reviews have explicit coverage; reopened/squashed/multi-PR commits behave as documented. All cross-tenant joins are rejected.
 

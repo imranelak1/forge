@@ -1,6 +1,6 @@
 # Forge architecture blueprint
 
-Status: Phase 3 implements verified GitHub App repository connections, signed webhook ingestion and a durable PostgreSQL worker alongside the completed identity/SaaS foundation. See [Phase 3 delivery](phase-3-review.md), [GitHub App setup](github-setup.md), and [ADR 011](adr/011-github-phase-3.md). The diagrams below continue to distinguish the broader phased target.
+Status: Phase 3 implements verified GitHub App repository connections, signed webhook ingestion and a durable PostgreSQL worker alongside the completed identity/SaaS foundation. See [Phase 3 delivery](phase-3-review.md), [GitHub App setup](github-setup.md), and [ADR 011](adr/011-github-phase-3.md). Phase 4 extends the worker with durable evidence enrichment and adds a read-only analytics service/repository over the same PostgreSQL data. [Phase 4 delivery](phase-4-review.md) records the exact implemented scope. The diagrams below continue to distinguish the broader phased target.
 
 ## Product and system boundaries
 

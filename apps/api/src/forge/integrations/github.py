@@ -334,12 +334,22 @@ class GitHubApp:
         return data
 
     async def installation_token(self, identifier: int) -> str:
-        await self.installation(identifier)
+        token, _ = await self.enrichment_credentials(identifier, include_issues=False)
+        return token
+
+    async def enrichment_credentials(
+        self, identifier: int, *, include_issues: bool = True
+    ) -> tuple[str, bool]:
+        installation = await self.installation(identifier)
+        issues = include_issues and installation["permissions"].get("issues") in {"read", "write"}
+        permissions = {"contents": "read", "pull_requests": "read"}
+        if issues:
+            permissions["issues"] = "read"
         data = await self.request(
             "POST",
             f"/app/installations/{identifier}/access_tokens",
             self.app_jwt(),
-            payload={"permissions": {"contents": "read", "pull_requests": "read"}},
+            payload={"permissions": permissions},
         )
         if (
             not isinstance(data, dict)
@@ -350,7 +360,10 @@ class GitHubApp:
             )
         ):
             raise GitHubFailure("permissions_required")
-        return token_value(data.get("token"))
+        return token_value(data.get("token")), issues and data["permissions"].get("issues") in {
+            "read",
+            "write",
+        }
 
     @staticmethod
     def list_field(data: object, field: str | None = None) -> list[dict[str, Any]]:
@@ -416,5 +429,100 @@ class GitHubApp:
             "GET", f"/repos/{segment(owner)}/{segment(name)}/pulls/{number}", token
         )
         if not isinstance(data, dict):
+            raise GitHubFailure("invalid_response")
+        return data
+
+    async def reviews(
+        self, token: str, owner: str, name: str, number: int, page: int
+    ) -> list[dict[str, Any]]:
+        positive_id(number)
+        return self.list_field(
+            await self.request(
+                "GET",
+                f"/repos/{segment(owner)}/{segment(name)}/pulls/{number}/reviews",
+                token,
+                params={"per_page": 100, "page": self.page(page)},
+            )
+        )
+
+    async def timeline(
+        self, token: str, owner: str, name: str, number: int, page: int
+    ) -> list[dict[str, Any]]:
+        positive_id(number)
+        return self.list_field(
+            await self.request(
+                "GET",
+                f"/repos/{segment(owner)}/{segment(name)}/issues/{number}/timeline",
+                token,
+                params={"per_page": 100, "page": self.page(page)},
+            )
+        )
+
+    async def pull_request_commits(
+        self, token: str, owner: str, name: str, number: int, page: int
+    ) -> list[dict[str, Any]]:
+        positive_id(number)
+        if not 1 <= self.page(page) <= 3:
+            raise GitHubFailure("capacity_exceeded")
+        return self.list_field(
+            await self.request(
+                "GET",
+                f"/repos/{segment(owner)}/{segment(name)}/pulls/{number}/commits",
+                token,
+                params={"per_page": 100, "page": page},
+            )
+        )
+
+    async def commit_details(
+        self, token: str, owner: str, name: str, identifier: str, page: int
+    ) -> dict[str, Any]:
+        if not re.fullmatch(r"[a-f0-9]{40}", identifier) or not 1 <= self.page(page) <= 30:
+            raise GitHubFailure("invalid_resource")
+        data = await self.request(
+            "GET",
+            f"/repos/{segment(owner)}/{segment(name)}/commits/{identifier}",
+            token,
+            params={"per_page": 100, "page": page},
+        )
+        if not isinstance(data, dict) or not isinstance(data.get("files"), list):
+            raise GitHubFailure("invalid_response")
+        # GitHub JSON unavoidably includes patch fragments. Drop them at the adapter
+        # boundary; no patch, raw_url, blob content, or provider body enters storage/logs.
+        allowed = {"filename", "previous_filename", "status", "additions", "deletions", "changes"}
+        files = self.list_field(data, "files")
+        return {
+            **{key: data.get(key) for key in ("sha", "commit", "author", "stats")},
+            "files": [
+                {key: value for key, value in row.items() if key in allowed} for row in files
+            ],
+        }
+
+    async def issues(
+        self, token: str, owner: str, name: str, page: int, since: str
+    ) -> list[dict[str, Any]]:
+        return self.list_field(
+            await self.request(
+                "GET",
+                f"/repos/{segment(owner)}/{segment(name)}/issues",
+                token,
+                params={
+                    "per_page": 100,
+                    "page": self.page(page),
+                    "state": "all",
+                    "sort": "updated",
+                    "direction": "desc",
+                    "since": since,
+                },
+            )
+        )
+
+    async def issue(self, token: str, owner: str, name: str, number: int) -> dict[str, Any]:
+        positive_id(number)
+        data = await self.request(
+            "GET",
+            f"/repos/{segment(owner)}/{segment(name)}/issues/{number}",
+            token,
+        )
+        if not isinstance(data, dict) or "pull_request" in data:
             raise GitHubFailure("invalid_response")
         return data

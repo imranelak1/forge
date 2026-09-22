@@ -156,7 +156,7 @@ Use the configured database name if different. Named volume storage must retain 
 docker compose exec -T backend python -m forge.seed
 ```
 
-The opt-in command creates two verified users, each owning a separate organization labeled as demonstration data. It prints generated passwords only on first creation and leaves existing credentials unchanged when repeated. Provide `FORGE_DEMO_PASSWORD` in the seed process environment to supply your own 12–128 character password; do not commit it or pass a password in command arguments. Seeding is rejected in production. There is no synthetic engineering history or metric data in Phase 2.
+The opt-in command creates two verified users, each owning a separate organization labeled as demonstration data. It prints generated passwords only on first creation and leaves existing credentials unchanged when repeated. Provide `FORGE_DEMO_PASSWORD` in the seed process environment to supply your own 12–128 character password; do not commit it or pass a password in command arguments. Seeding is rejected in production. Phase 4 additionally persists a fixed 90-day generated history: Demo One has two repositories and 90 PRs; Demo Two has one repository and 45 PRs. Reviews, transitions, commits, file metadata and issue references feed the real analytics queries. Stable IDs and a first-run anchor make reruns idempotent. Generated sources are marked, disconnected, have no external source links and cannot be synced. Existing customer organizations are never seeded.
 
 ## Troubleshooting and local credential rotation
 

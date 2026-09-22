@@ -1,6 +1,6 @@
 # Metric definitions and analytical model
 
-Status: proposed metric contracts and query designs. No metrics or generated values are implemented in Phase 0. Every shipped number must come from persisted records using the definitions below.
+Status: Phase 4 implements `pr-flow-v1` PR cycle, review-wait and approval-to-merge distributions, daily UTC trends and a separate current open queue using persisted PostgreSQL records. Exact percentiles and evidence drill-down share the same eligibility predicates. CI, deployment, test, error and dbt contracts below remain planned.
 
 ## Common rules
 
@@ -37,7 +37,7 @@ For PRs with reopened intervals, initial cycle time remains wall-clock time from
 
 ## Operational SQL designs
 
-These are illustrative query specifications for future repository implementations, not executable migrations or proof of tested SQL. Names correspond to [the logical model](data-model.md). Bind parameters through SQLAlchemy; never interpolate IDs or SQL fragments.
+The PR example illustrates the implemented formula; executable queries and common evidence predicates live in `apps/api/src/forge/repositories/analytics.py`. The other query specifications remain planned. Names correspond to [the logical model](data-model.md). Bind parameters through SQLAlchemy; never interpolate IDs or SQL fragments.
 
 Merged PR cycle-time summary:
 

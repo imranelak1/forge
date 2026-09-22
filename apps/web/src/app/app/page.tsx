@@ -1,5 +1,11 @@
-import { RepositoriesPage } from "@/features/github/repositories-page";
+import { Suspense } from "react";
+import { OverviewPage } from "@/features/analytics/overview-page";
+import { AnalyticsLoading } from "@/features/analytics/analytics-ui";
 
-export default function OverviewPage() {
-  return <RepositoriesPage overview />;
+export default function Page() {
+  return (
+    <Suspense fallback={<AnalyticsLoading />}>
+      <OverviewPage />
+    </Suspense>
+  );
 }

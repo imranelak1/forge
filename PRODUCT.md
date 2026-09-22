@@ -24,7 +24,7 @@ Issue → pull request → commits → CI → tests → deployment → productio
 
 ## Capabilities and Constraints
 
-Phase 2 implements accounts, sessions, organizations, invitations, roles and tenant isolation. The user subsequently authorized GitHub and Google sign-in, including explicit connections to existing verified accounts. Provider-issued credentials are required to enable each option. Phase 3 adds verified GitHub App connections, repository selection, signed webhooks and durable PR/commit history sync. Engineering analytics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
+Phase 2 implements accounts, sessions, organizations, invitations, roles and tenant isolation. The user subsequently authorized GitHub and Google sign-in, including explicit connections to existing verified accounts. Provider-issued credentials are required to enable each option. Phase 3 adds verified GitHub App connections, repository selection, signed webhooks and durable PR/commit history sync. Phase 4 adds database-backed PR timing, daily trends, pull request/commit details, review/lifecycle/file evidence and optional issue links. CI, test and production-error analytics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
 
 ## Brand Commitments
 
@@ -34,7 +34,7 @@ The user authorized the public landing at `/` with a central SVG track using Ani
 
 ## Evidence on Hand
 
-The approved architecture and milestone contracts live in docs/. Identity and organization records are real; opt-in demo organizations are explicitly synthetic. No imported engineering history, commercial claims or production deployment exists.
+The approved architecture and milestone contracts live in docs/. Identity and organization records are real; opt-in demo organizations are explicitly synthetic. A private GitHub App is connected locally and one selected repository has imported engineering history. Opt-in generated history is restricted to marked demo organizations and repositories. No commercial claims or production deployment exists.
 
 ## Product Principles
 

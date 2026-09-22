@@ -72,6 +72,13 @@ export default function GuidePage() {
             selected repositories as changes arrive. CI and deployment analytics are planned for
             later phases.
           </p>
+          <p>
+            The overview compares cycle time, review wait and approval-to-merge for the same merged
+            pull requests. Open the included or excluded samples to inspect reviews and lifecycle
+            evidence. Refresh data after a sync finishes. Optional Issues read permission enables
+            issue history and explicit links; missing permission leaves PR and commit imports
+            available.
+          </p>
           <Link className="text-link" href="/app/integrations">
             Open integrations
             <ArrowRight size={14} aria-hidden="true" />
@@ -102,7 +109,8 @@ export default function GuidePage() {
           <h2>Build sequence</h2>
           <p>
             Forge is being implemented one phase at a time. This installation contains the
-            foundation, account access, organizations and GitHub repository ingestion.
+            foundation, account access, organizations, GitHub repository ingestion and pull request
+            analytics with source evidence.
           </p>
           <ol className="phase-list">
             <li>
@@ -125,16 +133,23 @@ export default function GuidePage() {
                 <strong>GitHub integration</strong>
                 <p>Repository access, historical synchronization and verified webhooks.</p>
               </div>
+            </li>
+            <li>
+              <span>Phase 4</span>
+              <div>
+                <strong>Pull requests & commit analytics</strong>
+                <p>
+                  Timing distributions, sample coverage, reviews, lifecycle history, explicit
+                  relationships and changed-file metadata.
+                </p>
+              </div>
               <span className="current-phase">Current</span>
             </li>
             <li>
-              <span>Phases 4–9</span>
+              <span>Phases 5–9</span>
               <div>
                 <strong>Intelligence & automation</strong>
-                <p>
-                  PR, CI, test and error analytics, lifecycle evidence, alerts and pipeline
-                  responses.
-                </p>
+                <p>CI, deployment, test and error analytics, alerts and pipeline responses.</p>
               </div>
             </li>
           </ol>
@@ -142,9 +157,10 @@ export default function GuidePage() {
         <section>
           <h2>Your data stays explicit</h2>
           <p>
-            No sample metrics or customer records are bundled into this build. Later demo history
-            will be labeled synthetic and stored in the same database models as connected data. An
-            unconnected source will always remain distinct from a healthy source with no activity.
+            Demo organizations contain clearly labeled generated history in the same database models
+            as connected records. Their metrics use the same queries; live GitHub data stays
+            separate. Missing review or issue evidence is shown explicitly, and unavailable timing
+            samples are never displayed as zero.
           </p>
         </section>
       </div>

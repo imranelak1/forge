@@ -13,7 +13,7 @@ THESIS: Connect only the repositories the organization authorizes, then show wha
 
 OWN-WORLD: Geist UI type, flat divided sections, native selects and checkboxes, compact buttons and a readable data table. State color always accompanies text; no charts or summary metrics beyond stored records.
 
-STORY: An installation administrator configures the GitHub App. A verified Forge owner or admin installs and authorizes it, chooses an installation, selects repositories and saves. The repository view shows import progress, stored counts and retry/history controls. Access changes stop ingestion explicitly.
+STORY: An installation administrator configures the GitHub App. A verified Forge owner or admin installs and authorizes it, chooses an installation, selects repositories and saves. The repository view shows import progress, stored counts and retry/history controls. Stored counts link into Phase 4 PR and commit history; issues have a separate repository link. Generated demo history is identified and cannot start live syncs. Access changes stop ingestion explicitly.
 
 FIRST VIEWPORT: Integrations uses the established settings grid, leading with honest app availability. Connected accounts extend into catalog checkboxes and explicit save/confirmation controls. Repositories uses a desktop table with name/branch/language, last push, imported counts and synchronization. On mobile, each record becomes a flat labeled row with two compact detail columns and full-width sync controls. Expanded history stays inside the viewport.
 

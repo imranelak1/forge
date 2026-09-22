@@ -1,6 +1,6 @@
 # Entity and tenant model
 
-Status: Alembic `0004_github` adds GitHub authorizations, installation routing, integrations, repositories, sync runs, webhook receipts/inbox, leased jobs, minimal PR/commit projections and normalized events. Tenant tables use forced RLS and composite tenant foreign keys. `0001` through `0003` remain the foundation, identity and social-login history. Entities not listed in this implemented scope remain the phased target.
+Status: Alembic `0004_github` adds GitHub authorizations, installation routing, integrations, repositories, sync runs, webhook receipts/inbox, leased jobs, minimal PR/commit projections and normalized events. Tenant tables use forced RLS and composite tenant foreign keys. `0001` through `0003` remain the foundation, identity and social-login history. Phase 4 migration `0006_analytics` adds PR reviews/transitions, explicit commit membership/merge links, file metadata, issues/references and evidence coverage. Entities outside these implemented scopes remain the phased target.
 
 ## Implemented GitHub storage (Phase 3)
 
@@ -20,9 +20,13 @@ Status: Alembic `0004_github` adds GitHub authorizations, installation routing, 
 | `commits`                      | Imported commit, unique organization/repository/full SHA                                                                                   |
 | `events`                       | Normalized immutable observation, unique organization/source key; repository and integration composite references                          |
 
-Reinstalling an App creates a new integration and repository identities while retaining the old import history. Repository IDs never silently move across installation boundaries. This is an operational ingestion model; review history, project grouping and analytical models below remain planned. The `0005` downgrade refuses uniqueness contraction if multiple installation histories exist rather than deleting them.
+Reinstalling an App creates a new integration and repository identities while retaining the old import history. Repository IDs never silently move across installation boundaries. Phase 4 extends this operational ingestion model with review/lifecycle evidence and timing queries. Project grouping and later analytical serving models remain planned. The `0005` downgrade refuses uniqueness contraction if multiple installation histories exist rather than deleting them.
 
 ## Shared conventions and invariants
+
+Phase 4 evidence tables use UUID IDs, forced tenant RLS, natural-key uniqueness, and same-repository composite references. `pull_request_reviews` retains source state, known original state and submitted/approved/dismissed timestamps. `pull_request_transitions` preserves explicit lifecycle events by source key. `pull_request_commits` distinguishes head membership from actual merge SHA; one commit may belong to several PRs. `commit_files` stores names, rename origin, status and counts without patches. `issues` and `issue_pull_requests` retain only explicit same-repository references. Coverage status/error/observation timestamps live beside each source fact; metrics reduce reviews to PR grain before aggregating to avoid fan-out.
+
+The existing job queue gains `kind=enrichment` and a repository/integration composite reference, plus a bounded JSON page/revision checkpoint. `repositories.is_demo` marks generated history; its disconnected integrations have no live installation binding. Synthetic IDs are stable within their designated demo tenant, with a persisted generation anchor for repeatable 90-day history.
 
 - Internal identifiers are UUIDs; provider IDs are separate identifiers (positive bigint GitHub IDs and full commit SHAs in Phase 3). A GitHub numeric ID, SHA, PR number, or URL is never a tenant authorization credential.
 - Every organization-owned row has a non-null `organization_id`. This includes junctions, test cases, background jobs, raw events, metric evidence and action attempts. Global identities and narrowly scoped authentication/routing control records are exceptions documented below.

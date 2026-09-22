@@ -1,6 +1,6 @@
 # API architecture
 
-Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Later engineering analytics and automation contracts remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
+Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Phase 4 adds PR/commit/issue records, paginated evidence and PR timing metrics. Later CI/test/error analytics and automation contracts remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
 
 ## Request path
 
@@ -47,6 +47,12 @@ Last-owner changes run under a membership/organization lock. Service tokens acce
 
 ## Endpoint inventory
 
+Phase 4 read routes also page child evidence: `/pull-requests/{id}/{reviews,transitions,commits,issues}`, `/commits/{id}/{files,pull-requests}`, and `/issues/{id}/pull-requests`, all beneath the organization prefix. `/issues/{id}` returns issue detail. Lists return `{items,next_cursor,window?}`; child collections have their own bounded cursor. List limits are 1–100 (default 30). Cursors are signed and bound to organization, route, resource, filters, ordering and page size; default time windows are preserved across pages.
+
+PR/commit metrics and lists accept optional `repository`, exact case-insensitive `author`, and timezone-aware `from`/`to` bounds (half-open UTC, default 90 days, at most 366). Without a repository ID, reads include selected repositories and their retained history. PR lists additionally accept `state=all|open|closed|merged`, `cohort=activity|merged`, `metric=cycle_time|review_wait|approval_to_merge` and `eligibility=eligible|excluded|all`. A metric selects the merged cohort and defaults to eligible evidence. Repository issue lists use last activity with their own state filter.
+
+Metrics return `formula_version`, `as_of`, `window`, `scope`, `merged_count`, three distributions, daily `trend`, a separate `open_queue`, and `coverage`. Distributions include exact mean/median/P75/P95 seconds, eligible/excluded counts and exclusion reasons. Unknown durations and unsafe/absent source URLs are null. Evidence coverage remains one of pending/partial/complete/failed/unavailable. Analytics reads never contact GitHub and never infer approval from an unknown dismissed review.
+
 `{org}` below abbreviates `/organizations/{organization_id}`. Every listed resource route is tenant scoped. Implement only the endpoints required by the active milestone.
 
 | Phase | Method and route after `/api/v1`                                                                     | Behavior                                                                                    |
@@ -73,7 +79,7 @@ Last-owner changes run under a membership/organization lock. Service tokens acce
 | 3     | `GET {org}/repositories`                                                                             | Selected repository metadata, stored counts and latest sync                                 |
 | 3     | `POST {org}/repositories/{id}/sync`; `GET {org}/repositories/{id}/sync-runs`                         | Durable sync request and cursor-paged history                                               |
 | 3     | `POST /webhooks/github`                                                                              | Raw-body signature verification and atomic receipt/job acceptance                           |
-| 4     | `GET {org}/repositories/{id}/issues`, `/pull-requests`, `/commits`                                   | Paginated engineering records                                                               |
+| 4     | `GET {org}/repositories/{id}/issues`, `{org}/pull-requests`, `{org}/commits`                         | Paginated engineering records                                                               |
 | 4     | `GET {org}/pull-requests/{id}`; `GET {org}/commits/{id}`                                             | Reviews, transitions, file metadata and known associations                                  |
 | 4     | `GET {org}/metrics/pull-requests`                                                                    | Average, median, P75, P95 and coverage for timing metrics                                   |
 | 5     | `GET {org}/workflow-runs`; `GET {org}/workflow-runs/{id}`                                            | Attempts, jobs and failure evidence                                                         |
