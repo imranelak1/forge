@@ -20,8 +20,9 @@ GOOGLE_JWKS = "https://www.googleapis.com/oauth2/v3/certs"
 
 
 class OAuthFailure(Exception):
-    def __init__(self, code: str) -> None:
+    def __init__(self, code: str, *, reason: str | None = None) -> None:
         self.code = code
+        self.reason = reason or code
         super().__init__(code)
 
 
@@ -36,11 +37,11 @@ class ProviderIdentity:
 
 def canonical_email(value: object) -> str:
     if not isinstance(value, str) or len(value) > 254:
-        raise OAuthFailure("invalid_identity")
+        raise OAuthFailure("invalid_identity", reason="email_format")
     try:
         return validate_email(value, check_deliverability=False).normalized.casefold()
     except EmailNotValidError as exc:
-        raise OAuthFailure("invalid_identity") from exc
+        raise OAuthFailure("invalid_identity", reason="email_format") from exc
 
 
 def display_name(value: object, email: str) -> str:
@@ -196,22 +197,22 @@ class OAuthProvider:
         data["grant_type"] = "authorization_code"
         token = await self.request_json("POST", "https://oauth2.googleapis.com/token", data=data)
         if not isinstance(token, dict) or not isinstance(token.get("id_token"), str):
-            raise OAuthFailure("invalid_identity")
+            raise OAuthFailure("invalid_identity", reason="missing_id_token")
         return await self.google_identity(
             token["id_token"], identifier, self.derive(state, "nonce")
         )
 
     async def google_identity(self, token: str, audience: str, nonce: str) -> ProviderIdentity:
         if len(token) > 16384:
-            raise OAuthFailure("invalid_identity")
+            raise OAuthFailure("invalid_identity", reason="id_token_size")
         try:
             header = jwt.get_unverified_header(token)
             if header.get("alg") != "RS256" or not isinstance(header.get("kid"), str):
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="id_token_header")
             # Never follow jku/x5u supplied by an untrusted token.
             jwks = await self.request_json("GET", GOOGLE_JWKS)
             if not isinstance(jwks, dict) or not isinstance(jwks.get("keys"), list):
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="signing_keys_format")
             key = next(
                 (
                     item
@@ -225,7 +226,7 @@ class OAuthProvider:
                 None,
             )
             if key is None:
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="signing_key_missing")
             claims = jwt.decode(
                 token,
                 jwt.PyJWK.from_dict(key, algorithm="RS256").key,
@@ -250,14 +251,14 @@ class OAuthProvider:
                 and len(claims["aud"]) > 1
                 and claims.get("azp") != audience
             ):
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="authorized_party")
             actual_nonce = claims["nonce"]
             if (
                 not isinstance(actual_nonce, str)
                 or not actual_nonce.isascii()
                 or not hmac.compare_digest(actual_nonce, nonce)
             ):
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="nonce_mismatch")
             subject = claims["sub"]
             if (
                 not isinstance(subject, str)
@@ -265,7 +266,7 @@ class OAuthProvider:
                 or len(subject) > 255
                 or not subject.isascii()
             ):
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="subject_format")
             if claims["email_verified"] is not True:
                 raise OAuthFailure("email_unverified")
             email = canonical_email(claims["email"])
@@ -281,4 +282,4 @@ class OAuthProvider:
                 "google", subject, email, display_name(claims.get("name"), email), authoritative
             )
         except (jwt.PyJWTError, ValueError, TypeError, KeyError) as exc:
-            raise OAuthFailure("invalid_identity") from exc
+            raise OAuthFailure("invalid_identity", reason="id_token_validation") from exc

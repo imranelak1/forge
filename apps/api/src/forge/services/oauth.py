@@ -1,5 +1,6 @@
 import asyncio
 import hmac
+import logging
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import timedelta
@@ -17,6 +18,7 @@ from forge.security.identity import SESSION_SECONDS, now, opaque_token, token_ha
 from forge.services.identity import IdentityService, SessionResult
 
 OAUTH_SECONDS = 600
+logger = logging.getLogger("forge.oauth")
 AUTHORIZATION_ISSUERS = {
     "google": "https://accounts.google.com",
     "github": "https://github.com",
@@ -128,38 +130,73 @@ class OAuthService:
         issuer: str | None = None,
     ) -> OAuthCallback:
         target = "/login"
+        stage = "state"
         try:
             attempt = await self.consume_state(provider, state, binding)
+            stage = "callback"
             if attempt["intent"] == "link":
                 target = "/app/account"
             # RFC 9207: compare decoded issuer exactly against the provider selected
             # when starting this flow. Never fetch a URL supplied by the callback.
             # An empty string also rejects duplicate issuer parameters at the route.
             if issuer is not None and issuer != AUTHORIZATION_ISSUERS[provider]:
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="callback_issuer")
             if error is not None:
                 raise OAuthFailure("denied")
             if not code or len(code) > 2048:
-                raise OAuthFailure("invalid_identity")
+                raise OAuthFailure("invalid_identity", reason="callback_code")
             actor = None
             if attempt["intent"] == "link":
+                stage = "link_session"
                 try:
                     actor = await self.identity.authenticate(access)
                 except DomainError as exc:
                     raise OAuthFailure("link_unavailable") from exc
                 if actor.user_id != attempt["user_id"] or actor.session_id != attempt["session_id"]:
                     raise OAuthFailure("link_unavailable")
+            stage = "provider_identity"
             async with asyncio.timeout(8.0):
                 identity = await self.provider.exchange(provider, code, state)
+            stage = "account"
             session = await self.complete(attempt, identity, actor)
             if attempt["intent"] == "link":
                 return OAuthCallback("/app/account?oauth=linked")
             return OAuthCallback(login_target(attempt["return_to"]), session)
         except OAuthFailure as exc:
+            # Log only our fixed codes/stages and exception class. Upstream messages,
+            # callback parameters, tokens and identity claims must never be logged.
+            logger.warning(
+                "oauth.callback_failed",
+                extra={
+                    "provider": provider,
+                    "oauth_stage": stage,
+                    "oauth_error": exc.code,
+                    "oauth_reason": exc.reason,
+                    "error_type": type(exc.__cause__ or exc).__name__,
+                },
+            )
             return OAuthCallback(f"{target}?oauth_error={exc.code}")
         except TimeoutError:
+            logger.warning(
+                "oauth.callback_failed",
+                extra={
+                    "provider": provider,
+                    "oauth_stage": stage,
+                    "oauth_error": "provider_unavailable",
+                    "error_type": "TimeoutError",
+                },
+            )
             return OAuthCallback(f"{target}?oauth_error=provider_unavailable")
         except DomainError:
+            logger.warning(
+                "oauth.callback_failed",
+                extra={
+                    "provider": provider,
+                    "oauth_stage": stage,
+                    "oauth_error": "provider_unavailable",
+                    "error_type": "DomainError",
+                },
+            )
             # Preserve the callback's fixed, local error contract without upstream details.
             return OAuthCallback(f"{target}?oauth_error=provider_unavailable")
 

@@ -12,7 +12,18 @@ class JsonFormatter(logging.Formatter):
             "service": "forge-api",
             "event": record.getMessage(),
         }
-        for key in ("request_id", "method", "path", "status", "duration_ms", "error_type"):
+        for key in (
+            "request_id",
+            "method",
+            "path",
+            "status",
+            "duration_ms",
+            "error_type",
+            "provider",
+            "oauth_stage",
+            "oauth_error",
+            "oauth_reason",
+        ):
             if hasattr(record, key):
                 payload[key] = getattr(record, key)
         return json.dumps(payload)
