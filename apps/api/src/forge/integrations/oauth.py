@@ -17,6 +17,7 @@ from forge.config import Settings
 Provider = Literal["github", "google"]
 PROVIDERS: tuple[Provider, ...] = ("github", "google")
 GOOGLE_JWKS = "https://www.googleapis.com/oauth2/v3/certs"
+GOOGLE_CLOCK_SKEW_SECONDS = 30
 
 
 class OAuthFailure(Exception):
@@ -233,6 +234,9 @@ class OAuthProvider:
                 algorithms=["RS256"],
                 audience=audience,
                 issuer=["accounts.google.com", "https://accounts.google.com"],
+                # Google and the API can differ slightly at issuance. Keep time
+                # validation enabled with bounded skew only for external Google tokens.
+                leeway=GOOGLE_CLOCK_SKEW_SECONDS,
                 options={
                     "require": [
                         "exp",

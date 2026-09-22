@@ -2,7 +2,8 @@ import base64
 import hashlib
 import json
 import secrets
-from datetime import UTC, datetime, timedelta
+from collections.abc import AsyncIterator, Callable
+from datetime import UTC, datetime, timedelta, tzinfo
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
@@ -12,8 +13,10 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from pydantic import SecretStr, ValidationError
 
 from forge.config import Settings
+from forge.domain.identity import DomainError
 from forge.integrations.oauth import OAuthFailure, OAuthProvider
 from forge.main import create_app
+from forge.security.identity import TokenCodec
 from forge.services.oauth import login_target, safe_return
 
 
@@ -199,3 +202,134 @@ async def test_google_workspace_authority_requires_matching_hosted_domain(
         provider.client = transport
         identity = await provider.google_identity(token, "client-id", "browser-nonce")
     assert identity.email_authoritative is authoritative
+
+
+FROZEN_GOOGLE_TIME = datetime(2026, 9, 22, 12, 0, 0, tzinfo=UTC)
+
+
+@pytest.fixture
+async def google_clock(
+    settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> AsyncIterator[tuple[OAuthProvider, Callable[[dict[str, object]], str]]]:
+    class FrozenDateTime(datetime):
+        @classmethod
+        def now(cls, tz: tzinfo | None = None) -> datetime:
+            return (
+                FROZEN_GOOGLE_TIME.astimezone(tz)
+                if tz is not None
+                else FROZEN_GOOGLE_TIME.replace(tzinfo=None)
+            )
+
+    monkeypatch.setattr(jwt.api_jwt, "datetime", FrozenDateTime)
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public = {
+        **json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(key.public_key())),
+        "kid": "clock-fixture",
+        "alg": "RS256",
+        "use": "sig",
+    }
+    epoch = int(FROZEN_GOOGLE_TIME.timestamp())
+
+    def sign(overrides: dict[str, object]) -> str:
+        claims = {
+            "sub": "clock-user",
+            "iss": "https://accounts.google.com",
+            "aud": "client-id",
+            "iat": epoch - 60,
+            "exp": epoch + 3600,
+            "nonce": "browser-nonce",
+            "email": "clock-user@gmail.com",
+            "email_verified": True,
+            **overrides,
+        }
+        return jwt.encode(claims, key, algorithm="RS256", headers={"kid": "clock-fixture"})
+
+    def keys(request: httpx.Request) -> httpx.Response:
+        assert str(request.url) == "https://www.googleapis.com/oauth2/v3/certs"
+        return httpx.Response(200, json={"keys": [public]})
+
+    provider = OAuthProvider(settings)
+    await provider.client.aclose()
+    async with httpx.AsyncClient(transport=httpx.MockTransport(keys)) as transport:
+        provider.client = transport
+        yield provider, sign
+
+
+@pytest.mark.parametrize(
+    "claim,offset,accepted",
+    [
+        ("iat", 29, True),
+        ("iat", 30, True),
+        ("iat", 31, False),
+        ("nbf", 29, True),
+        ("nbf", 30, True),
+        ("nbf", 31, False),
+        ("exp", -29, True),
+        ("exp", -30, False),
+        ("exp", -31, False),
+    ],
+)
+async def test_google_time_claims_allow_only_thirty_seconds_of_clock_skew(
+    google_clock: tuple[OAuthProvider, Callable[[dict[str, object]], str]],
+    claim: str,
+    offset: int,
+    accepted: bool,
+) -> None:
+    provider, sign = google_clock
+    token = sign({claim: int(FROZEN_GOOGLE_TIME.timestamp()) + offset})
+    if accepted:
+        identity = await provider.google_identity(token, "client-id", "browser-nonce")
+        assert identity.subject == "clock-user"
+    else:
+        with pytest.raises(OAuthFailure) as failure:
+            await provider.google_identity(token, "client-id", "browser-nonce")
+        assert failure.value.code == "invalid_identity"
+        expected = jwt.ExpiredSignatureError if claim == "exp" else jwt.ImmatureSignatureError
+        assert isinstance(failure.value.__cause__, expected)
+
+
+@pytest.mark.parametrize(
+    "claim,value,reason,cause",
+    [
+        ("nonce", "another-browser", "nonce_mismatch", None),
+        ("iss", "https://attacker.example.com", "id_token_validation", jwt.InvalidIssuerError),
+        ("aud", "another-client", "id_token_validation", jwt.InvalidAudienceError),
+    ],
+)
+async def test_google_clock_tolerance_preserves_nonce_issuer_and_audience_checks(
+    google_clock: tuple[OAuthProvider, Callable[[dict[str, object]], str]],
+    claim: str,
+    value: str,
+    reason: str,
+    cause: type[Exception] | None,
+) -> None:
+    provider, sign = google_clock
+    token = sign({"iat": int(FROZEN_GOOGLE_TIME.timestamp()) + 15, claim: value})
+    with pytest.raises(OAuthFailure) as failure:
+        await provider.google_identity(token, "client-id", "browser-nonce")
+    assert failure.value.code == "invalid_identity"
+    assert failure.value.reason == reason
+    if cause is not None:
+        assert isinstance(failure.value.__cause__, cause)
+
+
+async def test_google_clock_tolerance_does_not_change_forge_session_validation(
+    settings: Settings,
+    google_clock: tuple[OAuthProvider, Callable[[dict[str, object]], str]],
+) -> None:
+    issued = int(FROZEN_GOOGLE_TIME.timestamp())
+    token = jwt.encode(
+        {
+            "iss": "forge",
+            "aud": "forge-browser",
+            "kind": "access",
+            "iat": issued + 15,
+            "exp": issued + 600,
+        },
+        settings.auth_secret.get_secret_value(),
+        algorithm="HS256",
+    )
+    with pytest.raises(DomainError) as failure:
+        TokenCodec(settings).decode(token, "access")
+    assert isinstance(failure.value.__cause__, jwt.ImmatureSignatureError)
