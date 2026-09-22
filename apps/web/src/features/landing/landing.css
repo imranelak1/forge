@@ -343,7 +343,7 @@
 }
 .chapter-copy {
   grid-column: 1;
-  max-width: 320px;
+  max-width: 336px;
   pointer-events: auto;
 }
 .chapter-right .chapter-copy {

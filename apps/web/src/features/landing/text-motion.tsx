@@ -13,6 +13,8 @@ export function TextLines({ lines }: { lines: string[] }) {
   ));
 }
 
+const clamp = (value: number) => Math.max(0, Math.min(1, value));
+
 export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const element = root.current;
@@ -28,96 +30,186 @@ export function useLandingTextMotion(root: RefObject<HTMLDivElement | null>) {
       cleanup = () => {};
       element!.dataset.textMotion = preference.matches ? "static" : "loading";
       if (preference.matches) return;
-      const { createTimeline, splitText, stagger } = await import("animejs");
+      const [{ createTimeline, splitText, stagger }] = await Promise.all([
+        import("animejs"),
+        document.fonts.ready,
+      ]);
       if (version !== generation) return;
-      const seen = new Set<HTMLElement>();
-      const running = new Map<HTMLElement, () => void>();
-      const finish = (scene: HTMLElement) => running.get(scene)?.();
-      const reveal = (scene: HTMLElement) => {
+      let frame = 0,
+        lastTime = 0;
+      const passages = scenes.map((scene) => {
         const headings = Array.from(scene.querySelectorAll<HTMLElement>("[data-text-line]"));
         const copy = scene.querySelector<HTMLElement>("[data-text-copy]");
-        // Split only for the entrance, then restore the original DOM for natural text flow.
+        // Persistent splits let scrolling scrub both entrance and exit without restarting.
+        // Anime.js keeps an unsplit, visually hidden copy for assistive technology.
         const titles = headings.map((line) =>
           splitText(line, { words: { wrap: "clip" }, chars: true }),
         );
         const body = copy ? splitText(copy, { words: { wrap: "clip" } }) : null;
         const chars = titles.flatMap((title) => title.chars);
-        scene.dataset.textState = "running";
-        const timeline = createTimeline({ autoplay: false, onComplete: () => finish(scene) });
-        const restore = () => {
-          timeline.revert();
-          titles.forEach((title) => title.revert());
-          body?.revert();
-          running.delete(scene);
-          scene.dataset.textState = "complete";
-        };
-        running.set(scene, restore);
-        const reverse = scene.dataset.textScene === "investigate";
-        timeline.add(
+        const words = body?.words ?? [];
+        const evidence = scene.querySelector<HTMLElement>(".chapter-evidence");
+        const direction = scene.dataset.textScene === "investigate" ? -1 : 1;
+        const titleStagger = stagger(Math.min(16, 180 / Math.max(1, chars.length - 1)));
+        const wordStagger = stagger(Math.min(18, 200 / Math.max(1, words.length - 1)));
+        const timeline = createTimeline({ autoplay: false }).add(
           chars,
           {
-            y: [reverse ? "-105%" : "105%", "0%"],
-            duration: 440,
-            ease: "out(4)",
-            delay: stagger(Math.min(12, 180 / Math.max(1, chars.length - 1))),
+            y: [`${direction * 120}%`, "0%"],
+            x: [direction * 8, 0],
+            opacity: [0, 1],
+            duration: 540,
+            delay: titleStagger,
+            ease: "out(3)",
           },
           0,
         );
-        if (body)
+        if (words.length)
           timeline.add(
-            body.words,
+            words,
             {
-              y: ["110%", "0%"],
-              duration: 330,
-              ease: "out(4)",
-              delay: stagger(Math.min(14, 230 / Math.max(1, body.words.length - 1))),
+              y: ["115%", "0%"],
+              opacity: [0, 1],
+              duration: 400,
+              delay: wordStagger,
+              ease: "out(3)",
             },
-            60,
+            120,
           );
-        timeline.play();
-      };
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const scene = entry.target as HTMLElement;
-            if (!entry.isIntersecting) {
-              finish(scene);
-              if (entry.boundingClientRect.bottom < 0 || entry.boundingClientRect.top > innerHeight)
-                seen.delete(scene);
-            } else if (!seen.has(scene)) {
-              seen.add(scene);
-              reveal(scene);
-            }
-          }
-        },
-        { rootMargin: "0px 0px -5% 0px", threshold: 0.2 },
-      );
-      const finishAll = () => [...running.keys()].forEach(finish);
-      const onFocus = (event: FocusEvent) => {
-        if (event.target instanceof Element) {
-          const scene = event.target.closest<HTMLElement>("[data-text-scene]");
-          if (scene) finish(scene);
+        timeline.add(
+          chars,
+          {
+            y: ["0%", `${direction * -120}%`],
+            x: [0, direction * -8],
+            opacity: [1, 0],
+            duration: 320,
+            delay: titleStagger,
+            ease: "in(2)",
+          },
+          900,
+        );
+        if (words.length)
+          timeline.add(
+            words,
+            {
+              y: ["0%", "-115%"],
+              opacity: [1, 0],
+              duration: 280,
+              delay: stagger(Math.min(14, 150 / Math.max(1, words.length - 1))),
+              ease: "in(2)",
+            },
+            950,
+          );
+        if (evidence)
+          timeline
+            .add(evidence, { y: [12, 0], opacity: [0, 1], duration: 300, ease: "out(3)" }, 260)
+            .add(evidence, { y: [0, -12], opacity: [1, 0], duration: 240, ease: "in(2)" }, 1040);
+        return { scene, headings, copy, titles, body, timeline, target: 0, progress: 0 };
+      });
+      const read = () => {
+        for (const passage of passages) {
+          const { scene, headings, copy } = passage;
+          const top = headings[0].getBoundingClientRect().top;
+          const bottom = (copy ?? headings.at(-1)!).getBoundingClientRect().bottom;
+          const height = bottom - top;
+          const chapter = Boolean(scene.closest("[data-chapter]"));
+          // Keep a reading interval, including room to read unusually tall paragraphs.
+          const exitStart = Math.min(
+            chapter ? innerHeight * 0.22 : Math.min(80, innerHeight * 0.1),
+            innerHeight * 0.82 - height,
+          );
+          const exitEnd = exitStart - Math.max(110, Math.min(190, height * 0.6));
+          const entrance = clamp((innerHeight * 0.94 - top) / (innerHeight * 0.42));
+          const exit = clamp((exitStart - top) / (exitStart - exitEnd));
+          passage.target = exit > 0 ? 1 + exit : entrance;
+          if (scene.contains(document.activeElement) && top < innerHeight && bottom > 0)
+            passage.target = 1;
         }
       };
-      const onVisibility = () => {
-        if (document.hidden) finishAll();
+      const draw = (time: number) => {
+        frame = 0;
+        if (document.hidden) return;
+        const dt = Math.min((time - lastTime) / 1000 || 0.016, 0.05);
+        lastTime = time;
+        let moving = false;
+        for (const passage of passages) {
+          passage.progress += (passage.target - passage.progress) * (1 - Math.exp(-dt * 16));
+          if (Math.abs(passage.target - passage.progress) < 0.001)
+            passage.progress = passage.target;
+          const progress = passage.progress;
+          const clock = progress <= 1 ? progress * 720 : 900 + (progress - 1) * 500;
+          passage.timeline.seek(clock, true);
+          passage.scene.dataset.textProgress = progress.toFixed(3);
+          passage.scene.dataset.textState =
+            progress === 0
+              ? "before"
+              : progress === 2
+                ? "after"
+                : progress === 1
+                  ? "visible"
+                  : progress < 1
+                    ? "entering"
+                    : "exiting";
+          moving ||= progress !== passage.target;
+        }
+        element!.dataset.textMoving = String(moving);
+        if (moving) frame = requestAnimationFrame(draw);
       };
-      scenes.forEach((scene) => observer.observe(scene));
+      const requestDraw = () => {
+        if (!frame && !document.hidden) frame = requestAnimationFrame(draw);
+      };
+      const onScroll = () => {
+        read();
+        requestDraw();
+      };
+      const onVisibility = () => {
+        if (document.hidden) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+        } else onScroll();
+      };
+      const onFocus = () => {
+        read();
+        for (const passage of passages) {
+          if (passage.scene.contains(document.activeElement)) passage.progress = passage.target;
+        }
+        requestDraw();
+      };
+      const resize = new ResizeObserver(onScroll);
+      passages.forEach(({ scene }) => resize.observe(scene));
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll);
       element!.addEventListener("focusin", onFocus);
-      window.addEventListener("resize", finishAll);
+      element!.addEventListener("focusout", onScroll);
       document.addEventListener("visibilitychange", onVisibility);
+      read();
+      for (const passage of passages) {
+        // Animate the first visible passage on load; offscreen text takes its scroll state.
+        passage.progress = passage.target > 0 && passage.target <= 1 ? 0 : passage.target;
+      }
       element!.dataset.textMotion = "ready";
+      requestDraw();
       cleanup = () => {
-        observer.disconnect();
-        finishAll();
-        scenes.forEach((scene) => delete scene.dataset.textState);
+        cancelAnimationFrame(frame);
+        resize.disconnect();
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onScroll);
         element!.removeEventListener("focusin", onFocus);
-        window.removeEventListener("resize", finishAll);
+        element!.removeEventListener("focusout", onScroll);
         document.removeEventListener("visibilitychange", onVisibility);
+        passages.forEach(({ scene, timeline, titles, body }) => {
+          timeline.revert();
+          titles.forEach((title) => title.revert());
+          body?.revert();
+          delete scene.dataset.textState;
+          delete scene.dataset.textProgress;
+        });
+        delete element!.dataset.textMoving;
       };
     }
     const onPreference = () => {
       void configure().catch(() => {
+        cleanup();
         element.dataset.textMotion = "static";
       });
     };

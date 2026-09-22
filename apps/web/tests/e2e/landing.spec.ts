@@ -94,38 +94,60 @@ test("unavailable WebGL preserves the artwork and content", async ({ page }) => 
   await expect(page.getByRole("link", { name: "Open platform", exact: true })).toBeVisible();
 });
 
-test("headings and explanations animate independently and restore readable text", async ({
+test("headings and explanations scrub into view, exit, and reverse with scroll", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".landing")).toHaveAttribute("data-text-motion", "ready");
-  await page.evaluate(() => {
-    const scene = document.querySelector<HTMLElement>('[data-text-scene="connect"]')!;
-    const observer = new MutationObserver(() => {
-      if (!scene.dataset.headingAnimated && scene.querySelector('[data-char][style*="translateY"]'))
-        scene.dataset.headingAnimated = "true";
-      if (
-        !scene.dataset.copyAnimated &&
-        scene.querySelector('[data-text-copy] [data-word][style*="translateY"]')
-      )
-        scene.dataset.copyAnimated = "true";
-      if (scene.dataset.headingAnimated && scene.dataset.copyAnimated) observer.disconnect();
-    });
-    observer.observe(scene, { attributes: true, childList: true, subtree: true });
-  });
-  await goToChapter(page, "connect", 0.99);
+  const landing = page.locator(".landing");
   const scene = page.locator('[data-text-scene="connect"]');
-  await expect(scene).toHaveAttribute("data-heading-animated", "true");
-  await expect(scene).toHaveAttribute("data-copy-animated", "true");
-  await expect(scene).toHaveAttribute("data-text-state", "complete");
-  await expect(scene.locator("[data-char], [data-word]")).toHaveCount(0);
-  await expect(scene.locator("h2")).toHaveText("Connect the tools. Keep the context.");
+  await expect(landing).toHaveAttribute("data-text-motion", "ready");
+  const positionText = async (fraction: number) => {
+    await scene.locator("h2").evaluate((heading, fraction) => {
+      scrollTo(0, heading.getBoundingClientRect().top + scrollY - innerHeight * fraction);
+    }, fraction);
+    await expect(landing).toHaveAttribute("data-text-moving", "false");
+  };
+  const letter = scene.locator("[data-char]").first();
+  const word = scene.locator("[data-text-copy] [data-word]").first();
+  await positionText(0.76);
+  await expect(scene).toHaveAttribute("data-text-state", "entering");
+  const entrance = await letter.evaluate((el) => Number(getComputedStyle(el).opacity));
+  expect(entrance).toBeGreaterThan(0);
+  expect(entrance).toBeLessThan(1);
+  await expect(word).not.toHaveCSS("transform", "none");
+  await positionText(0.4);
+  await expect(scene).toHaveAttribute("data-text-state", "visible");
+  await expect(letter).toHaveCSS("opacity", "1");
+  await expect(word).toHaveCSS("opacity", "1");
+  await expect(scene.locator("h2")).toHaveAccessibleName("Connect the tools. Keep the context.");
+  await positionText(0.14);
+  await expect(scene).toHaveAttribute("data-text-state", "exiting");
+  const leaving = await scene
+    .locator("[data-char]")
+    .evaluateAll(
+      (letters) =>
+        letters.reduce((sum, el) => sum + Number(getComputedStyle(el).opacity), 0) / letters.length,
+    );
+  expect(leaving).toBeGreaterThan(0);
+  expect(leaving).toBeLessThan(1);
+  await positionText(-0.05);
+  await expect(scene).toHaveAttribute("data-text-state", "after");
+  await expect(letter).toHaveCSS("opacity", "0");
+  await expect(word).toHaveCSS("opacity", "0");
+  // The explanation's box is still on screen: its departure is animation, not scrolling out.
+  await expect(scene.locator("[data-text-copy]")).toBeInViewport();
+  await positionText(0.4);
+  await expect(scene).toHaveAttribute("data-text-state", "visible");
+  await expect(letter).toHaveCSS("opacity", "1");
+  await expect(word).toHaveCSS("opacity", "1");
+  await positionText(0.76);
+  await expect(scene).toHaveAttribute("data-text-state", "entering");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(landing).toHaveAttribute("data-text-motion", "static");
+  await expect(page.locator("[data-char], [data-word]")).toHaveCount(0);
   await expect(scene.locator("[data-text-copy]")).toHaveText(
     "Bring a pull request, its CI run, test report and production error together. Forge is being built to link them by the change they share.",
   );
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator(".landing")).toHaveAttribute("data-text-motion", "static");
-  await expect(page.locator("[data-char], [data-word]")).toHaveCount(0);
 });
 
 test("the SVG follower stays on its route after resizing", async ({ page }) => {

@@ -14,12 +14,12 @@
 }
 .track-guide {
   stroke: var(--land-line);
-  stroke-width: 1.5;
+  stroke-width: 2.5;
 }
 .track-line,
 .track-review-path {
   stroke: var(--land-accent);
-  stroke-width: 2.5;
+  stroke-width: 4;
   stroke-linecap: round;
 }
 .track-review-path {
@@ -30,13 +30,24 @@
   stroke: #ffa828;
   stroke-width: 2;
 }
+.track-packet-body {
+  fill: var(--land-accent);
+  stroke: var(--land-bg);
+  stroke-width: 2.5;
+}
+.track-packet-code {
+  stroke: var(--land-on-accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .track-labels {
   position: absolute;
   inset: 0;
 }
 .track-stop {
   position: absolute;
-  transform: translate(-50%, 7px);
+  transform: translate(-50%, 15px);
   min-width: 112px;
   min-height: 44px;
   display: flex;

@@ -30,7 +30,7 @@ Phase 0 was approved with the user's “go” instruction. Implement Phase 1 onl
 
 Forge. Dark-first, professional developer-tool interface; subtle borders, dense readable data layouts, excellent spacing, color mainly for state. These constraints are explicit in the user's brief.
 
-The user authorized the public landing at `/` with a central SVG track using Anime.js createDrawable and createMotionPath. A drawn line connects GitHub, Actions, JUnit and Sentry; a marker follows delivery and returns to the test and code before ending in human review. Headings and explanations use Anime.js splitText for quick clipped character and word reveals. Realistic code/event previews and the Anime.js warm charcoal/coral palette remain. Integrations and automation are in development; examples are illustrative. `/app` retains its existing dark foundation, and the 3D logo and Phase 2 backend remain separate work.
+The user authorized the public landing at `/` with a central SVG track using Anime.js createDrawable and createMotionPath. A thicker drawn line connects GitHub, Actions, JUnit and Sentry; a coral code packet follows delivery and returns to the test and code before ending in human review. Headings and explanations use persistent Anime.js splitText with scroll-driven entrances, a reading interval and animated exits that reverse when scrolling back. Realistic code/event previews and the Anime.js warm charcoal/coral palette remain. Integrations and automation are in development; examples are illustrative. `/app` retains its existing dark foundation, and the 3D logo and Phase 2 backend remain separate work.
 
 ## Evidence on Hand
 

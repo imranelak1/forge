@@ -256,8 +256,8 @@ export function CoreScene({
           <path data-test-route d={testPath} visibility="hidden" />
           <circle className="track-review-stop" cx="200" cy="440" r="5" />
           <g className="track-packet" style={{ transform: "translateX(80px) translateY(50px)" }}>
-            <circle r="9" fill="var(--land-bg)" />
-            <circle r="5" fill="var(--land-accent)" />
+            <rect className="track-packet-body" x="-16" y="-11" width="32" height="22" rx="3" />
+            <path className="track-packet-code" d="M-4-5-10 0l6 5M4-5l6 5-6 5" />
           </g>
         </svg>
         <TrackLabels active={active} selected={selected} onSelect={onSelect} />
