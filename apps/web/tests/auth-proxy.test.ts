@@ -191,7 +191,7 @@ describe("OAuth transport boundary", () => {
         expect(url.searchParams.get("code")).toBe("single-use-code");
         expect(url.searchParams.get("state")).toBe("browser-bound-state");
         expect(url.searchParams.get("iss")).toBe(
-          provider === "google" ? "https://accounts.google.com" : "https://github.com",
+          provider === "google" ? "https://accounts.google.com" : "https://github.com/login/oauth",
         );
         expect(options.redirect).toBe("manual");
         expect(new Headers(options.headers).get("Cookie")).toBe("forge_oauth=binding");
@@ -203,7 +203,7 @@ describe("OAuth transport boundary", () => {
       vi.stubGlobal("fetch", fetcher);
       const result = await GET(
         new Request(
-          `http://localhost:3000/api/v1/${route}?code=single-use-code&state=browser-bound-state&iss=${encodeURIComponent(provider === "google" ? "https://accounts.google.com" : "https://github.com")}&scope=openid&authuser=0&prompt=consent&hd=example.com`,
+          `http://localhost:3000/api/v1/${route}?code=single-use-code&state=browser-bound-state&iss=${encodeURIComponent(provider === "google" ? "https://accounts.google.com" : "https://github.com/login/oauth")}&scope=openid&authuser=0&prompt=consent&hd=example.com`,
           { headers: { Cookie: "forge_oauth=binding; unrelated=private" } },
         ),
         context(route),

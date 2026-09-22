@@ -21,7 +21,8 @@ OAUTH_SECONDS = 600
 logger = logging.getLogger("forge.oauth")
 AUTHORIZATION_ISSUERS = {
     "google": "https://accounts.google.com",
-    "github": "https://github.com",
+    # https://docs.github.com/en/apps/github-authentication-discovery-endpoints
+    "github": "https://github.com/login/oauth",
 }
 
 

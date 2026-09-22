@@ -32,6 +32,12 @@ pytestmark = [
     ),
 ]
 
+# Provider metadata values, deliberately independent of the runtime configuration.
+PROVIDER_ISSUERS = {
+    "google": "https://accounts.google.com",
+    "github": "https://github.com/login/oauth",
+}
+
 
 @dataclass
 class ProviderFixture:
@@ -162,7 +168,8 @@ class OAuthHarness:
         self, client: httpx.AsyncClient, state: str, code: str, provider: str = "github"
     ) -> httpx.Response:
         return await client.get(
-            f"{PREFIX}/auth/oauth/{provider}/callback", params={"state": state, "code": code}
+            f"{PREFIX}/auth/oauth/{provider}/callback",
+            params={"state": state, "code": code, "iss": PROVIDER_ISSUERS[provider]},
         )
 
 
@@ -242,7 +249,7 @@ async def test_start_requires_csrf_and_origin(oauth: OAuthHarness) -> None:
 
 @pytest.mark.parametrize(
     "provider,issuer",
-    [("google", "https://accounts.google.com"), ("github", "https://github.com")],
+    [("google", "https://accounts.google.com"), ("github", "https://github.com/login/oauth")],
 )
 async def test_callback_accepts_pinned_authorization_issuer(
     oauth: OAuthHarness, provider: str, issuer: str
@@ -261,6 +268,21 @@ async def test_callback_accepts_pinned_authorization_issuer(
     assert oauth.provider.requests
 
 
+@pytest.mark.parametrize("provider", ["github", "google"])
+async def test_callback_without_optional_issuer_remains_compatible(
+    oauth: OAuthHarness, provider: str
+) -> None:
+    client = await oauth.auth.client()
+    state, code = await oauth.start(client, provider)
+    response = await client.get(
+        f"{PREFIX}/auth/oauth/{provider}/callback", params={"state": state, "code": code}
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/app?oauth=signed-in"
+    user = (await client.get(f"{PREFIX}/auth/me")).json()["user"]
+    assert user["email"] == oauth.provider.records[code]["email"]
+
+
 @pytest.mark.parametrize(
     "provider,issuers",
     [
@@ -268,7 +290,12 @@ async def test_callback_accepts_pinned_authorization_issuer(
         ("google", ["https://accounts.google.com/"]),
         ("google", ["https://accounts.google.com", "https://accounts.google.com"]),
         ("google", ["https://attacker.example.com", "https://accounts.google.com"]),
+        ("google", ["https://github.com/login/oauth"]),
         ("github", ["https://accounts.google.com"]),
+        ("github", ["https://github.com"]),
+        ("github", ["https://github.com/login/oauth/"]),
+        ("github", ["https://github.com/login/oauth", "https://github.com/login/oauth"]),
+        ("github", ["https://attacker.example.com", "https://github.com/login/oauth"]),
     ],
 )
 async def test_callback_rejects_ambiguous_or_mismatched_issuer_before_exchange(
@@ -342,6 +369,7 @@ async def test_denial_consumes_state_without_echoing_provider_content(oauth: OAu
         f"{PREFIX}/auth/oauth/github/callback",
         params={
             "state": state,
+            "iss": PROVIDER_ISSUERS["github"],
             "error": "access_denied",
             "error_description": "secret<script>untrusted</script>",
         },
