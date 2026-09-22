@@ -26,6 +26,7 @@ services:
       dockerfile: ../../infrastructure/docker/api.Dockerfile
       target: runtime
     restart: unless-stopped
+    user: "${FORGE_RUNTIME_UID:-10001}:${FORGE_RUNTIME_GID:-10001}"
     environment:
       FORGE_ENVIRONMENT: ${FORGE_ENVIRONMENT:-development}
       FORGE_LOG_LEVEL: ${FORGE_LOG_LEVEL:-INFO}
@@ -34,6 +35,17 @@ services:
       FORGE_DATABASE_NAME: ${FORGE_DATABASE_NAME:-forge}
       FORGE_DATABASE_PASSWORD: ${FORGE_DATABASE_PASSWORD:?Configure .env first}
       FORGE_MIGRATION_PASSWORD: ${FORGE_MIGRATION_PASSWORD:?Configure .env first}
+      FORGE_AUTH_SECRET: ${FORGE_AUTH_SECRET:?Run node scripts/configure.mjs --upgrade}
+      FORGE_PUBLIC_ORIGIN: ${FORGE_PUBLIC_ORIGIN:-http://localhost:3000}
+      FORGE_MAIL_BACKEND: ${FORGE_MAIL_BACKEND:-file}
+      FORGE_MAIL_DIRECTORY: /app/.local/mail
+      FORGE_SMTP_HOST: ${FORGE_SMTP_HOST:-}
+      FORGE_SMTP_PORT: ${FORGE_SMTP_PORT:-587}
+      FORGE_SMTP_USERNAME: ${FORGE_SMTP_USERNAME:-}
+      FORGE_SMTP_PASSWORD: ${FORGE_SMTP_PASSWORD:-}
+      FORGE_SMTP_FROM: ${FORGE_SMTP_FROM:-Forge <noreply@forge.local>}
+    volumes:
+      - ./.local/mail:/app/.local/mail
     ports:
       - "127.0.0.1:${API_PORT:-8000}:8000"
     depends_on:
@@ -57,6 +69,7 @@ services:
     restart: unless-stopped
     environment:
       API_INTERNAL_URL: http://backend:8000
+      FORGE_PUBLIC_ORIGIN: ${FORGE_PUBLIC_ORIGIN:-http://localhost:3000}
     ports:
       - "127.0.0.1:${WEB_PORT:-3000}:3000"
     depends_on:

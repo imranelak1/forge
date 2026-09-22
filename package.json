@@ -16,6 +16,7 @@
     "lint": "npm run lint --workspace @forge/web",
     "typecheck": "npm run typecheck --workspace @forge/web",
     "test": "npm run test --workspace @forge/web",
+    "test:config": "node --test scripts/configure.test.mjs",
     "test:e2e": "npm run test:e2e --workspace @forge/web",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

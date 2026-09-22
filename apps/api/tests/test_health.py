@@ -71,3 +71,13 @@ def test_production_does_not_expose_interactive_api_docs(settings: Settings) -> 
     settings.environment = "production"
     with TestClient(create_app(settings)) as client:
         assert client.get("/docs").status_code == 404
+
+
+def test_oversized_body_is_rejected_with_safe_common_response_headers(settings: Settings) -> None:
+    with TestClient(create_app(settings)) as client:
+        response = client.post("/api/v1/auth/register", content=b"x" * 16385)
+        assert response.status_code == 413
+        assert response.headers["content-type"] == "application/problem+json"
+        assert response.headers["cache-control"] == "no-store"
+        assert response.headers["x-content-type-options"] == "nosniff"
+        assert response.json()["request_id"] == response.headers["x-request-id"]

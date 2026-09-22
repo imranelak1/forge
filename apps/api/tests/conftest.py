@@ -11,4 +11,5 @@ def settings() -> Settings:
         environment="test",
         database_password=secrets.token_hex(32),
         migration_password=secrets.token_hex(32),
+        auth_secret=secrets.token_hex(32),
     )

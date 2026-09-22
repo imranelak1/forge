@@ -15,6 +15,7 @@ CMD ["pytest", "-q"]
 
 FROM base AS runtime
 RUN groupadd --gid 10001 forge && useradd --uid 10001 --gid forge --no-create-home forge
+RUN mkdir -p /app/.local/mail && chown -R forge:forge /app/.local
 COPY --from=dependencies /app/.venv /app/.venv
 COPY src ./src
 COPY migrations ./migrations

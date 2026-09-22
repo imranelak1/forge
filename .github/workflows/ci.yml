@@ -1,4 +1,4 @@
-name: Foundation checks
+name: Forge checks
 
 on:
   push:
@@ -25,6 +25,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run test:config
       - run: npm run build
       - run: npm audit --audit-level=high
 
@@ -61,7 +62,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
         env:
-          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
           FORGE_E2E_LIVE: "1"
       - name: Restart and verify persisted schema
         run: |
