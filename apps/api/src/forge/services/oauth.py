@@ -17,6 +17,10 @@ from forge.security.identity import SESSION_SECONDS, now, opaque_token, token_ha
 from forge.services.identity import IdentityService, SessionResult
 
 OAUTH_SECONDS = 600
+AUTHORIZATION_ISSUERS = {
+    "google": "https://accounts.google.com",
+    "github": "https://github.com",
+}
 
 
 def safe_return(value: str) -> str:
@@ -121,12 +125,18 @@ class OAuthService:
         code: str | None,
         error: str | None,
         access: str | None,
+        issuer: str | None = None,
     ) -> OAuthCallback:
         target = "/login"
         try:
             attempt = await self.consume_state(provider, state, binding)
             if attempt["intent"] == "link":
                 target = "/app/account"
+            # RFC 9207: compare decoded issuer exactly against the provider selected
+            # when starting this flow. Never fetch a URL supplied by the callback.
+            # An empty string also rejects duplicate issuer parameters at the route.
+            if issuer is not None and issuer != AUTHORIZATION_ISSUERS[provider]:
+                raise OAuthFailure("invalid_identity")
             if error is not None:
                 raise OAuthFailure("denied")
             if not code or len(code) > 2048:

@@ -114,8 +114,10 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
   const callbackParameters: Record<string, number> = {
     code: 4096,
     state: 2048,
+    iss: 2048,
     error: 256,
     error_description: 2048,
+    error_uri: 2048,
     scope: 2048,
     authuser: 16,
     prompt: 128,
@@ -123,6 +125,10 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
   };
   if (incoming.search.length > 16_384) return reply(400, "Unsupported query parameters.");
   for (const [key, value] of incoming.searchParams) {
+    // OAuth clients must ignore unrecognized response extensions (RFC 6749,
+    // section 4.1.2). Drop them here; they cannot affect upstream routing or login.
+    // Known security fields still have size and duplicate checks below.
+    if (oauthCallback && !Object.hasOwn(callbackParameters, key)) continue;
     const maximum = oauthCallback
       ? Object.hasOwn(callbackParameters, key)
         ? callbackParameters[key]

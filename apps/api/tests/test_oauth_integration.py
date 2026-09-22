@@ -240,6 +240,58 @@ async def test_start_requires_csrf_and_origin(oauth: OAuthHarness) -> None:
     assert not oauth.provider.requests
 
 
+@pytest.mark.parametrize(
+    "provider,issuer",
+    [("google", "https://accounts.google.com"), ("github", "https://github.com")],
+)
+async def test_callback_accepts_pinned_authorization_issuer(
+    oauth: OAuthHarness, provider: str, issuer: str
+) -> None:
+    client = await oauth.auth.client()
+    state, code = await oauth.start(client, provider)
+    response = await client.get(
+        f"{PREFIX}/auth/oauth/{provider}/callback",
+        params={"state": state, "code": code, "iss": issuer, "authuser": "0"},
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/app?oauth=signed-in"
+    user = (await client.get(f"{PREFIX}/auth/me")).json()["user"]
+    assert user["email"] == oauth.provider.records[code]["email"]
+    assert user["email_verified"] is True
+    assert oauth.provider.requests
+
+
+@pytest.mark.parametrize(
+    "provider,issuers",
+    [
+        ("google", ["https://attacker.example.com"]),
+        ("google", ["https://accounts.google.com/"]),
+        ("google", ["https://accounts.google.com", "https://accounts.google.com"]),
+        ("google", ["https://attacker.example.com", "https://accounts.google.com"]),
+        ("github", ["https://accounts.google.com"]),
+    ],
+)
+async def test_callback_rejects_ambiguous_or_mismatched_issuer_before_exchange(
+    oauth: OAuthHarness, provider: str, issuers: list[str]
+) -> None:
+    client = await oauth.auth.client()
+    state, code = await oauth.start(client, provider)
+    response = await client.get(
+        f"{PREFIX}/auth/oauth/{provider}/callback",
+        params=[("state", state), ("code", code), *[("iss", issuer) for issuer in issuers]],
+    )
+    failure(response, "invalid_identity")
+    assert not oauth.provider.requests
+    assert not client.cookies.get("forge_access")
+    engine = await oauth.auth.engine()
+    async with engine.connect() as connection:
+        consumed = await connection.scalar(
+            text("SELECT used_at FROM forge.oauth_states WHERE state_hash=:value"),
+            {"value": sha256(state.encode()).hexdigest()},
+        )
+    assert consumed is not None
+
+
 async def test_state_is_hashed_browser_bound_and_one_use(oauth: OAuthHarness) -> None:
     client = await oauth.auth.client()
     state, code = await oauth.start(client)

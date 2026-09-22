@@ -89,12 +89,24 @@ test("provider availability failures can be retried", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeEnabled();
 });
 
-test("invalid callback returns safely to login with a recovery message", async ({ page }) => {
-  test.skip(process.env.FORGE_E2E_LIVE !== "1", "Requires the real API proxy");
-  await page.goto("/api/v1/auth/oauth/github/callback?state=invalid&code=browser-test");
-  await expect(page).toHaveURL(/\/login\?oauth_error=invalid_state/);
-  await expect(
-    page.getByRole("alert").filter({ hasText: /expired|restart|try again/i }),
-  ).toBeVisible();
-  await expect(page.getByLabel("Email address", { exact: true })).toBeEditable();
-});
+for (const provider of ["github", "google"] as const) {
+  test(`${provider} callback accepts provider metadata and returns an expired flow to login`, async ({
+    page,
+  }) => {
+    test.skip(process.env.FORGE_E2E_LIVE !== "1", "Requires the real API proxy");
+    const query = new URLSearchParams({ state: "invalid", code: "browser-test" });
+    if (provider === "google") {
+      query.set("iss", "https://accounts.google.com");
+      query.set("scope", "openid email profile https://www.googleapis.com/auth/userinfo.email");
+      query.set("authuser", "0");
+      query.set("prompt", "consent");
+      query.set("provider_extension", "ignored");
+    }
+    await page.goto(`/api/v1/auth/oauth/${provider}/callback?${query}`);
+    await expect(page).toHaveURL(/\/login\?oauth_error=invalid_state/);
+    await expect(
+      page.getByRole("alert").filter({ hasText: /expired|restart|try again/i }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Email address", { exact: true })).toBeEditable();
+  });
+}

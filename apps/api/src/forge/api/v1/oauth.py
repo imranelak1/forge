@@ -73,6 +73,7 @@ async def callback(provider: Provider, request: Request) -> RedirectResponse:
         query.get("code"),
         query.get("error"),
         request.cookies.get("forge_access"),
+        issuer=query.get("iss") if len(query.getlist("iss")) <= 1 else "",
     )
     response = RedirectResponse(result.location, status_code=303)
     if result.session:

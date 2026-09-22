@@ -190,6 +190,9 @@ describe("OAuth transport boundary", () => {
       const fetcher = vi.fn(async (url: URL, options: RequestInit) => {
         expect(url.searchParams.get("code")).toBe("single-use-code");
         expect(url.searchParams.get("state")).toBe("browser-bound-state");
+        expect(url.searchParams.get("iss")).toBe(
+          provider === "google" ? "https://accounts.google.com" : "https://github.com",
+        );
         expect(options.redirect).toBe("manual");
         expect(new Headers(options.headers).get("Cookie")).toBe("forge_oauth=binding");
         const headers = new Headers({ Location: "/app?oauth=signed-in" });
@@ -200,7 +203,7 @@ describe("OAuth transport boundary", () => {
       vi.stubGlobal("fetch", fetcher);
       const result = await GET(
         new Request(
-          `http://localhost:3000/api/v1/${route}?code=single-use-code&state=browser-bound-state&scope=openid&authuser=0&prompt=consent&hd=example.com`,
+          `http://localhost:3000/api/v1/${route}?code=single-use-code&state=browser-bound-state&iss=${encodeURIComponent(provider === "google" ? "https://accounts.google.com" : "https://github.com")}&scope=openid&authuser=0&prompt=consent&hd=example.com`,
           { headers: { Cookie: "forge_oauth=binding; unrelated=private" } },
         ),
         context(route),
@@ -217,9 +220,9 @@ describe("OAuth transport boundary", () => {
   it.each([
     "code=one&code=two",
     "state=one&state=two",
-    "returnTo=https://attacker.example",
-    "toString=prototype",
-  ])("rejects ambiguous or unexpected callback parameters: %s", async (query) => {
+    "error=one&error=two",
+    "iss=https://accounts.google.com&iss=https://attacker.example",
+  ])("rejects ambiguous callback parameters: %s", async (query) => {
     const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);
     expect(
@@ -232,6 +235,40 @@ describe("OAuth transport boundary", () => {
     ).toBe(400);
     expect(fetcher).not.toHaveBeenCalled();
   });
+
+  it("discards unrecognized callback extensions instead of rejecting the provider response", async () => {
+    const fetcher = vi.fn(async (url: URL) => {
+      expect([...url.searchParams]).toEqual([
+        ["code", "one"],
+        ["state", "bound"],
+      ]);
+      return new Response(null, { status: 303, headers: { Location: "/app?oauth=signed-in" } });
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const result = await GET(
+      new Request(
+        "http://localhost:3000/api/v1/auth/oauth/google/callback?code=one&state=bound&provider_extension=value&returnTo=https://attacker.example&toString=prototype",
+      ),
+      context("auth/oauth/google/callback"),
+    );
+    expect(result.status).toBe(303);
+    expect(result.headers.get("Location")).toBe("/app?oauth=signed-in");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([`iss=${"x".repeat(2049)}`, `provider_extension=${"x".repeat(16_384)}`])(
+    "retains callback size limits",
+    async (query) => {
+      const fetcher = vi.fn();
+      vi.stubGlobal("fetch", fetcher);
+      const result = await GET(
+        new Request(`http://localhost:3000/api/v1/auth/oauth/google/callback?${query}`),
+        context("auth/oauth/google/callback"),
+      );
+      expect(result.status).toBe(400);
+      expect(fetcher).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     "https://attacker.example/",
@@ -293,7 +330,7 @@ describe("OAuth transport boundary", () => {
     );
     const result = await GET(
       new Request(
-        "http://localhost:3000/api/v1/auth/oauth/google/callback?error=access_denied&error_description=private&state=opaque",
+        "http://localhost:3000/api/v1/auth/oauth/google/callback?error=access_denied&error_description=private&error_uri=https%3A%2F%2Fprovider.example%2Fhelp&state=opaque",
       ),
       context("auth/oauth/google/callback"),
     );
