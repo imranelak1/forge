@@ -1,13 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test("foundation navigation and layout are usable", async ({ page }) => {
-  await page.goto("/app");
-  await expect(page.getByRole("heading", { name: "Engineering overview" })).toBeVisible();
-  await expect(page.getByText("Your engineering history starts here")).toBeVisible();
-  await page
-    .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("link", { name: "Setup guide" })
-    .click();
+test("public setup navigation and layout are usable", async ({ page }) => {
+  await page.goto("/guide");
   await expect(page.getByRole("heading", { name: "Start your installation" })).toBeVisible();
   await expect(
     page.getByRole("navigation").getByRole("link", { name: "Setup guide" }),

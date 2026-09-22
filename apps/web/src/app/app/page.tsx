@@ -40,11 +40,11 @@ export default function OverviewPage() {
       </div>
       <div className="phase-notice">
         <span className="notice-mark" aria-hidden="true">
-          1
+          2
         </span>
         <p>
-          <strong>The foundation is in place.</strong> Workspace setup and authentication come next.
-          Engineering data is not connected yet.
+          <strong>Your workspace is ready.</strong> Accounts, organizations and team permissions are
+          available. Engineering sources are not connected yet.
         </p>
       </div>
       <section className="lifecycle-section" aria-labelledby="lifecycle-title">
@@ -80,8 +80,8 @@ export default function OverviewPage() {
             <GitBranch size={30} strokeWidth={1.4} aria-hidden="true" />
             <h3>Your engineering history starts here</h3>
             <p>
-              Connect repositories after workspace setup to trace pull requests, build results, and
-              deployments in one place.
+              GitHub integration is next. Once available, connect repositories to trace pull
+              requests, build results and deployments in one place.
             </p>
             <Link href="/guide#next-phase" className="text-link">
               See what comes next
@@ -93,24 +93,24 @@ export default function OverviewPage() {
       <div className="foundation-details">
         <section>
           <h2>Available in this build</h2>
-          <p>The application foundation is ready to inspect.</p>
+          <p>Manage workspace access and inspect your installation.</p>
           <ul className="plain-list">
-            <li>Responsive application shell</li>
+            <li>Email accounts and revocable sessions</li>
+            <li>Organizations, invitations and membership roles</li>
             <li>Live API and database readiness checks</li>
-            <li>Versioned schema and local setup guide</li>
           </ul>
-          <Link href="/system" className="text-link">
-            Inspect system status
+          <Link href="/app/settings" className="text-link">
+            Manage your organization
             <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </section>
         <section>
-          <h2>Next: your workspace</h2>
-          <p>Phase 2 introduces the SaaS foundation.</p>
+          <h2>Next: connect GitHub</h2>
+          <p>Phase 3 introduces the first engineering source.</p>
           <ul className="plain-list">
-            <li>Email and password authentication</li>
-            <li>Organizations and team memberships</li>
-            <li>Roles and organization data isolation</li>
+            <li>Repository access</li>
+            <li>Historical synchronization</li>
+            <li>Verified webhook ingestion</li>
           </ul>
           <Link href="/guide#next-phase" className="text-link">
             View the build sequence

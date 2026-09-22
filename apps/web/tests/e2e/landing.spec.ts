@@ -41,6 +41,19 @@ test("SVG track draws, follows scroll and reverses without a permanent animation
 test("chapter links and platform navigation work with the landing palette scoped", async ({
   page,
 }) => {
+  if (process.env.FORGE_E2E_LIVE !== "1") {
+    await page.route("**/api/v1/auth/**", (route) =>
+      route.fulfill({
+        status: route.request().url().endsWith("/csrf") ? 200 : 401,
+        contentType: "application/json",
+        body: JSON.stringify(
+          route.request().url().endsWith("/csrf")
+            ? { csrf_token: "test-only" }
+            : { detail: "Sign in to continue." },
+        ),
+      }),
+    );
+  }
   await page.goto("/");
   const chapter = page
     .getByRole("navigation", { name: "Story chapters" })
@@ -53,7 +66,7 @@ test("chapter links and platform navigation work with the landing palette scoped
   ).toBeInViewport();
   await page.evaluate(() => scrollTo(0, 0));
   await page.getByRole("link", { name: "Open platform", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Engineering overview" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(17, 17, 17)");
   await page.getByRole("link", { name: "Forge home" }).click();
   await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "svg");
@@ -186,7 +199,7 @@ test("the tour remains readable and navigable without JavaScript", async ({
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator(".track-art")).toBeVisible();
   await page.getByRole("link", { name: "Open platform", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Engineering overview" })).toBeVisible();
+  await expect(page.locator("noscript").getByRole("link", { name: "Sign in" })).toBeVisible();
   await context.close();
 });
 

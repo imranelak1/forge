@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/geist";
 import "./globals.css";
+import "@/features/auth/account.css";
 import { AppShell } from "@/components/app-shell";
 import { Providers } from "@/components/providers";
 

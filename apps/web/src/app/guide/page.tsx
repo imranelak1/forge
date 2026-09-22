@@ -10,7 +10,7 @@ export default function GuidePage() {
       <div className="page-heading">
         <div>
           <h1>Setup guide</h1>
-          <p>Run the foundation locally and understand what comes next.</p>
+          <p>Run Forge locally, set up your organization and understand what comes next.</p>
         </div>
       </div>
       <div className="guide-content">
@@ -32,6 +32,23 @@ export default function GuidePage() {
           </p>
           <Link className="text-link" href="/system">
             Check service readiness
+            <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </section>
+        <section>
+          <h2>Set up your workspace</h2>
+          <p>
+            Create an account, then name your organization. Organization settings let owners and
+            admins invite teammates and manage their roles. Account settings show email verification
+            and active browser sessions.
+          </p>
+          <p>
+            Invitation links require a verified account with the same email address. Open
+            verification and password reset links in your browser. In local development, email is
+            saved to the configured mail outbox; SMTP delivery requires its own configuration.
+          </p>
+          <Link className="text-link" href="/app">
+            Open your workspace
             <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </section>
@@ -60,7 +77,7 @@ export default function GuidePage() {
           <h2>Build sequence</h2>
           <p>
             Forge is being implemented one phase at a time. This installation contains the
-            foundation only.
+            foundation, account access and organizations.
           </p>
           <ol className="phase-list">
             <li>
@@ -69,7 +86,6 @@ export default function GuidePage() {
                 <strong>Project foundation</strong>
                 <p>Application shell, API, PostgreSQL, migrations and local containers.</p>
               </div>
-              <span className="current-phase">Current</span>
             </li>
             <li>
               <span>Phase 2</span>
@@ -77,6 +93,7 @@ export default function GuidePage() {
                 <strong>Authentication & organizations</strong>
                 <p>Secure sessions, team membership and tenant isolation.</p>
               </div>
+              <span className="current-phase">Current</span>
             </li>
             <li>
               <span>Phase 3</span>
