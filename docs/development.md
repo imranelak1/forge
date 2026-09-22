@@ -12,21 +12,32 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Without Node, copy `.env.example` to `.env` and fill the three password fields with independent cryptographically random values of at least 20 characters. Empty credentials fail startup. The helper refuses to overwrite `.env` and never prints its passwords. `.env` is excluded from Git and Docker build contexts. No provider or JWT secrets are required in Phase 1.
+For an existing installation, run `node scripts/configure.mjs --upgrade`, then rebuild. The upgrade adds missing settings without rotating existing credentials. Without Node, copy `.env.example` to `.env`, fill the three database passwords with independent cryptographically random values of at least 20 characters, and provide an independent `FORGE_AUTH_SECRET` of at least 32 bytes. Empty required credentials fail startup. The helper never prints secrets. `.env` and `.local/` are excluded from Git and Docker build contexts.
 
-| Configuration                                | Purpose                                                                        |
-| -------------------------------------------- | ------------------------------------------------------------------------------ |
-| `COMPOSE_PROJECT_NAME`                       | Local namespace, `forge`                                                       |
-| `FORGE_ENVIRONMENT`                          | `development`, `test`, `production`; production disables interactive API docs  |
-| `FORGE_LOG_LEVEL`                            | Structured log level, default `INFO`                                           |
-| `FORGE_DATABASE_NAME`                        | Database, `forge`; letters/digits/underscores only                             |
-| `FORGE_DATABASE_HOST`, `FORGE_DATABASE_PORT` | Native API connection, `127.0.0.1:15432`; Compose overrides to `postgres:5432` |
-| `FORGE_DATABASE_PASSWORD`                    | Restricted `forge_app` credential                                              |
-| `FORGE_MIGRATION_PASSWORD`                   | `forge_migrator` DDL credential                                                |
-| `POSTGRES_PASSWORD`                          | Bootstrap administrator credential, supplied only to PostgreSQL                |
-| `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`      | Loopback host ports 3000, 8000, 15432                                          |
+| Configuration                                                   | Purpose                                                                          |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `COMPOSE_PROJECT_NAME`                                          | Local namespace, `forge`                                                         |
+| `FORGE_ENVIRONMENT`                                             | `development`, `test`, `production`; production disables interactive API docs    |
+| `FORGE_LOG_LEVEL`                                               | Structured log level, default `INFO`                                             |
+| `FORGE_DATABASE_NAME`                                           | Database, `forge`; letters/digits/underscores only                               |
+| `FORGE_DATABASE_HOST`, `FORGE_DATABASE_PORT`                    | Native API connection, `127.0.0.1:15432`; Compose overrides to `postgres:5432`   |
+| `FORGE_DATABASE_PASSWORD`                                       | Restricted `forge_app` credential                                                |
+| `FORGE_MIGRATION_PASSWORD`                                      | `forge_migrator` DDL credential                                                  |
+| `POSTGRES_PASSWORD`                                             | Bootstrap administrator credential, supplied only to PostgreSQL                  |
+| `FORGE_AUTH_SECRET`                                             | Independent JWT, cursor and CSRF signing key; generated as 64 hex characters     |
+| `FORGE_PUBLIC_ORIGIN`                                           | Exact browser origin, default `http://localhost:3000`, used by web and API       |
+| `FORGE_MAIL_BACKEND`                                            | `file` for development, `smtp` for authenticated STARTTLS delivery               |
+| `FORGE_MAIL_DIRECTORY`                                          | Native file sink; Compose always mounts root `.local/mail` at `/app/.local/mail` |
+| `FORGE_SMTP_HOST`, `FORGE_SMTP_PORT`                            | SMTP server and STARTTLS port, default 587                                       |
+| `FORGE_SMTP_USERNAME`, `FORGE_SMTP_PASSWORD`, `FORGE_SMTP_FROM` | SMTP credentials and deliverable sender; required for SMTP                       |
+| `FORGE_RUNTIME_UID`, `FORGE_RUNTIME_GID`                        | Non-root runtime IDs matching local outbox ownership on Linux; Windows 10001     |
+| `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`                         | Loopback host ports 3000, 8000, 15432                                            |
 
 Change both `POSTGRES_PORT` and `FORGE_DATABASE_PORT` when changing the native database port. Compose frontend uses server-only `API_INTERNAL_URL=http://backend:8000`; native frontend defaults to `http://127.0.0.1:8000`. Override that variable in the native frontend process if the API port differs. No database values enter browser bundles.
+
+Use `http://localhost:3000` in the browser. If the web port changes, change `FORGE_PUBLIC_ORIGIN` to that exact origin and recreate both frontend and backend. Production requires HTTPS, Secure cookies and the SMTP adapter; the development file sink is rejected. SMTP always negotiates certificate-validated STARTTLS, so use a compatible submission endpoint.
+
+The default adapter writes `.eml` messages to ignored `.local/mail` with private file permissions. Open the appropriate message and follow its localhost link; tokens live in URL fragments and are stripped by the UI before submission. Verification links expire after 24 hours, password-reset links after one hour and invitations after seven days. They are single-use. A native API started from `apps/api` uses `apps/api/.local/mail` unless `FORGE_MAIL_DIRECTORY` is overridden; Compose uses the root outbox. The configuration helper maps the API container to the host user's non-root IDs on Linux so the bind mount is writable without making emails world-readable.
 
 ## Native workflows
 
@@ -56,7 +67,7 @@ Settings deliberately does not search arbitrary parent directories for secrets. 
 
 Container initialization creates `forge_bootstrap`, `forge_migrator` and `forge_app`. These are infrastructure roles, not application users. Runtime has no superuser, RLS-bypass, role-creation or table-creation privilege. SQL values are safely quoted in the bootstrap script.
 
-Alembic revision `0001_foundation` creates the `forge` schema under the migration role and grants runtime schema usage. `public.alembic_version` stores the revision and grants runtime SELECT for readiness. No organization-owned tables exist yet. Tenant RLS, composite keys and DML grants arrive with Phase 2; this foundation does not claim tenant isolation before those tables exist.
+Alembic revision `0001_foundation` creates the `forge` schema under the migration role and grants runtime schema usage. `0002_identity` adds nine identity/tenant/control tables, FORCE RLS on organizations, memberships, invitations and audit events, constrained tenant references and limited runtime DML grants. `public.alembic_version` stores the revision and grants runtime SELECT for readiness. User-bound membership discovery is separate from transaction-local tenant writes. Runtime may append/read authorized audit records but cannot update or delete them.
 
 The backend entrypoint serializes `upgrade head` under a bounded PostgreSQL advisory lock before starting Uvicorn. It removes the migration password from the launched web process environment. The container configuration still supplies that credential for restarts; a separate release migration job is a production-phase concern. Repeated startup is safe, and readiness compares applied revisions to migration heads in the packaged code. No runtime `create_all()` exists. Baseline downgrade uses `DROP SCHEMA ... RESTRICT` to protect later tables.
 
@@ -69,6 +80,7 @@ npm run format:check
 npm run lint
 npm run typecheck
 npm test
+npm run test:config
 npm run build
 npm audit --audit-level=high
 ```
@@ -89,18 +101,18 @@ All backend tests with real PostgreSQL, from the root:
 node scripts/test-backend.mjs
 ```
 
-This starts PostgreSQL if necessary, builds the test image, creates a fresh `forge_<hex>_test` database and runs all tests. Cleanup removes only that generated database. Tests cover safe repeated migration, downgrade/upgrade readiness and runtime DDL denial. Direct integration runs require `FORGE_RUN_DB_TESTS=1` and a database ending in `_test`; prefer the runner to avoid selecting an existing test database.
+This starts PostgreSQL if necessary, builds the test image, creates a fresh `forge_<hex>_test` database and runs all tests. Cleanup removes only that generated database. Tests cover migration roundtrips, runtime DDL denial, auth/token workflows, CSRF, RBAC, last-owner concurrency, tenant read/write isolation and pooled transaction context. Direct integration runs require `FORGE_RUN_DB_TESTS=1` and a database ending in `_test`; prefer the runner to avoid selecting an existing test database.
 
 Browser checks against running Compose:
 
 ```powershell
 npx playwright install chromium
-$env:PLAYWRIGHT_BASE_URL = 'http://127.0.0.1:3000'
+$env:PLAYWRIGHT_BASE_URL = 'http://localhost:3000'
 $env:FORGE_E2E_LIVE = '1'
 npm run test:e2e
 ```
 
-Without those environment variables, Playwright starts a dev server on 3100 and skips live-database assertions. Test-only network mocks never ship in the app. CI runs native checks, production build, Docker startup, isolated PostgreSQL tests and desktop/mobile browser checks against the real stack.
+Without those environment variables, Playwright starts a dev server on 3100 and skips live identity/database assertions. Test-only network mocks never ship in the app. Live identity browser tests create uniquely named synthetic accounts and organizations in the local development database and read root `.local/mail`; run against a disposable local or CI installation. CI runs native checks, production build, Docker startup, isolated PostgreSQL tests and desktop/mobile browser checks against the real stack.
 
 ## Manual acceptance
 
@@ -128,7 +140,15 @@ docker compose exec -T postgres psql -U forge_bootstrap -d forge -c 'SELECT vers
 docker compose up -d --wait backend
 ```
 
-Use the configured database name if different. Named volume storage must retain `0001_foundation`. `docker compose down` preserves it; adding `--volumes` intentionally discards data and is not a connection-repair step.
+Use the configured database name if different. Named volume storage must retain `0002_identity` and account/organization records. `docker compose down` preserves it; adding `--volumes` intentionally discards data and is not a connection-repair step.
+
+## Synthetic demo identities
+
+```powershell
+docker compose exec -T backend python -m forge.seed
+```
+
+The opt-in command creates two verified users, each owning a separate organization labeled as demonstration data. It prints generated passwords only on first creation and leaves existing credentials unchanged when repeated. Provide `FORGE_DEMO_PASSWORD` in the seed process environment to supply your own 12–128 character password; do not commit it or pass a password in command arguments. Seeding is rejected in production. There is no synthetic engineering history or metric data in Phase 2.
 
 ## Troubleshooting and local credential rotation
 

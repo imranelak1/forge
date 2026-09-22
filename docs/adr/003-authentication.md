@@ -1,6 +1,6 @@
 # ADR 003: First-party authentication and server-owned sessions
 
-Date: 2026-09-21. Status: Proposed — pending Phase 0 approval.
+Date: 2026-09-21. Status: Accepted; email/password scope implemented in Phase 2 on 2026-09-22. GitHub identity linking remains Phase 3.
 
 ## Context
 

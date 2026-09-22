@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-All records are **Proposed — pending Phase 0 approval**, dated 2026-09-21. Approval changes their status to Accepted; implementation still follows the separately approved milestones. Later changes should supersede a record with a new ADR rather than erase its reasoning.
+These decisions were drafted on 2026-09-21 for the approved architecture. Implementation follows the separately authorized milestones: ADRs 002 and 003 now record the completed Phase 2 tenant/identity scope; provider, pipeline and analytical decisions remain future implementation. Later changes should supersede a record with a new ADR rather than erase its reasoning.
 
 | ADR                                   | Decision                                                      |
 | ------------------------------------- | ------------------------------------------------------------- |

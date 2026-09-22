@@ -5,9 +5,9 @@ primary_target: "apps/web/src/app/app/page.tsx"
 related_targets: ["apps/web/src/app/system/page.tsx","apps/web/src/app/guide/page.tsx"]
 ---
 
-# Foundation surface
+# Workspace surface
 
-Scope: /app, /system, /guide in apps/web. Mode: Operate, with Read for the guide.
+Scope: protected /app overview, organizations, members and account settings; public /system and /guide in apps/web. Mode: Operate, with Read for the guide.
 Use the user's approved dark developer-tool brief directly; no separate image comp or invented demo data. This is a session implementation choice, not a stored workflow preference.
 
 ## Direction contract
@@ -16,10 +16,10 @@ THESIS: A repository-oriented workbench with honest availability and inspectable
 
 OWN-WORLD: Neutral charcoal surfaces, fine gray rules, Geist UI type, compact square controls; green and amber carry state only.
 
-STORY: Understand what is available, inspect actual health, and follow the setup guide.
+STORY: Sign in, create or join an organization, manage access, understand what is available and inspect actual health.
 
-FIRST VIEWPORT: A 240px navigation rail, 56px context bar, 24px overview heading, repository empty state, and a compact service-health strip. Primary action opens the setup guide. Status refresh exposes real success/failure without invented activity.
+FIRST VIEWPORT: A 240px navigation rail with an organization switcher, 56px context bar, 24px heading and compact controls. Overview retains the honest repository empty state and service-health strip. Settings use divided rows with a label/description column and forms or member/session lists; mobile stacks the sections. Public auth screens use one 400px form column and a Forge home link. Protected content waits for the server identity; unrecognized sessions lead to sign in. Status refresh exposes real success/failure without invented activity.
 
-FORM: Candidate 4, source-control workbench. Seed 32a99dde; the approved brief constrains the form. No decorative challenger can improve Phase 1 task clarity over explicit operational states.
+FORM: Preserve the approved source-control workbench. Phase 2 extends this established visual system with practical access-management forms. No replacement visual world or raster comp is needed for this extension.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

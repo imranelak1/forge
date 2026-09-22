@@ -1,6 +1,6 @@
 # ADR 002: Shared database with explicit tenant isolation
 
-Date: 2026-09-21. Status: Proposed — pending Phase 0 approval.
+Date: 2026-09-21. Status: Accepted; Phase 2 tenant tables and negative PostgreSQL tests implemented on 2026-09-22. Extend the same boundary with every later tenant table.
 
 ## Context
 

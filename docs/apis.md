@@ -1,6 +1,6 @@
 # API architecture
 
-Status: Phase 1 health routes are implemented. All other inventory routes remain planned for their listed phase. Application APIs use `/api/v1`; development OpenAPI is at `/api/v1/openapi.json`, with interactive documentation at `/docs`.
+Status: Phase 1 health routes and Phase 2 identity, session and organization routes are implemented. Routes for Phases 3–9 remain planned. Application APIs use `/api/v1`; development OpenAPI is at `/api/v1/openapi.json`, with interactive documentation at `/docs`.
 
 ## Request path
 
@@ -55,7 +55,9 @@ Last-owner changes run under a membership/organization lock. Service tokens acce
 | 2     | `GET /auth/me`, `GET /auth/csrf`                                                              | Current user/membership summary and bound CSRF token                                            |
 | 2     | `POST /auth/verify-email/request`, `POST /auth/verify-email/confirm`                          | Single-use verification; nonenumerating request response                                        |
 | 2     | `POST /auth/password-reset/request`, `POST /auth/password-reset/confirm`                      | Expiring one-use reset; revoke sessions on completion                                           |
-| 2     | `GET, POST /organizations`; `GET, PATCH, DELETE {org}`                                        | Membership-visible listing; create/update; owner-only asynchronous deletion                     |
+| 2     | `GET, POST /organizations`; `GET, PATCH, DELETE {org}`                                        | Membership-visible listing; create/update; owner-only immediate soft deactivation               |
+| 2     | `GET /auth/sessions`; `DELETE /auth/sessions/{session_id}`                                    | List active sessions and revoke one immediately                                                 |
+| 2     | `GET {org}/audit`                                                                             | Read the organization's append-only audit history                                               |
 | 2     | `GET {org}/members`; `PATCH, DELETE {org}/members/{member_id}`                                | Role/member management                                                                          |
 | 2     | `POST {org}/invitations`; `POST /invitations/accept`                                          | Verified matching email and single-use token required for acceptance                            |
 | 3     | `GET /auth/github/start`, `GET /auth/github/callback`                                         | OAuth login or authenticated linking, one-use state                                             |
@@ -91,6 +93,10 @@ Last-owner changes run under a membership/organization lock. Service tokens acce
 The overview can be introduced incrementally in Phases 4–7 with unavailable metric sections explicitly labeled; the full contract is complete in Phase 9. Email verification/reset requires a configured delivery adapter; local development uses a documented local sink, never a success response that pretends mail was delivered.
 
 ## Validation, paging and consistency
+
+Phase 2 uses a fixed stable UUID order and signed, actor/organization-bound cursors on organization, member, audit and session lists. Sorting/filter controls below describe later engineering APIs. Organization deactivation returns 204 and immediately denies access; physical purging and integration shutdown workers arrive with the data they need to process. There is no pending invitation list/revoke API yet.
+
+The browser obtains `{csrf_token}` from `GET /auth/csrf` before every mutation, including sign-up/sign-in and identity-token confirmation. Forward the exact browser `Origin` and `X-CSRF-Token`. Register/login/refresh return `{user,session_id}` and set cookies; `/auth/me` adds `organizations`. Verification and reset requests return generic 202 responses. Links carry one-use tokens in URL fragments; the UI captures and strips them before submission. No raw invitation or reset token is returned from a JSON API.
 
 List routes use `limit` (default 50, maximum 100), an opaque signed cursor, allowlisted `sort` and endpoint-specific filters. Stable order always includes internal ID as a tiebreaker. Cursor contents bind organization, filters, sort and boundary; changing any invalidates the cursor. A cursor is never authorization. Lists use keyset pagination and disclose that concurrent writes can change the live view; exact exports use an explicit snapshot job later. No arbitrary field or SQL sort expressions.
 

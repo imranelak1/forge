@@ -1,6 +1,6 @@
 # Entity and tenant model
 
-Status: logical entity design. Phase 1 creates the `forge` namespace and `public.alembic_version` only. Alembic will introduce each domain table in its feature phase; no tenant entities exist yet.
+Status: Phase 2 implements users, sessions, hashed refresh/identity tokens, organizations, memberships, invitations, audit records and persistent authentication rate limits through Alembic `0002_identity`. The remaining entities below are the phased target model. `0001_foundation` creates the namespace; migrations introduce later domain tables with their feature phases.
 
 ## Shared conventions and invariants
 
@@ -61,17 +61,19 @@ Optional commit/workflow/release links are described below rather than drawn as 
 
 ## Identity and SaaS foundation (Phase 2)
 
-| Entity             | Grain and important fields                                                                                                           | Constraints                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| User               | Global person: canonical email, display name, password hash nullable for OAuth-only identity, verified timestamp, disabled timestamp | Unique canonical email; never expose password hash                                            |
-| Organization       | Tenant root: name, slug, status, timezone, demo flag                                                                                 | Unique slug; its `id` is the tenant boundary                                                  |
-| OrganizationMember | One user membership: organization, user, role `owner/admin/member/viewer`, status                                                    | Unique organization/user; last active owner cannot be removed or demoted, enforced under lock |
-| OrganizationInvite | Invitation: organization, email, role, token hash, inviter, expiry, accepted timestamp                                               | Single-use token; tenant-scoped role policy                                                   |
-| AuthSession        | Global user session: refresh-token family, current token hash, expiry, revoked timestamp                                             | Access JWT refers to active session; spent-token hashes retained to detect reuse              |
-| IdentityToken      | Global one-use verification/reset token: user, purpose, token hash, expiry, consumed timestamp                                       | Unique token hash; atomic consumption; no raw token persisted                                 |
-| OAuthIdentity      | Global provider account: provider, provider user ID, user ID                                                                         | Unique provider/subject; linking requires authenticated proof, not matching unverified email  |
-| OAuthState         | Global expiring one-use authorization state, user/session binding, purpose, optional authorized organization, nonce                  | Hash state; consume atomically; allowlisted callback                                          |
-| AuditLog           | Tenant action: actor identity, operation, subject reference, redacted before/after, request ID, timestamp                            | Append-only for runtime; separate global security log for login failures                      |
+| Entity            | Grain and important fields                                                                                | Constraints                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `users`           | Global person: canonical email, name, required Argon2id password hash, email_verified boolean, created_at | Unique canonical email; never expose password hash                                              |
+| `organizations`   | Tenant root: name, slug, created_by, is_demo, created_at, deleted_at                                      | Unique slug; its id is the tenant boundary; soft deactivation denies access                     |
+| `memberships`     | One organization/user pair: role owner/admin/member/viewer and created_at                                 | Composite organization/id primary key, unique organization/user, locked last-owner invariant    |
+| `invitations`     | Organization, email, role, token_hash, inviter membership, expiry, used_at, revoked_at                    | Composite tenant inviter reference; one-use token; current inviter role rechecked on acceptance |
+| `auth_sessions`   | Global user session/family: user_id, csrf_hash, created_at, expires_at, revoked_at                        | Access JWT refers to an active session; per-request revocation check                            |
+| `refresh_tokens`  | One opaque refresh token hash: session_id, created_at, used_at                                            | Retain spent hashes for replay detection and family revocation                                  |
+| `identity_tokens` | One verification/reset token hash: user_id, purpose, expires_at, used_at, created_at                      | Atomic one-use consumption; reset revokes sessions; no raw token persisted                      |
+| `rate_limits`     | Hashed operation/IP or operation/account key: window_start, attempts                                      | Atomic PostgreSQL window counter shared by API processes                                        |
+| `audit_events`    | Tenant action: actor_id, subject_id, action, created_at                                                   | Composite organization/id primary key; runtime has SELECT/INSERT only                           |
+
+OAuth identities and one-use OAuth state arrive in Phase 3. Nullable passwords for OAuth-only users, user disablement, organization timezone, richer audit payloads and security-event retention are future schema extensions; Phase 2 does not claim those columns exist.
 
 Global auth records cannot be queried through tenant resource endpoints. Organization creation inserts the root and initial owner atomically through a narrow bootstrap use case. Membership discovery is user-scoped and does not grant access to arbitrary organization data.
 

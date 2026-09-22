@@ -4,7 +4,7 @@ Engineering intelligence and pipeline automation for software teams.
 
 Forge traces changes through pull requests, CI, tests, deployments and production errors, with evidence behind insights and auditable pipeline responses.
 
-**Current milestone: Phase 1 — Project Foundation.** The running application includes a responsive dark shell, honest engineering empty states, live API/database/schema checks, and setup guidance. Authentication and organizations start in Phase 2; integrations and metrics arrive later. No customer records or synthetic dashboard metrics are included yet.
+**Current milestone: Phase 2 — Authentication and SaaS Foundation.** Accounts, email verification, password reset, organizations, invitations, roles and session revocation now use the real API and PostgreSQL. The public Anime.js landing, live system checks and honest engineering empty states remain. Provider integrations and engineering metrics arrive in later phases.
 
 ## Run locally
 
@@ -16,7 +16,9 @@ docker compose up -d
 docker compose ps
 ```
 
-The helper generates three independent local database passwords in ignored `.env`, refusing to overwrite an existing file. Alternatively, copy `.env.example` to `.env` and configure all password fields with distinct random values of at least 20 characters. Docker builds missing images automatically; after source changes use `docker compose up -d --build`.
+The helper generates independent database passwords and an authentication signing key in ignored `.env`. It refuses to overwrite an existing file. Upgrading an existing installation: run `node scripts/configure.mjs --upgrade` to add missing settings while preserving credentials, then `docker compose up -d --build`. Migration `0002_identity` adds identity and tenant tables without resetting the database.
+
+Open Forge at **http://localhost:3000** so the browser origin matches `FORGE_PUBLIC_ORIGIN`. Development emails are saved as `.local/mail/*.eml`; open the link inside the matching message to verify an address, reset a password or accept an invitation. No real email is sent with the default file adapter. Production configuration requires HTTPS and authenticated SMTP with STARTTLS.
 
 - Landing page: [localhost:3000](http://localhost:3000)
 - Application: [localhost:3000/app](http://localhost:3000/app)
@@ -34,10 +36,11 @@ npm ci
 npm run lint
 npm run typecheck
 npm test
+npm run test:config
 npm run build
 node scripts/test-backend.mjs
 npx playwright install chromium
-$env:PLAYWRIGHT_BASE_URL = 'http://127.0.0.1:3000'
+$env:PLAYWRIGHT_BASE_URL = 'http://localhost:3000'
 $env:FORGE_E2E_LIVE = '1'
 npm run test:e2e
 ```
@@ -60,23 +63,24 @@ Recharts is pinned for later database-backed analytics; no charts are rendered w
 
 ## Documentation
 
-The [landing-page handoff](docs/landing-page.md) covers the interactive WebGL core, Anime.js choreography, integration logos and accessibility fallbacks.
+The [landing-page handoff](docs/landing-page.md) covers the animated SVG track, Anime.js text choreography, integration logos and accessibility fallbacks.
 
 The [frontend design reference](apps/web/DESIGN.md) records the implemented typography, colors, components and responsive behavior.
 
-| Document                                               | Contents                                                 |
-| ------------------------------------------------------ | -------------------------------------------------------- |
-| [Phase 1 handoff](docs/phase-1-review.md)              | Changes, commands, verification and limitations          |
-| [Development](docs/development.md)                     | Local/native workflows, credentials and migrations       |
-| [Architecture](docs/architecture.md)                   | Diagrams, module boundaries and deployment evolution     |
-| [Data model](docs/data-model.md)                       | Entity grains, tenant constraints and lifecycle evidence |
-| [APIs](docs/apis.md)                                   | Implemented health routes and future contracts           |
-| [Integrations](docs/integrations.md)                   | GitHub, Actions, JUnit and Sentry                        |
-| [Pipelines](docs/pipelines.md)                         | Durable processing, correlation and automation           |
-| [Analytics](docs/analytics.md)                         | Metric definitions and future dbt models                 |
-| [Security and operations](docs/security-operations.md) | Phased security, tests and recovery requirements         |
-| [Milestones](docs/roadmap.md)                          | Acceptance gates for Phases 0–13                         |
-| [ADRs](docs/adr/README.md)                             | Approved architectural decisions                         |
-| [Phase 0 record](docs/phase-0-review.md)               | Historical architecture handoff                          |
+| Document                                               | Contents                                                    |
+| ------------------------------------------------------ | ----------------------------------------------------------- |
+| [Phase 1 handoff](docs/phase-1-review.md)              | Changes, commands, verification and limitations             |
+| [Phase 2 handoff](docs/phase-2-review.md)              | Authentication, tenant isolation, mail, seed and acceptance |
+| [Development](docs/development.md)                     | Local/native workflows, credentials and migrations          |
+| [Architecture](docs/architecture.md)                   | Diagrams, module boundaries and deployment evolution        |
+| [Data model](docs/data-model.md)                       | Entity grains, tenant constraints and lifecycle evidence    |
+| [APIs](docs/apis.md)                                   | Implemented health routes and future contracts              |
+| [Integrations](docs/integrations.md)                   | GitHub, Actions, JUnit and Sentry                           |
+| [Pipelines](docs/pipelines.md)                         | Durable processing, correlation and automation              |
+| [Analytics](docs/analytics.md)                         | Metric definitions and future dbt models                    |
+| [Security and operations](docs/security-operations.md) | Phased security, tests and recovery requirements            |
+| [Milestones](docs/roadmap.md)                          | Acceptance gates for Phases 0–13                            |
+| [ADRs](docs/adr/README.md)                             | Approved architectural decisions                            |
+| [Phase 0 record](docs/phase-0-review.md)               | Historical architecture handoff                             |
 
-This is a local foundation, not a production SaaS. No authentication, tenant entities, ingestion, worker, analytics engine or automated actions exist yet. Phase 2 begins only after the user's next instruction.
+This is a local SaaS foundation. Ingestion, workers, analytics and automated actions remain planned. Production operations are Phase 13; completing this milestone does not establish production readiness. Phase 3 begins only after the user's next instruction.

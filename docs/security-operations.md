@@ -1,6 +1,6 @@
 # Security, operations and verification
 
-Status: implementation requirements, not claims of deployed controls.
+Status: Phase 2 implements the identity/session/CSRF, organization RBAC and tenant RLS controls described in [the phase handoff](phase-2-review.md). Provider, worker, analytics and production controls below remain requirements for later phases.
 
 ## Tenant boundary
 
@@ -36,14 +36,14 @@ Phase 3 adds `worker` from the backend image because durable sync/webhook work n
 
 Planned configuration groups:
 
-| Phase | Configuration                                                                                                                 |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------- |
-| 1     | Environment, public origin, internal API URL, PostgreSQL application/migration connection settings, log level                 |
-| 2     | JWT signing/verification and issuer/audience, credential encryption key, cookie/CSRF settings, mail adapter configuration     |
-| 3     | GitHub App identifiers/private key, OAuth credentials/callback, webhook signing secret, worker concurrency and history limits |
-| 6     | Report size/case limits, CI token expiry policy                                                                               |
-| 7     | Sentry base URL, encrypted per-tenant credentials, polling/retention defaults                                                 |
-| 9     | Egress allowlist, action signing configuration, delivery limits                                                               |
+| Phase | Configuration                                                                                                                       |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Environment, public origin, internal API URL, PostgreSQL application/migration connection settings, log level                       |
+| 2     | Independent `FORGE_AUTH_SECRET`, `FORGE_PUBLIC_ORIGIN`, mail adapter and SMTP settings; fixed JWT issuer/audience and cookie policy |
+| 3     | GitHub App identifiers/private key, OAuth credentials/callback, webhook signing secret, worker concurrency and history limits       |
+| 6     | Report size/case limits, CI token expiry policy                                                                                     |
+| 7     | Sentry base URL, encrypted per-tenant credentials, polling/retention defaults                                                       |
+| 9     | Egress allowlist, action signing configuration, delivery limits                                                                     |
 
 Exact variable names and dependency versions are Phase 1/feature deliverables. Do not add unused mandatory secrets before the feature needs them.
 

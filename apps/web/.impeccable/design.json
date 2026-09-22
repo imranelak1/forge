@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-21T21:40:31.061Z",
+  "generatedAt": "2026-09-22T13:22:27.334Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -324,6 +324,36 @@
       "landing-integrations-muted": {
         "role": "neutral",
         "displayName": "Landing dark supporting text on stone"
+      },
+      "field-border": {
+        "role": "neutral",
+        "displayName": "Interactive field border",
+        "purpose": "The stronger boundary shared by account inputs, role selects, and the organization selector; panel dividers keep their existing border token.",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0)",
+          "oklch(26.43% 0.0000 0)",
+          "oklch(37.86% 0.0000 0)",
+          "oklch(49.29% 0.0000 0)",
+          "oklch(60.71% 0.0000 0)",
+          "oklch(72.14% 0.0000 0)",
+          "oklch(83.57% 0.0000 0)",
+          "oklch(95.00% 0.0000 0)"
+        ]
+      },
+      "form-error": {
+        "role": "primary",
+        "displayName": "Form error",
+        "purpose": "Inline, text-supported form failures and recovery instructions; separate from the landing coral action.",
+        "tonalRamp": [
+          "oklch(15.00% 0.0759 29.98)",
+          "oklch(26.43% 0.0759 29.98)",
+          "oklch(37.86% 0.0759 29.98)",
+          "oklch(49.29% 0.0759 29.98)",
+          "oklch(60.71% 0.0759 29.98)",
+          "oklch(72.14% 0.0759 29.98)",
+          "oklch(83.57% 0.0759 29.98)",
+          "oklch(95.00% 0.0759 29.98)"
+        ]
       }
     },
     "typographyMeta": {
@@ -342,6 +372,18 @@
       "landing-chapter": {
         "displayName": "Landing chapter",
         "purpose": "Five capability chapter headings; independent of compact application title roles."
+      },
+      "body-small": {
+        "displayName": "Compact body",
+        "purpose": "Descriptions and form feedback; labels and member/session names use weight 500. Feedback uses 1.6 line height and settings descriptions 1.7."
+      },
+      "settings-title": {
+        "displayName": "Settings section heading",
+        "purpose": "Headings in the left column of divided account and organization settings sections."
+      },
+      "compact-label": {
+        "displayName": "Compact metadata",
+        "purpose": "Health labels, the phase badge, and session references; session references use system monospace."
       }
     },
     "shadows": [],
@@ -390,11 +432,13 @@
     "breakpoints": [
       {
         "name": "compact-desktop",
-        "value": "1100px"
+        "value": "1100px",
+        "purpose": "Main content padding reduces; settings use a 185px label column with 28px gutter and stack member controls."
       },
       {
         "name": "mobile",
-        "value": "760px"
+        "value": "760px",
+        "purpose": "Settings sections and session rows stack; navigation wraps; account fields, selects, and scoped form/member/session actions have a 44px minimum height."
       },
       {
         "name": "landing-compact-desktop",
@@ -411,6 +455,10 @@
       {
         "name": "landing-short-viewport",
         "value": "max-height: 600px; 400px core stage in normal flow; code previews remain visible beneath explanations"
+      },
+      {
+        "name": "account-narrow-mobile",
+        "value": "max-width: 430px; stacked member controls; 86px account detail labels with 12px gaps"
       }
     ]
   },
@@ -419,7 +467,7 @@
       "name": "Primary button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Implemented primitive variant; not currently used by page actions.",
+      "description": "Main submission and acceptance action for accounts and organizations. Forms use a 40px minimum height; public form submits stretch to the column and scoped mobile actions use 44px.",
       "html": "<button class=\"ds-button-primary\">Continue</button>",
       "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;border-radius:6px;font-family:var(--font-sans,\"Geist Variable\",sans-serif);font-size:14px;font-weight:500;line-height:20px;height:36px;padding:0 14px;cursor:pointer;transition:color 150ms cubic-bezier(.4,0,.2,1),background-color 150ms cubic-bezier(.4,0,.2,1),border-color 150ms cubic-bezier(.4,0,.2,1);background:var(--primary,#ededed);color:var(--primary-foreground,#171717);border:0;}.ds-button-primary:hover{background:color-mix(in oklab,var(--primary,#ededed) 90%,transparent);}.ds-button-primary:focus-visible{outline:2px solid var(--ring,#c8c8c8);outline-offset:4px}.ds-button-primary:disabled{opacity:.5;pointer-events:none;cursor:default}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}}"
     },
@@ -427,7 +475,7 @@
       "name": "Outline button",
       "kind": "button",
       "refersTo": "button-outline",
-      "description": "Current page action control.",
+      "description": "Secondary page actions, retries, session revocation, and inline confirmations.",
       "html": "<button class=\"ds-button-outline\">Run checks</button>",
       "css": ".ds-button-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;border-radius:6px;font-family:var(--font-sans,\"Geist Variable\",sans-serif);font-size:14px;font-weight:500;line-height:20px;height:36px;padding:0 14px;cursor:pointer;transition:color 150ms cubic-bezier(.4,0,.2,1),background-color 150ms cubic-bezier(.4,0,.2,1),border-color 150ms cubic-bezier(.4,0,.2,1);background:var(--background,#111111);color:var(--foreground,#ededed);border:1px solid var(--border,#303030);}.ds-button-outline:hover{background:var(--muted,#212121);}.ds-button-outline:focus-visible{outline:2px solid var(--ring,#c8c8c8);outline-offset:4px}.ds-button-outline:disabled{opacity:.5;pointer-events:none;cursor:default}@media(prefers-reduced-motion:reduce){.ds-button-outline{transition:none}}"
     },
@@ -435,7 +483,7 @@
       "name": "Ghost button",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Implemented primitive variant; not currently used by page actions.",
+      "description": "Cancellation, account-mode switching, and the action that reveals inline member removal.",
       "html": "<button class=\"ds-button-ghost\">Continue</button>",
       "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;border-radius:6px;font-family:var(--font-sans,\"Geist Variable\",sans-serif);font-size:14px;font-weight:500;line-height:20px;height:36px;padding:0 14px;cursor:pointer;transition:color 150ms cubic-bezier(.4,0,.2,1),background-color 150ms cubic-bezier(.4,0,.2,1),border-color 150ms cubic-bezier(.4,0,.2,1);background:transparent;color:var(--foreground,#ededed);border:0;}.ds-button-ghost:hover{background:var(--muted,#212121);color:var(--foreground,#ededed);}.ds-button-ghost:focus-visible{outline:2px solid var(--ring,#c8c8c8);outline-offset:4px}.ds-button-ghost:disabled{opacity:.5;pointer-events:none;cursor:default}@media(prefers-reduced-motion:reduce){.ds-button-ghost{transition:none}}"
     },
@@ -448,10 +496,18 @@
       "css": ".ds-nav{display:flex;gap:12px;align-items:center;padding:9px 12px;border-radius:5px;font:13px/1.55 var(--font-sans,\"Geist Variable\",sans-serif);color:#b7b7b7;text-decoration:none;transition:background 150ms,color 150ms}.ds-nav[aria-current=\"page\"]{background:#2a2a2a;color:var(--foreground,#ededed)}.ds-nav:hover{background:#242424;color:var(--foreground,#ededed)}.ds-nav:focus-visible{outline:2px solid var(--ring,#c8c8c8);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-nav{transition:none}}"
     },
     {
-      "name": "Foundation build badge",
+      "name": "Account field",
+      "kind": "input",
+      "refersTo": "account-field",
+      "description": "Persistent label and described hint; surface fill, stronger field boundary, 42px minimum desktop height, visible focus, and 44px minimum mobile height. Native selects share this field treatment.",
+      "html": "<div class=\"ds-account-field\"><label for=\"ds-account-email\">Email address</label><input id=\"ds-account-email\" name=\"email\" type=\"email\" autocomplete=\"email\" aria-describedby=\"ds-account-hint\" required /><p id=\"ds-account-hint\">Use the address associated with your account.</p></div>",
+      "css": ".ds-account-field{display:grid;gap:8px;width:100%;max-width:440px;font-family:var(--font-sans,\"Geist Variable\",sans-serif);color:var(--foreground,#ededed)}.ds-account-field label{font-size:13px;font-weight:500;line-height:1.55}.ds-account-field input{min-width:0;width:100%;min-height:42px;padding:9px 11px;font:14px/1.55 var(--font-sans,\"Geist Variable\",sans-serif);border:1px solid #666666;border-radius:6px;background:var(--surface,#171717);color:var(--foreground,#ededed);caret-color:var(--foreground,#ededed)}.ds-account-field input::placeholder{color:var(--muted-foreground,#a6a6a6)}.ds-account-field input:focus-visible{outline:2px solid var(--ring,#c8c8c8);outline-offset:4px}.ds-account-field input:disabled{opacity:.65}.ds-account-field p{margin:0;max-width:65ch;font-size:12px;line-height:1.6;color:var(--muted-foreground,#a6a6a6)}@media(max-width:760px){.ds-account-field input{min-height:44px}}"
+    },
+    {
+      "name": "Workspace access build badge",
       "kind": "chip",
       "description": "Static context label, not a filter or action.",
-      "html": "<span class=\"ds-build\">Foundation build</span>",
+      "html": "<span class=\"ds-build\">Phase 2 · Workspace access</span>",
       "css": ".ds-build{display:inline-block;border:1px solid var(--border,#303030);padding:2px 7px;border-radius:4px;color:var(--muted-foreground,#a6a6a6);font:11px/1.55 var(--font-sans,\"Geist Variable\",sans-serif)}"
     },
     {
@@ -503,12 +559,13 @@
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation and Phase 2 workspace access in `apps/web`: the protected overview, account creation and sign-in, email verification and password recovery, team invitations, organization onboarding and switching, organization settings, membership roles, activity, and session revocation. System status and the setup guide remain public. Provider integrations, engineering metrics, and charts remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
       "Restrained controls and explicit, text-supported service states.",
       "Responsive navigation and locally scrollable technical content.",
+      "Persistent form labels, visible access roles, and divided settings sections.",
       "A scoped public landing with a continuous delivery track, tool checkpoints and five code examples."
     ],
     "rules": [
@@ -531,7 +588,7 @@
       "**Don't** fabricate metrics, customer data, connected sources, or working planned controls.",
       "**Don't** replace the restrained application foundation with the landing's material gradients, depth, or oversized display text.",
       "**Don't** treat a healthy installation as evidence that an engineering source is connected.",
-      "**Don't** document future forms, charts, or authentication screens as implemented patterns."
+      "**Don't** document future provider connections, metrics, or charts as implemented patterns."
     ]
   }
 }
