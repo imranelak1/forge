@@ -12,6 +12,7 @@ from starlette.responses import Response
 from forge import __version__
 from forge.api.problems import problem
 from forge.api.v1.analytics import router as analytics_router
+from forge.api.v1.delivery import router as delivery_router
 from forge.api.v1.github import router as github_router
 from forge.api.v1.health import router as health_router
 from forge.api.v1.identity import router as identity_router
@@ -25,6 +26,7 @@ from forge.repositories.database import create_database_engine
 from forge.repositories.health import PostgresHealthRepository
 from forge.repositories.identity import IdentityRepository
 from forge.services.analytics import AnalyticsService
+from forge.services.delivery import DeliveryService
 from forge.services.github import GitHubService
 from forge.services.health import HealthService
 from forge.services.identity import IdentityService
@@ -63,6 +65,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.oauth_service = OAuthService(app.state.identity_service, settings)
     app.state.github_service = GitHubService(app.state.identity_service, settings)
     app.state.analytics_service = AnalyticsService(app.state.identity_service)
+    app.state.delivery_service = DeliveryService(app.state.identity_service)
     app.state.webhook_service = GitHubWebhookService(
         settings, app.state.identity_service.repository
     )
@@ -171,4 +174,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(webhooks_router, prefix="/api/v1")
     app.include_router(github_router, prefix="/api/v1")
     app.include_router(analytics_router, prefix="/api/v1")
+    app.include_router(delivery_router, prefix="/api/v1")
     return app

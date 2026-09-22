@@ -340,11 +340,21 @@ class GitHubApp:
     async def enrichment_credentials(
         self, identifier: int, *, include_issues: bool = True
     ) -> tuple[str, bool]:
+        token, granted = await self.capability_credentials(
+            identifier, ("issues",) if include_issues else ()
+        )
+        return token, "issues" in granted
+
+    async def capability_credentials(
+        self, identifier: int, optional: tuple[str, ...]
+    ) -> tuple[str, frozenset[str]]:
         installation = await self.installation(identifier)
-        issues = include_issues and installation["permissions"].get("issues") in {"read", "write"}
         permissions = {"contents": "read", "pull_requests": "read"}
-        if issues:
-            permissions["issues"] = "read"
+        for name in optional:
+            if name not in {"issues", "actions", "deployments"}:
+                raise ValueError("invalid_capability")
+            if installation["permissions"].get(name) in {"read", "write"}:
+                permissions[name] = "read"
         data = await self.request(
             "POST",
             f"/app/installations/{identifier}/access_tokens",
@@ -360,10 +370,14 @@ class GitHubApp:
             )
         ):
             raise GitHubFailure("permissions_required")
-        return token_value(data.get("token")), issues and data["permissions"].get("issues") in {
-            "read",
-            "write",
-        }
+        return token_value(data.get("token")), frozenset(
+            name
+            for name in optional
+            if name in permissions and data["permissions"].get(name) in {"read", "write"}
+        )
+
+    async def cicd_credentials(self, identifier: int) -> tuple[str, frozenset[str]]:
+        return await self.capability_credentials(identifier, ("actions", "deployments"))
 
     @staticmethod
     def list_field(data: object, field: str | None = None) -> list[dict[str, Any]]:
@@ -526,3 +540,86 @@ class GitHubApp:
         if not isinstance(data, dict) or "pull_request" in data:
             raise GitHubFailure("invalid_response")
         return data
+
+    async def workflow_runs(
+        self, token: str, owner: str, name: str, page: int
+    ) -> tuple[list[dict[str, Any]], int]:
+        data = await self.request(
+            "GET",
+            f"/repos/{segment(owner)}/{segment(name)}/actions/runs",
+            token,
+            params={"per_page": 100, "page": self.page(page)},
+        )
+        values = self.list_field(data, "workflow_runs")
+        total = data.get("total_count") if isinstance(data, dict) else None
+        if type(total) is not int or total < 0:
+            raise GitHubFailure("invalid_response")
+        return values, total
+
+    async def workflow_run(
+        self, token: str, owner: str, name: str, identifier: int, attempt: int | None = None
+    ) -> dict[str, Any]:
+        positive_id(identifier)
+        suffix = f"/attempts/{positive_id(attempt)}" if attempt is not None else ""
+        data = await self.request(
+            "GET",
+            f"/repos/{segment(owner)}/{segment(name)}/actions/runs/{identifier}{suffix}",
+            token,
+        )
+        if not isinstance(data, dict):
+            raise GitHubFailure("invalid_response")
+        return data
+
+    async def workflow_jobs(
+        self, token: str, owner: str, name: str, identifier: int, attempt: int, page: int
+    ) -> tuple[list[dict[str, Any]], int]:
+        positive_id(identifier)
+        positive_id(attempt)
+        data = await self.request(
+            "GET",
+            f"/repos/{segment(owner)}/{segment(name)}/actions/runs/{identifier}"
+            f"/attempts/{attempt}/jobs",
+            token,
+            params={"per_page": 100, "page": self.page(page)},
+        )
+        values = self.list_field(data, "jobs")
+        total = data.get("total_count") if isinstance(data, dict) else None
+        if type(total) is not int or total < 0:
+            raise GitHubFailure("invalid_response")
+        return values, total
+
+    async def deployments(
+        self, token: str, owner: str, name: str, page: int
+    ) -> list[dict[str, Any]]:
+        return self.list_field(
+            await self.request(
+                "GET",
+                f"/repos/{segment(owner)}/{segment(name)}/deployments",
+                token,
+                params={"per_page": 100, "page": self.page(page)},
+            )
+        )
+
+    async def deployment(
+        self, token: str, owner: str, name: str, identifier: int
+    ) -> dict[str, Any]:
+        positive_id(identifier)
+        data = await self.request(
+            "GET", f"/repos/{segment(owner)}/{segment(name)}/deployments/{identifier}", token
+        )
+        if not isinstance(data, dict):
+            raise GitHubFailure("invalid_response")
+        return data
+
+    async def deployment_statuses(
+        self, token: str, owner: str, name: str, identifier: int, page: int
+    ) -> list[dict[str, Any]]:
+        positive_id(identifier)
+        return self.list_field(
+            await self.request(
+                "GET",
+                f"/repos/{segment(owner)}/{segment(name)}/deployments/{identifier}/statuses",
+                token,
+                params={"per_page": 100, "page": self.page(page)},
+            )
+        )

@@ -6,6 +6,8 @@ from uuid import UUID
 from sqlalchemy import text
 
 from forge.domain.demo import TABLES, VERSION, history, identifier
+from forge.domain.demo_delivery import TABLES as DELIVERY_TABLES
+from forge.domain.demo_delivery import history as delivery_history
 from forge.repositories.identity import IdentityRepository
 
 
@@ -67,7 +69,8 @@ class DemoRepository:
             rows = history(
                 organization_id, integration, event["occurred_at"], 2 if number == 1 else 1
             )
-            for table in TABLES:
+            rows.update(delivery_history(organization_id, event["occurred_at"], rows))
+            for table in (*TABLES, *DELIVERY_TABLES):
                 items = rows[table]
                 if not items:
                     continue
@@ -80,5 +83,20 @@ class DemoRepository:
                         "ON CONFLICT (organization_id,id) DO NOTHING"
                     ),
                     items,
+                )
+            # Upgrade already-seeded Phase 4 repositories without replacing their identities.
+            for item in rows["repositories"]:
+                await self.repository.execute(
+                    connection,
+                    """UPDATE forge.repositories SET ci_status='complete',ci_error=NULL,
+                        ci_synced_at=:anchor,ci_window_since=:anchor - interval '90 days',
+                        ci_window_until=:anchor,deployments_status='complete',deployments_error=NULL,
+                        deployments_synced_at=:anchor,
+                        deployments_window_since=:anchor - interval '90 days',
+                        deployments_window_until=:anchor
+                        WHERE organization_id=:org AND id=:id AND is_demo=true""",
+                    org=organization_id,
+                    id=item["id"],
+                    anchor=event["occurred_at"],
                 )
             return {table: len(items) for table, items in rows.items()}

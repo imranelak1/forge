@@ -1,6 +1,10 @@
 # Ingestion, correlation and automation pipelines
 
-Status: Phase 3 implements the PostgreSQL inbox, fenced job leases, page checkpoints and PR/commit normalization. Phase 4 adds repository-scoped enrichment jobs for reviews, transitions, PR membership, merge commits, file metadata and optional issues. Every page persists evidence and coverage together with a fenced checkpoint. Source revision changes invalidate old completeness; disconnected/demo sources cannot collect. The worker runs separately from the API. Correlations, action outbox and automation remain Phases 8 and 9; scheduled orchestration remains Phase 10.
+Status: Phase 3 implements the PostgreSQL inbox, fenced job leases, page checkpoints and PR/commit normalization. Phase 4 adds repository-scoped enrichment jobs for reviews, transitions, PR membership, merge commits, file metadata and optional issues. Phase 5 extends those jobs with workflow discovery, explicit attempt enumeration, attempt-specific jobs, deployments and complete per-deployment status scans. Every page persists evidence and coverage together with a fenced checkpoint. Source revision changes invalidate old completeness; disconnected/demo sources cannot collect. The worker runs separately from the API. Correlations, action outbox and automation remain Phases 8 and 9; scheduled orchestration remains Phase 10.
+
+## Implemented CI/deployment collection (Phase 5)
+
+Phase 5 capability scans enumerate retained workflows/deployments without a creation-time filter; old reruns and changed statuses can be reconciled by manual sync. Each discovered run explicitly enumerates attempts 1 through the observed attempt (maximum 100), then fetches jobs scoped to that attempt. Every deployment's complete status history is scanned without date filtering. Source windows and capacity/permission gaps remain visible. A DB-only `cicd_links` job repairs explicit PR and full-SHA links in batches of 100 after late core imports, under the same tenant/access/lease checks. No job can collect for disconnected, deselected or generated repositories.
 
 ## Implemented Phase 3 behavior
 

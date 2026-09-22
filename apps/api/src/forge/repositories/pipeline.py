@@ -9,7 +9,8 @@ from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from forge.repositories.enrichment import SUBJECTS, EnrichmentRepository
+from forge.repositories.cicd import CICDRepository
+from forge.repositories.enrichment import SUBJECTS
 
 ACTIVE_RUNS = "('queued','running','retrying')"
 
@@ -36,7 +37,7 @@ class Work:
     subject: Mapping[str, Any] | None = None
 
 
-class PipelineRepository(EnrichmentRepository):
+class PipelineRepository(CICDRepository):
     async def enqueue_sync(
         self,
         connection: AsyncConnection,
@@ -78,6 +79,16 @@ class PipelineRepository(EnrichmentRepository):
                     source,
                     force=True,
                 )
+                for capability in ("ci_repository", "deployments_repository"):
+                    await self.queue_enrichment(
+                        connection,
+                        organization_id,
+                        integration_id,
+                        repository_id,
+                        capability,
+                        source,
+                        force=True,
+                    )
         active = await self.one(
             connection,
             f"""SELECT * FROM forge.sync_runs WHERE organization_id=:org
@@ -308,7 +319,11 @@ class PipelineRepository(EnrichmentRepository):
                 subject = await self.one(
                     connection,
                     f"SELECT * FROM forge.{SUBJECTS[kind]} WHERE organization_id=:org AND id=:id "
-                    + ("AND repository_id=:repo " if kind != "repository" else "AND id=:repo ")
+                    + (
+                        "AND id=:repo "
+                        if SUBJECTS[kind] == "repositories"
+                        else "AND repository_id=:repo "
+                    )
                     + "FOR UPDATE",
                     org=lease.organization_id,
                     id=UUID(job["payload"]["subject_id"]),
@@ -319,7 +334,17 @@ class PipelineRepository(EnrichmentRepository):
             or bool(run and run["repository_id"])
             or bool(
                 inbox
-                and inbox["event"] in {"push", "pull_request", "pull_request_review", "issues"}
+                and inbox["event"]
+                in {
+                    "push",
+                    "pull_request",
+                    "pull_request_review",
+                    "issues",
+                    "workflow_run",
+                    "workflow_job",
+                    "deployment",
+                    "deployment_status",
+                }
             )
         )
         control = bool(inbox and inbox["event"] in {"installation", "installation_repositories"})
@@ -583,6 +608,21 @@ class PipelineRepository(EnrichmentRepository):
         )
         assert current
         await self.queue_enrichment(connection, org, integration, repo, "commit", current)
+        unresolved = await self.one(
+            connection,
+            """SELECT id FROM forge.workflow_runs
+            WHERE organization_id=:org AND repository_id=:repo AND head_sha=:sha
+            AND commit_id IS NULL UNION ALL SELECT id FROM forge.deployments
+            WHERE organization_id=:org AND repository_id=:repo AND sha=:sha
+            AND commit_id IS NULL LIMIT 1""",
+            org=org,
+            repo=repo,
+            sha=record["sha"],
+        )
+        if unresolved:
+            await self.queue_enrichment(
+                connection, org, integration, repo, "cicd_links", {"id": repo}, force=True
+            )
         return current
 
     async def event(

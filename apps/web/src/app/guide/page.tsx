@@ -69,8 +69,8 @@ export default function GuidePage() {
           <p>
             History imports run in the background, starting with the last 90 days. Repositories
             shows progress, imported pull requests and commits, and retry actions. Webhooks update
-            selected repositories as changes arrive. CI and deployment analytics are planned for
-            later phases.
+            selected repositories as changes arrive. CI workflows show distinct run attempts and
+            jobs; Deployments shows provider records and their first successful status.
           </p>
           <p>
             The overview compares cycle time, review wait and approval-to-merge for the same merged
@@ -78,6 +78,19 @@ export default function GuidePage() {
             evidence. Refresh data after a sync finishes. Optional Issues read permission enables
             issue history and explicit links; missing permission leaves PR and commit imports
             available.
+          </p>
+          <p>
+            For CI and deployment evidence, the GitHub App administrator must enable Actions and
+            Deployments read permissions in GitHub App settings, and the installation owner must
+            approve the new access. Subscribe to workflow run, workflow job, deployment and
+            deployment status events for timely updates. Then sync the selected repository in Forge.
+            Until that access is available, the corresponding source remains unavailable.
+          </p>
+          <p>
+            Environment classification uses each deployment’s provider flag. A verified Forge owner
+            or admin can set an explicit repository environment override; removing it restores the
+            provider flag. A name such as “production” never establishes classification on its own,
+            and successful CI never counts as a deployment.
           </p>
           <Link className="text-link" href="/app/integrations">
             Open integrations
@@ -109,8 +122,8 @@ export default function GuidePage() {
           <h2>Build sequence</h2>
           <p>
             Forge is being implemented one phase at a time. This installation contains the
-            foundation, account access, organizations, GitHub repository ingestion and pull request
-            analytics with source evidence.
+            foundation, account access, organizations, GitHub repository ingestion, pull request
+            analytics, and CI and deployment evidence.
           </p>
           <ol className="phase-list">
             <li>
@@ -143,13 +156,23 @@ export default function GuidePage() {
                   relationships and changed-file metadata.
                 </p>
               </div>
+            </li>
+            <li>
+              <span>Phase 5</span>
+              <div>
+                <strong>CI & deployments</strong>
+                <p>
+                  Distinct workflow attempts, job evidence, outcome and timing metrics,
+                  first-success deployments and explicit environment classification.
+                </p>
+              </div>
               <span className="current-phase">Current</span>
             </li>
             <li>
-              <span>Phases 5–9</span>
+              <span>Phases 6–9</span>
               <div>
                 <strong>Intelligence & automation</strong>
-                <p>CI, deployment, test and error analytics, alerts and pipeline responses.</p>
+                <p>Test and error analytics, alerts and pipeline responses.</p>
               </div>
             </li>
           </ol>

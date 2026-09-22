@@ -241,7 +241,8 @@ function IntegrationsContent({
       <p className="github-scope-note">
         Forge reads repository metadata, contents and pull requests. Organization membership is used
         to verify who can connect an installation. Your GitHub installation controls which
-        repositories are available.
+        repositories are available. Optional Actions, Deployments and Issues read permissions enable
+        their additional evidence; new access must be approved on GitHub.
       </p>
     </div>
   );

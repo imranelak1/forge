@@ -1,6 +1,19 @@
 # Entity and tenant model
 
-Status: Alembic `0004_github` adds GitHub authorizations, installation routing, integrations, repositories, sync runs, webhook receipts/inbox, leased jobs, minimal PR/commit projections and normalized events. Tenant tables use forced RLS and composite tenant foreign keys. `0001` through `0003` remain the foundation, identity and social-login history. Phase 4 migration `0006_analytics` adds PR reviews/transitions, explicit commit membership/merge links, file metadata, issues/references and evidence coverage. Entities outside these implemented scopes remain the phased target.
+Status: Alembic `0004_github` adds GitHub authorizations, installation routing, integrations, repositories, sync runs, webhook receipts/inbox, leased jobs, minimal PR/commit projections and normalized events. Tenant tables use forced RLS and composite tenant foreign keys. `0001` through `0003` remain the foundation, identity and social-login history. Phase 4 migration `0006_analytics` adds PR reviews/transitions, explicit commit membership/merge links, file metadata, issues/references and evidence coverage. Phase 5 migration `0007_cicd` adds the six CI/deployment tables below. Entities outside these implemented scopes remain the phased target.
+
+## Implemented CI/deployment storage (Phase 5)
+
+| Table                        | Grain and evidence                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `workflow_runs`              | Organization/repository/provider run/attempt; original creation, known queue/start/completion, completion provenance, raw status/conclusion and jobs/links coverage |
+| `workflow_jobs`              | Organization/attempt/provider job; timestamps, result, bounded step metadata and unknown-by-default failure category, never logs                                    |
+| `workflow_run_pull_requests` | Explicit provider-reported same-repository run/PR association                                                                                                       |
+| `deployment_environments`    | Organization/repository/exact environment name; optional audited production classification override                                                                 |
+| `deployments`                | Organization/repository/provider deployment; explicit provider environment flags, full SHA and optional resolved commit/workflow identity, status coverage          |
+| `deployment_statuses`        | Organization/deployment/provider status; all observed states and source timestamps, never external log/target URLs                                                  |
+
+All six force tenant RLS. Composite foreign keys reject cross-tenant and cross-repository links. Repository CI and deployment coverage/windows are independent. First success is queried from status facts rather than incremented on delivery. Complete job enumeration may establish a labeled completion proxy; original workflow creation never establishes a rerun's queue time. Generated facts retain Phase 4 repository/change IDs and the same persisted anchor.
 
 ## Implemented GitHub storage (Phase 3)
 

@@ -9,6 +9,8 @@ from test_auth import AuthHarness
 from test_auth import auth as auth_fixture
 
 from forge.domain.demo import TABLES, history, identifier
+from forge.domain.demo_delivery import TABLES as DELIVERY_TABLES
+from forge.domain.demo_delivery import history as delivery_history
 from forge.domain.identity import Actor
 from forge.repositories.demo import DemoRepository
 
@@ -77,7 +79,7 @@ async def test_seed_is_idempotent_scoped_and_cannot_queue_live_work(auth: AuthHa
                     f"AS digest FROM forge.{table} t WHERE organization_id=:org",
                     org=tenant,
                 )
-                for table in (*TABLES, "events", "integrations", "jobs")
+                for table in (*TABLES, *DELIVERY_TABLES, "events", "integrations", "jobs")
             }
 
     before = await snapshot(first["id"])
@@ -120,3 +122,64 @@ async def test_seed_is_idempotent_scoped_and_cannot_queue_live_work(auth: AuthHa
     assert metrics.status_code == 200, metrics.text
     assert metrics.json()["merged_count"] > 50
     assert metrics.json()["metrics"]["cycle_time"]["p95_seconds"] > 0
+    ci = await owner.client.get(f"/api/v1/organizations/{first['id']}/metrics/ci")
+    assert ci.status_code == 200, ci.text
+    assert ci.json()["decisive_count"] > 40
+    assert 0 < ci.json()["failure_fraction"] < 1
+    assert ci.json()["coverage"]["completion_unknown_count"] == 2
+    deployments = await owner.client.get(
+        f"/api/v1/organizations/{first['id']}/metrics/deployments?classification=all"
+    )
+    assert deployments.status_code == 200, deployments.text
+    assert deployments.json()["successful_count"] > 5
+    assert deployments.json()["observed_success_count"] > deployments.json()["successful_count"]
+
+
+def test_delivery_demo_retries_and_deployments_preserve_evidence_grain() -> None:
+    tenant = uuid4()
+    anchor = datetime(2026, 9, 22, 12, tzinfo=UTC)
+    changes = history(tenant, identifier(tenant, "integration"), anchor, 2)
+    rows = delivery_history(tenant, anchor, changes)
+    assert rows == delivery_history(tenant, anchor, changes)
+    assert len(rows["workflow_runs"]) == 108
+    assert len(rows["deployments"]) == 36
+    runs = {row["id"]: row for row in rows["workflow_runs"]}
+    commits = {row["id"]: row for row in changes["commits"]}
+    prs = {row["id"]: row for row in changes["pull_requests"]}
+    for run in runs.values():
+        assert commits[run["commit_id"]]["sha"] == run["head_sha"]
+        assert run["completion_source"] == ("jobs" if run["completed_at"] else None)
+        if run["run_attempt"] == 2:
+            previous = next(
+                row
+                for row in runs.values()
+                if row["repository_id"] == run["repository_id"]
+                and row["provider_run_id"] == run["provider_run_id"]
+                and row["run_attempt"] == 1
+            )
+            assert previous["conclusion"] == "failure"
+            assert run["conclusion"] == "success" and run["queued_at"] is None
+            assert previous["created_at"] == run["created_at"]
+        elif run["completed_at"]:
+            jobs = [row for row in rows["workflow_jobs"] if row["workflow_run_id"] == run["id"]]
+            assert max(row["completed_at"] for row in jobs) == run["completed_at"]
+    for link in rows["workflow_run_pull_requests"]:
+        assert (
+            runs[link["workflow_run_id"]]["repository_id"]
+            == prs[link["pull_request_id"]]["repository_id"]
+        )
+    deployments = {row["id"]: row for row in rows["deployments"]}
+    successes = [row for row in rows["deployment_statuses"] if row["state"] == "success"]
+    assert len(successes) == 2 * len({row["deployment_id"] for row in successes})
+    assert {row["production_environment"] for row in deployments.values()} == {True, False, None}
+    for deployment in deployments.values():
+        assert commits[deployment["commit_id"]]["sha"] == deployment["sha"]
+        assert deployment["workflow_run_id"] is None
+    for items in rows.values():
+        assert len({row["id"] for row in items}) == len(items)
+        for row in items:
+            assert row["organization_id"] == tenant
+            assert not row.get("html_url")
+            for value in row.values():
+                if isinstance(value, datetime):
+                    assert value <= anchor

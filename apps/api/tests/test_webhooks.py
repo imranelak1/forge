@@ -146,7 +146,7 @@ async def test_receipt_and_job_are_atomic_and_duplicate_is_idempotent(auth: Auth
         )
 
 
-@pytest.mark.parametrize("event,reason", [("workflow_run", "unsupported_event"), ("ping", "ping")])
+@pytest.mark.parametrize("event,reason", [("check_suite", "unsupported_event"), ("ping", "ping")])
 async def test_future_events_are_ignored_without_claiming_processing(
     auth: AuthHarness,
     event: str,

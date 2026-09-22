@@ -1,6 +1,27 @@
 # API architecture
 
-Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Phase 4 adds PR/commit/issue records, paginated evidence and PR timing metrics. Later CI/test/error analytics and automation contracts remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
+Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Phase 4 adds PR/commit/issue records, paginated evidence and PR timing metrics. Phase 5 adds CI/deployment metrics, workflow/job and deployment/status evidence, and audited environment classification. Test/error analytics and automation remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
+
+## Implemented CI/CD routes
+
+All routes below follow `/api/v1/organizations/{organization}`. Reads require active tenant membership; inaccessible resources return 404. Windows are aware UTC `[from,to)`, default 90 days and maximum 366. Lists return `{items,next_cursor,window,coverage}`; child lists return `{items,next_cursor}`. Signed cursors bind the tenant, resource, filters, page size and window. Limits default to 30, maximum 100.
+
+| Method | Route                                              | Purpose                                                                                       |
+| ------ | -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| GET    | `/metrics/ci`                                      | Attempt outcomes, timing distributions, daily trend, recurring workflow failures and coverage |
+| GET    | `/workflow-runs`                                   | Attempt history, completed cohort and eligible/excluded metric evidence                       |
+| GET    | `/workflow-runs/{id}`                              | Attempt detail and child counts                                                               |
+| GET    | `/workflow-runs/{id}/{jobs,pull-requests,commits}` | Paged job metadata and explicit source links                                                  |
+| GET    | `/metrics/deployments`                             | First-success counts, frequency, exclusions and daily trend                                   |
+| GET    | `/deployments`                                     | Created or first-success cohort with eligibility filters                                      |
+| GET    | `/deployments/{id}`                                | Deployment detail, classification provenance and coverage                                     |
+| GET    | `/deployments/{id}/{statuses,commits}`             | Paged source states and same-repository SHA links                                             |
+| GET    | `/repositories/{id}/environments`                  | Retained environments, override and classification counts                                     |
+| PUT    | `/repositories/{id}/environments/classification`   | Verified owner/admin override with CSRF, origin check and tenant audit                        |
+
+CI filters: repository UUID, provider workflow ID and exact branch. Attempt lists additionally accept `cohort=activity|completed`, `outcome=all|success|failure|other`, `metric=duration|queue` and `eligibility=all|eligible|excluded`. Activity uses original run creation; completed and metric evidence match the analytics completion cohort. Completion provenance and unknown terminal completion counts are explicit.
+
+Deployment filters: repository UUID, exact environment and `classification=production|nonproduction|unknown|all` (default production). Lists accept `cohort=created|success` and eligibility. Classification mutation body is `{environment,classification}`, where classification is `production`, `nonproduction` or null to remove the override. The environment must already exist; the change updates Forge analytics only. Metric formulas and coverage rules are in [Analytics](analytics.md).
 
 ## Request path
 

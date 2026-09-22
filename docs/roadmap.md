@@ -34,6 +34,8 @@ Acceptance: hand-calculated mean/median/P75/P95 fixtures match queries; missing 
 
 ## Phase 5 — CI/CD intelligence
 
+Implementation and validation are recorded in [Phase 5 handoff](phase-5-review.md).
+
 Ingest Actions workflow attempts/jobs and deployment/status history. Implement CI success/failure, duration and trends, frequent failure summaries, deployment counts and environment classification. Seed realistic run attempts and deployment links.
 
 Acceptance: retries are distinct attempts; excluded conclusions visible; duplicate deployment statuses do not inflate counts; successful workflow alone never creates an invented deployment.

@@ -24,7 +24,7 @@ Issue → pull request → commits → CI → tests → deployment → productio
 
 ## Capabilities and Constraints
 
-Phase 2 implements accounts, sessions, organizations, invitations, roles and tenant isolation. The user subsequently authorized GitHub and Google sign-in, including explicit connections to existing verified accounts. Provider-issued credentials are required to enable each option. Phase 3 adds verified GitHub App connections, repository selection, signed webhooks and durable PR/commit history sync. Phase 4 adds database-backed PR timing, daily trends, pull request/commit details, review/lifecycle/file evidence and optional issue links. CI, test and production-error analytics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
+Phase 2 implements accounts, sessions, organizations, invitations, roles and tenant isolation. The user subsequently authorized GitHub and Google sign-in, including explicit connections to existing verified accounts. Provider-issued credentials are required to enable each option. Phase 3 adds verified GitHub App connections, repository selection, signed webhooks and durable PR/commit history sync. Phase 4 adds database-backed PR timing, daily trends, pull request/commit details, review/lifecycle/file evidence and optional issue links. Phase 5 adds Actions attempts/jobs, CI outcomes and timing, independent deployment/status history and audited environment classification. Test and production-error analytics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
 
 ## Brand Commitments
 

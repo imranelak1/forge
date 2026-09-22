@@ -148,7 +148,7 @@ docker compose exec -T postgres psql -U forge_bootstrap -d forge -c 'SELECT vers
 docker compose up -d --wait backend
 ```
 
-Use the configured database name if different. Named volume storage must retain the current migration revision (`0003_oauth`) and account/organization records. `docker compose down` preserves it; adding `--volumes` intentionally discards data and is not a connection-repair step.
+Use the configured database name if different. Named volume storage must retain the current migration revision (`0007_cicd`) and account/organization records. `docker compose down` preserves it; adding `--volumes` intentionally discards data and is not a connection-repair step.
 
 ## Synthetic demo identities
 
@@ -157,6 +157,8 @@ docker compose exec -T backend python -m forge.seed
 ```
 
 The opt-in command creates two verified users, each owning a separate organization labeled as demonstration data. It prints generated passwords only on first creation and leaves existing credentials unchanged when repeated. Provide `FORGE_DEMO_PASSWORD` in the seed process environment to supply your own 12–128 character password; do not commit it or pass a password in command arguments. Seeding is rejected in production. Phase 4 additionally persists a fixed 90-day generated history: Demo One has two repositories and 90 PRs; Demo Two has one repository and 45 PRs. Reviews, transitions, commits, file metadata and issue references feed the real analytics queries. Stable IDs and a first-run anchor make reruns idempotent. Generated sources are marked, disconnected, have no external source links and cannot be synced. Existing customer organizations are never seeded.
+
+Phase 5 extends those same demo identities and anchor with workflow attempts/jobs and deployment/status histories. Demo One has 108 attempts and 36 deployments; Demo Two has 54 attempts and 18 deployments. Inspect them at `/app/ci` and `/app/deployments`. Retry attempts, duplicate successful statuses, unknown environment flags and incomplete evidence exercise the real metric queries. Environment overrides are preserved on reseed. For live records, grant and accept Actions/Deployments read access using [GitHub setup](github-setup.md), then request a repository sync.
 
 ## Troubleshooting and local credential rotation
 

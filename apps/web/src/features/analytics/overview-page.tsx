@@ -75,6 +75,14 @@ function OverviewContent({
         </Link>
       </div>
       <DemoNotice demo={organization.is_demo} />
+      <nav className="delivery-overview-links" aria-label="Delivery analytics">
+        <Link className="text-link" href="/app/ci">
+          CI outcomes and attempts
+        </Link>
+        <Link className="text-link" href="/app/deployments">
+          Deployment frequency and evidence
+        </Link>
+      </nav>
       <div className="analytics-refresh">
         <RefreshData organization={organization.id} />
       </div>

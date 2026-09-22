@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T19:37:24.080Z",
+  "generatedAt": "2026-09-22T21:00:19.107Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -523,7 +523,7 @@
       "name": "Workspace access build badge",
       "kind": "chip",
       "description": "Static context label, not a filter or action.",
-      "html": "<span class=\"ds-build\">Phase 4 · Pull request analytics</span>",
+      "html": "<span class=\"ds-build\">Phase 5 · CI & deployments</span>",
       "css": ".ds-build{display:inline-block;border:1px solid var(--border,#303030);padding:2px 7px;border-radius:4px;color:var(--muted-foreground,#a6a6a6);font:11px/1.55 var(--font-sans,\"Geist Variable\",sans-serif)}"
     },
     {
@@ -593,11 +593,18 @@
       "description": "Server-calculated timing distributions lead to included and excluded PR records. Null durations remain unavailable. Coverage, UTC windows and explicit relationships accompany paginated history. Mobile filters collapse; tables become labeled rows.",
       "html": "<table class=\"ds-evidence\"><thead><tr><th>Metric</th><th>Median</th><th>Evidence</th></tr></thead><tbody><tr><th>Review wait</th><td>Not available</td><td>Import pending</td></tr></tbody></table>",
       "css": ".ds-evidence{border-collapse:collapse;text-align:left;font:12px/1.55 \"Geist Variable\",sans-serif;color:#ededed;width:100%}.ds-evidence th,.ds-evidence td{padding:12px;border-bottom:1px solid #303030;font-weight:400}.ds-evidence thead{background:#171717;color:#a6a6a6}.ds-evidence td:last-child{color:#dfba7b}"
+    },
+    {
+      "name": "Delivery source coverage",
+      "kind": "custom",
+      "description": "CI attempts and deployment statuses retain explicit coverage, timing provenance and classification source. Missing read permission never becomes a healthy zero. Policy edits use verified-manager controls and refresh server-calculated metrics.",
+      "html": "<div class=\"ds-delivery\"><strong>Source coverage</strong><span>Observations unavailable</span><p>Actions read permission is required before CI evidence can be imported.</p></div>",
+      "css": ".ds-delivery{display:grid;gap:8px;border-block:1px solid #303030;padding:16px 0;font:12px/1.65 \"Geist Variable\",sans-serif;color:#a6a6a6}.ds-delivery strong{font-size:15px;font-weight:600;color:#ededed}.ds-delivery span{color:#dfba7b}.ds-delivery p{margin:0}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access, GitHub ingestion and Phase 4 pull request analytics in `apps/web`: accounts and social sign-in, organizations and permissions, GitHub App authorization, selected repositories, synchronization, PR and commit history, timing distributions and their evidence. System status and the setup guide remain public. CI, test and production analytics remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access, GitHub ingestion, pull request analytics and Phase 5 CI/deployment evidence in `apps/web`: accounts and social sign-in, organizations and permissions, selected repositories, synchronization, PR and commit history, workflow attempts/jobs, deployment status histories and explicit environment classification. System status and the setup guide remain public. Test intelligence, production-error analytics and automation remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",

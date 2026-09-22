@@ -70,6 +70,9 @@ class EvidenceProvider(Provider):
     async def enrichment_credentials(self, identifier: int) -> tuple[str, bool]:
         return await self.installation_token(identifier), self.issues_allowed
 
+    async def cicd_credentials(self, identifier: int) -> tuple[str, frozenset[str]]:
+        return await self.installation_token(identifier), frozenset()
+
     async def reviews(
         self, token: str, owner: str, name: str, number: int, page: int
     ) -> list[dict[str, Any]]:

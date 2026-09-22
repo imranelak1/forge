@@ -15,12 +15,24 @@ SUBJECTS = {
     "commit": "commits",
     "issue": "issues",
     "repository": "repositories",
+    "ci_repository": "repositories",
+    "deployments_repository": "repositories",
+    "workflow_discovery": "workflow_runs",
+    "workflow_run": "workflow_runs",
+    "deployment": "deployments",
+    "cicd_links": "repositories",
 }
 PREFIXES = {
     "pull_request": ("reviews", "transitions", "commits", "issues"),
     "commit": ("files",),
     "issue": ("links",),
     "repository": ("issues",),
+    "ci_repository": ("ci",),
+    "deployments_repository": ("deployments",),
+    "workflow_discovery": (),
+    "workflow_run": ("jobs", "links"),
+    "deployment": ("statuses",),
+    "cicd_links": (),
 }
 
 
@@ -43,6 +55,12 @@ class EnrichmentRepository(IdentityRepository):
             "commit": "files",
             "issue": "issue_details",
             "repository": "scan_pull_requests",
+            "ci_repository": "workflow_catalog",
+            "deployments_repository": "deployment_catalog",
+            "workflow_discovery": "workflow_discovery",
+            "workflow_run": "workflow_details",
+            "deployment": "deployment_details",
+            "cicd_links": "link_workflows",
         }[kind]
         payload = {
             "kind": kind,
@@ -50,8 +68,9 @@ class EnrichmentRepository(IdentityRepository):
             "stage": stage,
             "page": 1,
             "since": (datetime.now(UTC) - timedelta(days=90)).isoformat(),
+            "until": datetime.now(UTC).isoformat(),
             "revision": subject["updated_at"].isoformat()
-            if kind in {"pull_request", "issue"}
+            if kind in {"pull_request", "issue", "workflow_run", "deployment"}
             else None,
         }
         row = await self.one(

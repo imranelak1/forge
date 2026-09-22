@@ -17,6 +17,9 @@ from forge.integrations.github import GitHubApp, GitHubFailure
 from forge.observability.logging import configure_logging
 from forge.repositories.database import create_database_engine
 from forge.repositories.pipeline import Lease, LostLease, PipelineRepository, Work
+from forge.workers.cicd import EVENTS as CICD_EVENTS
+from forge.workers.cicd import KINDS as CICD_KINDS
+from forge.workers.cicd import CICDPage, CICDWorker
 from forge.workers.enrichment import EnrichmentWorker, EvidencePage
 
 MAX_ATTEMPTS = 8
@@ -55,6 +58,7 @@ class GitHubWorker:
         self.repository = repository
         self.provider = provider
         self.enrichment = EnrichmentWorker(repository, provider)
+        self.cicd = CICDWorker(repository, provider)
 
     @staticmethod
     def log(event: str, lease: Lease, error_code: str | None = None) -> None:
@@ -96,6 +100,8 @@ class GitHubWorker:
 
     async def fetch(self, work: Work) -> Page | EvidencePage:
         if work.subject:
+            if work.job["payload"]["kind"] in CICD_KINDS:
+                return await self.cicd.fetch(work)
             return await self.enrichment.fetch(work)
         if work.inbox:
             return await self.fetch_webhook(work)
@@ -142,9 +148,11 @@ class GitHubWorker:
             done=len(values) < 100,
         )
 
-    async def fetch_webhook(self, work: Work) -> Page:
+    async def fetch_webhook(self, work: Work) -> Page | EvidencePage:
         assert work.inbox
         event, payload = work.inbox["event"], work.inbox["payload"]
+        if event in CICD_EVENTS:
+            return await self.cicd.fetch_webhook(work)
         if event in {"installation", "installation_repositories"}:
             await self.provider.installation(work.integration["installation_id"])
             return Page(done=True, reconcile=True, reactivate=True)
@@ -199,6 +207,8 @@ class GitHubWorker:
                 return "canceled"
             if work.integration["updated_at"] != original.integration["updated_at"]:
                 raise LostLease
+            if isinstance(page, CICDPage):
+                return await self.cicd.persist(connection, lease, work, page)
             if isinstance(page, EvidencePage):
                 return await self.enrichment.persist(connection, lease, work, page)
             org, integration = lease.organization_id, work.integration["id"]
@@ -258,6 +268,16 @@ class GitHubWorker:
                     "issues_permission_required",
                 )
             if work.inbox:
+                if work.repository and page.stage in {"pull_requests", "commits"}:
+                    await repository.queue_enrichment(
+                        connection,
+                        org,
+                        integration,
+                        work.repository["id"],
+                        "cicd_links",
+                        work.repository,
+                        force=True,
+                    )
                 if page.reconcile:
                     await repository.enqueue_sync(
                         connection,
@@ -311,6 +331,15 @@ class GitHubWorker:
                 finished=finished,
             )
             if finished and work.repository:
+                await repository.queue_enrichment(
+                    connection,
+                    org,
+                    integration,
+                    work.repository["id"],
+                    "cicd_links",
+                    work.repository,
+                    force=True,
+                )
                 await repository.execute(
                     connection,
                     """UPDATE forge.repositories SET last_synced_at=GREATEST(last_synced_at,:until),
@@ -381,12 +410,35 @@ class GitHubWorker:
                         connection, lease.organization_id, work.inbox["id"], "failed", code
                     )
                 if work.subject:
-                    await self.enrichment.failure(
-                        connection, lease.organization_id, work, code, retrying
+                    if work.job["payload"]["kind"] in CICD_KINDS:
+                        await self.cicd.failure(
+                            connection, lease.organization_id, work, code, retrying
+                        )
+                    else:
+                        await self.enrichment.failure(
+                            connection, lease.organization_id, work, code, retrying
+                        )
+                elif work.inbox and work.inbox["event"] in CICD_EVENTS and work.repository:
+                    capability = (
+                        "ci"
+                        if work.inbox["event"] in {"workflow_run", "workflow_job"}
+                        else "deployments"
+                    )
+                    await repository.coverage(
+                        connection,
+                        lease.organization_id,
+                        "ci_repository" if capability == "ci" else "deployments_repository",
+                        work.repository["id"],
+                        capability,
+                        "partial" if retrying else "failed",
+                        code,
                     )
                 # Optional endpoint denial marks that evidence unavailable/failed, never
                 # disables a working integration whose core permissions were just verified.
-                optional_denial = bool(work.subject and code == "access_denied")
+                optional_denial = bool(
+                    code == "access_denied"
+                    and (work.subject or (work.inbox and work.inbox["event"] in CICD_EVENTS))
+                )
                 if not retrying and code in ACCESS_FAILURES and not optional_denial:
                     await repository.execute(
                         connection,

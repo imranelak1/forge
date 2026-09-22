@@ -1,6 +1,6 @@
 # Connect GitHub repositories
 
-GitHub and Google **sign-in** use the settings in [social-login.md](social-login.md). Repository access uses a separate **GitHub App**. Signing in does not grant repository access. Phase 4 imports PR reviews, lifecycle transitions, explicit commit associations and file metadata, and serves PR/commit analytics. Issues and explicit references are supported with optional Issues read permission. Actions, deployments and tests arrive in later phases.
+GitHub and Google **sign-in** use the settings in [social-login.md](social-login.md). Repository access uses a separate **GitHub App**. Signing in does not grant repository access. Forge imports PR/review/commit evidence, Actions attempts/jobs and independent deployment/status history. Issues, Actions and Deployments each use optional read permissions; missing grants are reported independently. Test report ingestion arrives in Phase 6.
 
 ## Register the GitHub App
 
@@ -23,9 +23,11 @@ Grant only these read permissions:
 - **Repository contents:** Read, for commit history.
 - **Repository pull requests:** Read.
 - **Repository issues:** Read, optional for issue records and explicit PR references. Missing permission leaves issue coverage unavailable and does not stop PR/commit ingestion.
+- **Repository actions:** Read, for workflow attempts and jobs. Missing permission leaves CI coverage unavailable.
+- **Repository deployments:** Read, for deployment objects and their status histories. Missing permission leaves deployment coverage unavailable.
 - **Organization members:** Read, to prove that an organization installation is authorized by a GitHub organization owner. Personal installations require the authenticated GitHub user to own the installation account instead.
 
-Subscribe to **Push**, **Pull request**, **Pull request review**, **Issues** (when Issues access is granted), and installation/repository access events available in the app settings. Installation events are delivered automatically where GitHub manages the subscription. Do not enable Actions or deployment events as implemented Forge capabilities yet; unsupported deliveries are acknowledged as ignored with a reason. [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/setting-up-a-github-app/choosing-permissions-for-a-github-app), [webhook events](https://docs.github.com/en/webhooks/webhook-events-and-payloads)
+Subscribe to **Push**, **Pull request**, **Pull request review**, **Issues** (when granted), **Workflow run**, **Deployment**, **Deployment status**, and installation/repository access events available in the app settings. Installation events are delivered automatically where GitHub manages the subscription. Existing installations must accept newly requested permissions after saving the App configuration. Then run a normal repository sync in Forge to reconcile historical records. Unsupported deliveries are acknowledged as ignored with a reason. [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/setting-up-a-github-app/choosing-permissions-for-a-github-app), [webhook events](https://docs.github.com/en/webhooks/webhook-events-and-payloads)
 
 Generate a client secret and download an RSA private key. Put these six values in the ignored root `.env`; they are distinct from `FORGE_GITHUB_CLIENT_ID` and `FORGE_GITHUB_CLIENT_SECRET` used for sign-in:
 

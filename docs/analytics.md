@@ -1,6 +1,16 @@
 # Metric definitions and analytical model
 
-Status: Phase 4 implements `pr-flow-v1` PR cycle, review-wait and approval-to-merge distributions, daily UTC trends and a separate current open queue using persisted PostgreSQL records. Exact percentiles and evidence drill-down share the same eligibility predicates. CI, deployment, test, error and dbt contracts below remain planned.
+Status: Phase 4 implements `pr-flow-v1` PR cycle, review-wait and approval-to-merge distributions, daily UTC trends and a separate current open queue using persisted PostgreSQL records. Phase 5 adds `ci-attempts-v1` and `deployments-v1`. Exact percentiles and evidence drill-down share the same eligibility predicates. Test, error and dbt contracts below remain planned.
+
+## Implemented CI and deployment semantics
+
+CI uses one record per provider run **attempt**, including each retry. The completion cohort is `[from,to)` in UTC; decisive conclusions are `success`, `failure`, `timed_out`, `startup_failure` and `action_required`. Both outcome fractions use the same decisive denominator. Other conclusions remain visible separately. Duration and queue distributions use independent timestamp eligibility within that decisive cohort. All aggregates, exact percentiles and evidence predicates are computed in PostgreSQL.
+
+GitHub's workflow REST response has no completion timestamp. Forge derives a **last-job-completion proxy** only after complete terminal job enumeration; `completion_source=jobs` discloses this. Missing or incomplete completion evidence remains unknown and outside the timed cohort. Coverage reports terminal attempts without completion whose `updated_at` falls in the requested activity window, with the same repository/workflow/branch filters. A rerun's original `created_at` is not its queue entry: queue time for later attempts stays unknown. Generic failures retain an unknown cause; no logs or root-cause inference are used. [ADR 013](adr/013-actions-deployment-intelligence.md)
+
+Deployment counts use the first success across **all** retained statuses, once per deployment. Complete status history is required for eligibility. Repeated success and a later inactive state never add or erase that first success. Incomplete observed successes remain visible with exclusions. Production is the default filter, determined by an explicit repository/environment override or provider `production_environment` boolean; missing classification stays unknown and names never classify. CI success does not create deployment facts.
+
+Frequency divides eligible successes on fully covered UTC days by those days only when the entire requested window is covered. Raw counts retain the requested half-open bounds, including partial days. Unknown coverage makes frequency unavailable, not zero. Read snapshots are repeatable and readonly; persisted facts, coverage and source watermarks remain inspectable after disconnection.
 
 ## Common rules
 

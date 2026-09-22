@@ -4,7 +4,7 @@ Engineering intelligence and pipeline automation for software teams.
 
 Forge traces changes through pull requests, CI, tests, deployments and production errors, with evidence behind insights and auditable pipeline responses.
 
-**Current milestone: Phase 4: Pull Request and Commit Analytics.** Database-backed timing distributions, daily trends and record details connect pull requests to reviews, lifecycle events, commits, file metadata and explicit issue references. GitHub/Google sign-in and organization permissions remain separate from repository authorization. Actions, tests and Sentry follow in later phases.
+**Current milestone: Phase 5: CI/CD Intelligence.** Persisted workflow attempts and jobs support CI outcomes, timing distributions, trends and evidence. Independent deployment/status history supports successful deployment counts and explicit environment classification. PR/commit analytics, GitHub/Google sign-in and organization permissions remain available. Tests and Sentry follow in later phases.
 
 ## Run locally
 
@@ -71,22 +71,23 @@ The [landing-page handoff](docs/landing-page.md) covers the animated SVG track, 
 
 The [frontend design reference](apps/web/DESIGN.md) records the implemented typography, colors, components and responsive behavior.
 
-| Document                                               | Contents                                                         |
-| ------------------------------------------------------ | ---------------------------------------------------------------- |
-| [Phase 1 handoff](docs/phase-1-review.md)              | Changes, commands, verification and limitations                  |
-| [Phase 4 handoff](docs/phase-4-review.md)              | PR/commit analytics, evidence enrichment and 90-day demo history |
-| [Phase 3 handoff](docs/phase-3-review.md)              | GitHub App, catalog, sync worker, webhooks and validation        |
-| [Phase 2 handoff](docs/phase-2-review.md)              | Authentication, tenant isolation, mail, seed and acceptance      |
-| [Development](docs/development.md)                     | Local/native workflows, credentials and migrations               |
-| [Architecture](docs/architecture.md)                   | Diagrams, module boundaries and deployment evolution             |
-| [Data model](docs/data-model.md)                       | Entity grains, tenant constraints and lifecycle evidence         |
-| [APIs](docs/apis.md)                                   | Implemented health routes and future contracts                   |
-| [Integrations](docs/integrations.md)                   | GitHub, Actions, JUnit and Sentry                                |
-| [Pipelines](docs/pipelines.md)                         | Durable processing, correlation and automation                   |
-| [Analytics](docs/analytics.md)                         | Metric definitions and future dbt models                         |
-| [Security and operations](docs/security-operations.md) | Phased security, tests and recovery requirements                 |
-| [Milestones](docs/roadmap.md)                          | Acceptance gates for Phases 0–13                                 |
-| [ADRs](docs/adr/README.md)                             | Approved architectural decisions                                 |
-| [Phase 0 record](docs/phase-0-review.md)               | Historical architecture handoff                                  |
+| Document                                               | Contents                                                           |
+| ------------------------------------------------------ | ------------------------------------------------------------------ |
+| [Phase 1 handoff](docs/phase-1-review.md)              | Changes, commands, verification and limitations                    |
+| [Phase 4 handoff](docs/phase-4-review.md)              | PR/commit analytics, evidence enrichment and 90-day demo history   |
+| [Phase 5 handoff](docs/phase-5-review.md)              | Workflow attempts, CI metrics, deployment history and environments |
+| [Phase 3 handoff](docs/phase-3-review.md)              | GitHub App, catalog, sync worker, webhooks and validation          |
+| [Phase 2 handoff](docs/phase-2-review.md)              | Authentication, tenant isolation, mail, seed and acceptance        |
+| [Development](docs/development.md)                     | Local/native workflows, credentials and migrations                 |
+| [Architecture](docs/architecture.md)                   | Diagrams, module boundaries and deployment evolution               |
+| [Data model](docs/data-model.md)                       | Entity grains, tenant constraints and lifecycle evidence           |
+| [APIs](docs/apis.md)                                   | Implemented health routes and future contracts                     |
+| [Integrations](docs/integrations.md)                   | GitHub, Actions, JUnit and Sentry                                  |
+| [Pipelines](docs/pipelines.md)                         | Durable processing, correlation and automation                     |
+| [Analytics](docs/analytics.md)                         | Metric definitions and future dbt models                           |
+| [Security and operations](docs/security-operations.md) | Phased security, tests and recovery requirements                   |
+| [Milestones](docs/roadmap.md)                          | Acceptance gates for Phases 0–13                                   |
+| [ADRs](docs/adr/README.md)                             | Approved architectural decisions                                   |
+| [Phase 0 record](docs/phase-0-review.md)               | Historical architecture handoff                                    |
 
-This is a local SaaS with GitHub ingestion and PR/commit analytics. Live source records and opt-in generated demo history remain separate. Production operations are Phase 13; automated actions remain planned. Phase 5 begins only after the user's next instruction.
+This is a local SaaS with GitHub ingestion, PR/commit analytics and CI/deployment intelligence. Live source records and opt-in generated demo history remain separate. Production operations are Phase 13; automated actions remain planned. Phase 6 begins only after the user's next instruction.
