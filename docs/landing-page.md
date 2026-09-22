@@ -1,34 +1,37 @@
-# Landing page: the delivery track
+# Landing page: the SVG delivery path
 
-The public home page follows one illustrative checkout commit along a dimensional track. Two metallic rails draw through GitHub, Actions, JUnit and Sentry checkpoints. A coral carrier follows the continuous route into a production error, then branches into reproduction, investigation and human review. All geometry is procedural; native source logos remain sharp. The [Anime.js palette](https://animejs.com/) remains warm charcoal, off-white, coral controls and warm stone integrations.
+The public home page follows one illustrative checkout commit along a clean SVG line. The line draws between authentic GitHub, Actions, JUnit and Sentry logos, with a coral marker following the same path. The [Anime.js palette](https://animejs.com/) remains warm charcoal, off-white, coral controls and warm stone integrations.
 
 ## Story and examples
 
-| Step        | Track action                                                         | Customer explanation                                                                                |
-| ----------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Connect     | Rails draw through four tool checkpoints.                            | Select sample events for PR #184 and commit 8f3a2c1.                                                |
-| Trace       | The coral commit carrier travels through build, tests and release.   | CI #928 and the original test suite pass before the production error.                               |
-| Understand  | A continuous branch leads from the error to reproduction.            | A new no-coupon regression test reproduces the failure in CI #929.                                  |
-| Investigate | The return route leads back toward the related code.                 | Review a candidate null guard and verify it with the failing test.                                  |
-| Automate    | A junction tongue opens before the carrier enters the review branch. | A proposed review request includes the commit and failing test; a person decides what happens next. |
+| Step        | Path action                                             | Explanation                                                                                        |
+| ----------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Connect     | The coral line draws through four tool checkpoints.     | Select sample events for PR #184 and commit 8f3a2c1.                                               |
+| Trace       | The marker follows the path from code to production.    | CI #928 and the original tests pass before the production error.                                   |
+| Understand  | The marker returns to the test checkpoint.              | A new no-coupon regression test reproduces the failure in CI #929.                                 |
+| Investigate | The marker traces back to the pull request.             | Review a candidate null guard and verify it with the failing test.                                 |
+| Automate    | The marker follows the evidence to the review endpoint. | A proposed review request includes the commit and failed test; a person decides what happens next. |
 
-Each preview contains selectable code, syntax highlighting, evidence lines, an explanation and a copy control with success/failure feedback. Long lines scroll locally. Examples are sample data and proposed behavior, never live customer data, functioning integration claims or a published Forge rule API. The original test report predates the regression reproduction; a related commit alone is not proof of causality. SHA values are marked as abbreviated. Event structures follow [GitHub's workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows) and [Sentry's exception representation](https://docs.sentry.io/api/events/retrieve-an-issue-event/).
+Code previews retain selectable syntax-highlighted examples, evidence lines, source selection and copy feedback. They are sample data and proposed behavior, not live integrations or a published Forge API. The original test report predates the regression reproduction; a related commit alone is not proof of causality. Event structures follow [GitHub workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows) and [Sentry exceptions](https://docs.sentry.io/api/events/retrieve-an-issue-event/).
 
-## Implementation and interaction
+## Animation and interaction
 
-- core-model.ts builds connected Catmull-Rom routes, beveled rails, beds, instanced sleepers, light-bar checkpoints, a wheeled carrier and a pivoting junction. Custom GLSL reveals the rails and emphasizes the active route. The carrier uses curve distance and a tangent-aligned frame, including track elevation.
-- core-choreography.ts defines the track and journey state. core-scene.tsx binds it to a paused Anime.js timeline with native scroll, damping and a keyboard-accessible story range. Each branch shares an endpoint with the preceding route. The view remains fixed; reversing scroll retraces the journey. Restart returns to the opening track.
-- track-labels.tsx and track-labels.css supply native checkpoint controls, a commit label, contextual evidence captions and a static SVG track. Checkpoint labels move into a compact logo row as the branches open. Hidden checkpoints are inert.
-- code-preview.tsx supplies the five readable examples, source selection, token rendering, highlight feedback and clipboard behavior.
-- text-motion.tsx reveals headings in 340ms with 35ms between lines; supporting copy starts immediately and finishes in 320ms. Text stays nearly opaque throughout. Passages can replay after leaving the viewport completely. Motion preferences, focus, exit and tab visibility finish or revert active animation.
-- landing.css scopes the marketing palette and layout. The desktop grid has a 35% central illustration column; mobile places copy and code below the track. The whole mobile reading area has an opaque background. Short viewports retain code previews. Story resize observation keeps scroll mapping aligned when a source preview changes height.
+`core-scene.tsx` uses Anime.js [createDrawable](https://animejs.com/documentation/svg/createdrawable/) to draw the line and [createMotionPath](https://animejs.com/documentation/svg/createmotionpath/) for the follower's coordinates. The follower is inside the same SVG viewBox as the path, preserving alignment after resize. A paused five-part timeline is driven by native scrolling with bounded, frame-rate-independent smoothing. Reverse scrolling retraces the path. The keyboard-accessible range and Restart control seek native scroll. ResizeObserver keeps chapter mapping aligned when a source preview changes height. Animation frames stop at rest, outside the story and in hidden tabs.
 
-Rendering stops at rest, outside the story and in hidden tabs. Pixel ratios are capped at 1.6 desktop / 1.25 mobile. Resources, timelines, listeners, observers and the WebGL context are disposed on teardown. All copy, code and native anchors are server-rendered. A labeled static SVG track remains for no JavaScript, reduced motion, WebGL failure and context loss; live preferences and context restoration are supported. The canvas is decorative; native checkpoint buttons expose source names and pressed states, and hidden checkpoints are inert. Controls retain focus treatment.
+`track-labels.tsx` and its stylesheet provide native checkpoint buttons with authentic source logos, names, pressed states and keyboard focus. Selection changes the Connect preview and source explanation. Checkpoint controls remain available throughout the story. Contextual captions explain the regression, candidate fix and review request.
 
-Initial integrations remain GitHub, Actions, JUnit reports and Sentry, in development. Roadmap logos remain in their separate labeled section. Source provenance is in apps/web/public/integrations/SOURCES.md. The working application at /app, /guide, /system and API endpoints retain their existing behavior. A future 3D logo and Phase 2 backend remain separate work.
+`text-motion.tsx` uses Anime.js [splitText](https://animejs.com/documentation/text/splittext/). Heading characters rise through clipped word wrappers, with a reversed entrance for Investigate. Explanations reveal word by word through clipping masks. Headings use 440ms plus at most 180ms of stagger; supporting words start after 60ms, use 330ms and at most 230ms of stagger. Both finish within 620ms. Original DOM is restored on completion, exit, focus, resize, hidden tabs and cleanup. Re-entry can replay after the passage fully leaves the viewport. Text remains server-rendered and readable before initialization.
 
-## Run and verify
+The same SVG is present with JavaScript disabled. Reduced motion shows the complete path, updates chapter state immediately and leaves text unsplit. Preference changes work without reloading. WebGL, Three.js and the earlier rail geometry are removed. Timelines, frames, listeners and observers are cleaned up on unmount.
 
-Run docker compose up -d --build --no-deps frontend, then open [the landing](http://localhost:3000). Development runs with npm run dev --workspace @forge/web -- --port 3100.
+`landing.css` scopes the palette and layout. A flex column prevents the sticky layers' negative margins from displacing the hero. The desktop grid keeps a central illustration column. Mobile places the track above the chapter copy and code; short viewports use normal document flow. Tool logos remain labeled as initial integrations in development or roadmap items. Provenance is in `apps/web/public/integrations/SOURCES.md`.
 
-Lint, typecheck, production build and Playwright cover navigation, rendering, reversible motion, source selection, clipboard, reduced motion, WebGL failure/restoration and the actual Compose readiness endpoint. Set PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 and FORGE_E2E_LIVE=1 for production browser checks. Chromium uses two workers and software WebGL in tests; these checks do not establish real-device frame rates or Safari/Firefox compatibility.
+## Verification
+
+Run `docker compose up -d --build --no-deps frontend`, then open [the landing](http://localhost:3000). Development uses `npm run dev --workspace @forge/web -- --port 3100`.
+
+Lint, typecheck, production build and Playwright cover the drawn SVG, reversible scroll, resize alignment, distinct heading and paragraph animation, source selection, clipboard, navigation, no-JavaScript content, live reduced-motion changes and Compose readiness. For production tests set `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` and `FORGE_E2E_LIVE=1` before `npm run test:e2e`. Desktop and mobile Chromium checks do not establish real-device frame rates or Safari/Firefox compatibility.
+
+The working `/app`, `/guide`, `/system` and API behavior retain their existing scope. A future 3D logo and Phase 2 backend remain separate work.
+
+Verified on 2026-09-22: lint, typecheck, production Docker build and all 30 desktop/mobile Chromium tests passed. The visual review covered desktop, mobile, tablet and short landscape layouts. The design detector reported no primary findings; its advisory type sizes and accent colors belong to the existing landing typography and palette.

@@ -1,22 +1,48 @@
+.svg-track {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: min(300px, 70vw);
+  aspect-ratio: 400 / 470;
+  transform: translateX(-50%);
+}
+.track-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.track-guide {
+  stroke: var(--land-line);
+  stroke-width: 1.5;
+}
+.track-line,
+.track-review-path {
+  stroke: var(--land-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.track-review-path {
+  stroke: #ffa828;
+}
+.track-review-stop {
+  fill: var(--land-bg);
+  stroke: #ffa828;
+  stroke-width: 2;
+}
 .track-labels {
   position: absolute;
   inset: 0;
-  z-index: 2;
-  visibility: hidden;
-}
-.core-renderer[data-renderer="webgl"] .track-labels {
-  visibility: visible;
 }
 .track-stop {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 112px;
-  min-height: 48px;
+  transform: translate(-50%, 7px);
+  min-width: 112px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 7px;
+  padding: 5px 7px;
   border: 1px solid transparent;
   border-radius: 3px;
   background: var(--land-bg);
@@ -47,16 +73,8 @@
   line-height: 1.6;
   white-space: nowrap;
 }
-.track-stop > span {
-  opacity: var(--label-detail, 1);
-}
-.track-stop[data-compact="true"] {
-  justify-content: center;
-  padding: 5px;
-  gap: 0;
-}
-.track-stop[data-compact="true"] > span {
-  display: none;
+.track-stop[data-reached="true"] strong {
+  color: var(--land-accent);
 }
 .track-stop:hover {
   border-color: var(--land-control-line);
@@ -64,38 +82,17 @@
 .track-stop[aria-pressed="true"] {
   border-color: var(--land-accent);
 }
-.track-packet-label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 5px;
-  font:
-    10px/1.4 var(--font-mono),
-    monospace;
-  color: var(--land-ink);
-  background: var(--land-bg);
-  white-space: nowrap;
-}
-.track-packet-label > span {
-  height: 1px;
-  width: 16px;
-  background: var(--land-subtle);
+.track-stop:focus-visible {
+  outline: 2px solid var(--land-accent);
+  outline-offset: 3px;
 }
 .track-detail {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 240px;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
   text-align: center;
-  padding: 10px 12px;
-  background: transparent;
-  visibility: hidden;
-}
-.core-renderer[data-renderer="webgl"] .track-detail[data-visible="true"] {
-  visibility: visible;
 }
 .track-detail strong {
   display: block;
@@ -106,24 +103,26 @@
   display: block;
   font-size: 12px;
   color: #b7ff54;
-  margin-top: 7px;
+  margin-top: 6px;
 }
 .track-detail > span {
   display: block;
   font-size: 10px;
   line-height: 1.5;
   color: var(--land-muted);
-  margin-top: 6px;
+  margin-top: 5px;
+}
+.track-detail .track-commit {
+  font-family: var(--font-mono), monospace;
 }
 .track-detail .track-review {
   color: #ffa828;
 }
 @media (max-width: 799px) {
   .track-stop {
-    width: 99px;
+    min-width: 99px;
     gap: 6px;
-    padding: 5px;
-    min-height: 44px;
+    padding: 4px 5px;
   }
   .track-stop .tool-logo {
     width: 18px;
@@ -138,19 +137,28 @@
   .track-stop > span > span {
     font-size: 9px;
   }
-  .track-packet-label {
-    font-size: 9px;
+  .core-stage:not([data-active="intro"]) .svg-track {
+    top: 12px;
+    width: 255px;
   }
   .track-detail {
-    padding: 7px;
+    top: calc(100% + 8px);
   }
-  .track-detail strong,
-  .track-detail code {
-    font-size: 11px;
+}
+@media (max-height: 600px) {
+  .svg-track,
+  .core-stage:not([data-active="intro"]) .svg-track {
+    top: 20px;
+    width: 245px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .track-stop {
     transition: none;
   }
+}
+.core-renderer[data-renderer="static"] .track-line,
+.core-renderer[data-renderer="static"] .track-review-path {
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
 }

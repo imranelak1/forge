@@ -11,20 +11,23 @@ async function goToChapter(page: Page, id: string, progress: number) {
   await expect(page.locator(".core-renderer")).toHaveAttribute("data-moving", "false");
 }
 
-test("WebGL core renders, changes with scroll and reverses without a permanent render loop", async ({
+test("SVG track draws, follows scroll and reverses without a permanent animation loop", async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   const renderer = page.locator(".core-renderer");
-  await expect(renderer).toHaveAttribute("data-renderer", "webgl");
+  await expect(renderer).toHaveAttribute("data-renderer", "svg");
   await expect(renderer).toHaveAttribute("data-moving", "false");
-  const initial = await renderer.locator("canvas").screenshot();
+  const note = await page.locator(".preview-note").boundingBox();
+  const firstStop = await renderer.locator('[data-checkpoint="0"]').boundingBox();
+  expect(firstStop!.y).toBeGreaterThan(note!.y + note!.height);
+  const initial = await renderer.locator(".track-art").screenshot();
   await goToChapter(page, "connect", 0.99);
   await goToChapter(page, "investigate", 3.99);
   await goToChapter(page, "automate", 4.99);
-  const loop = await renderer.locator("canvas").screenshot();
+  const loop = await renderer.locator(".track-art").screenshot();
   expect(initial.equals(loop)).toBe(false);
   await page.evaluate(() => scrollTo(0, 0));
   await expect(renderer).toHaveAttribute("data-moving", "false");
@@ -53,8 +56,8 @@ test("chapter links and platform navigation work with the landing palette scoped
   await expect(page.getByRole("heading", { name: "Engineering overview" })).toBeVisible();
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(17, 17, 17)");
   await page.getByRole("link", { name: "Forge home" }).click();
-  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "webgl");
-  await expect(page.locator(".core-renderer canvas")).toHaveCount(1);
+  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "svg");
+  await expect(page.locator(".core-renderer .track-art")).toHaveCount(1);
   await expect(page.locator(".landing")).toHaveCSS("background-color", "rgb(37, 36, 35)");
 });
 
@@ -67,9 +70,9 @@ test("reduced motion uses static artwork and supports live preference changes", 
   await expect(renderer).toHaveAttribute("data-reduced-motion", "true");
   await expect(renderer).toHaveAttribute("data-renderer", "static");
   await expect(renderer.locator("canvas")).toHaveCount(0);
-  await expect(page.locator(".core-fallback")).toBeVisible();
+  await expect(page.locator(".track-art")).toBeVisible();
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await expect(renderer).toHaveAttribute("data-renderer", "webgl");
+  await expect(renderer).toHaveAttribute("data-renderer", "svg");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(renderer).toHaveAttribute("data-renderer", "static");
   await expect(renderer.locator("canvas")).toHaveCount(0);
@@ -85,34 +88,67 @@ test("unavailable WebGL preserves the artwork and content", async ({ page }) => 
     });
   });
   await page.goto("/");
-  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "fallback");
-  await expect(page.locator(".core-fallback")).toBeVisible();
+  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "svg");
+  await expect(page.locator(".track-art")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: "Open platform", exact: true })).toBeVisible();
 });
 
-test("WebGL context loss falls back and restores without duplicate canvases", async ({ page }) => {
+test("headings and explanations animate independently and restore readable text", async ({
+  page,
+}) => {
   await page.goto("/");
-  const renderer = page.locator(".core-renderer");
-  await expect(renderer).toHaveAttribute("data-renderer", "webgl");
-  await renderer.locator("canvas").evaluate((node) => {
-    const canvas = node as HTMLCanvasElement & { testContext?: WEBGL_lose_context };
-    const extension = canvas.getContext("webgl2")?.getExtension("WEBGL_lose_context");
-    if (!extension) throw new Error("Test requires WEBGL_lose_context");
-    canvas.testContext = extension;
-    extension.loseContext();
+  await expect(page.locator(".landing")).toHaveAttribute("data-text-motion", "ready");
+  await page.evaluate(() => {
+    const scene = document.querySelector<HTMLElement>('[data-text-scene="connect"]')!;
+    const observer = new MutationObserver(() => {
+      if (!scene.dataset.headingAnimated && scene.querySelector('[data-char][style*="translateY"]'))
+        scene.dataset.headingAnimated = "true";
+      if (
+        !scene.dataset.copyAnimated &&
+        scene.querySelector('[data-text-copy] [data-word][style*="translateY"]')
+      )
+        scene.dataset.copyAnimated = "true";
+      if (scene.dataset.headingAnimated && scene.dataset.copyAnimated) observer.disconnect();
+    });
+    observer.observe(scene, { attributes: true, childList: true, subtree: true });
   });
-  await expect(renderer).toHaveAttribute("data-renderer", "fallback");
-  await expect(page.locator(".core-fallback")).toBeVisible();
-  await renderer
-    .locator("canvas")
-    .evaluate((node) =>
-      (
-        node as HTMLCanvasElement & { testContext?: WEBGL_lose_context }
-      ).testContext?.restoreContext(),
+  await goToChapter(page, "connect", 0.99);
+  const scene = page.locator('[data-text-scene="connect"]');
+  await expect(scene).toHaveAttribute("data-heading-animated", "true");
+  await expect(scene).toHaveAttribute("data-copy-animated", "true");
+  await expect(scene).toHaveAttribute("data-text-state", "complete");
+  await expect(scene.locator("[data-char], [data-word]")).toHaveCount(0);
+  await expect(scene.locator("h2")).toHaveText("Connect the tools. Keep the context.");
+  await expect(scene.locator("[data-text-copy]")).toHaveText(
+    "Bring a pull request, its CI run, test report and production error together. Forge is being built to link them by the change they share.",
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".landing")).toHaveAttribute("data-text-motion", "static");
+  await expect(page.locator("[data-char], [data-word]")).toHaveCount(0);
+});
+
+test("the SVG follower stays on its route after resizing", async ({ page }) => {
+  await page.goto("/");
+  await goToChapter(page, "automate", 4.99);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await goToChapter(page, "automate", 4.99);
+    const distance = await page.locator(".track-art").evaluate((node) => {
+      const svg = node as SVGSVGElement;
+      const route = svg.querySelector<SVGPathElement>("[data-motion-route]")!;
+      const packet = svg.querySelector<SVGGElement>(".track-packet")!;
+      const end = route
+        .getPointAtLength(route.getTotalLength())
+        .matrixTransform(route.getScreenCTM()!);
+      const center = new DOMPoint(0, 0).matrixTransform(packet.getScreenCTM()!);
+      return Math.hypot(center.x - end.x, center.y - end.y);
+    });
+    expect(distance).toBeLessThan(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
     );
-  await expect(renderer).toHaveAttribute("data-renderer", "webgl");
-  await expect(renderer.locator("canvas")).toHaveCount(1);
+  }
 });
 
 test("the tour remains readable and navigable without JavaScript", async ({
@@ -126,20 +162,20 @@ test("the tour remains readable and navigable without JavaScript", async ({
   const page = await context.newPage();
   await page.goto(`${baseURL}/`);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.locator(".core-fallback")).toBeVisible();
+  await expect(page.locator(".track-art")).toBeVisible();
   await page.getByRole("link", { name: "Open platform", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Engineering overview" })).toBeVisible();
   await context.close();
 });
 
-test("track checkpoints expose evidence and the commit follows connected branches", async ({
+test("track checkpoints expose evidence and the commit follows the delivery story", async ({
   page,
 }) => {
   await page.goto("/");
   const renderer = page.locator(".core-renderer");
-  await expect(renderer).toHaveAttribute("data-renderer", "webgl");
+  await expect(renderer).toHaveAttribute("data-renderer", "svg");
   await expect(renderer).toHaveAttribute("data-configuration", "commit-on-track");
-  await expect(renderer.locator('[data-checkpoint="3"]')).toHaveJSProperty("inert", true);
+  await expect(renderer.locator('[data-checkpoint="3"]')).toBeEnabled();
   await goToChapter(page, "connect", 0.99);
   const record = page.getByRole("button", { name: "Select Sentry checkpoint" });
   await record.focus();
@@ -172,7 +208,7 @@ test("scrubber navigates the story and authentic local integration logos load", 
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "webgl");
+  await expect(page.locator(".core-renderer")).toHaveAttribute("data-renderer", "svg");
   const range = page.getByRole("slider", { name: "Story progress" });
   await range.focus();
   await range.press("End");

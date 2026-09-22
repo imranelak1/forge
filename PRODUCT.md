@@ -30,7 +30,7 @@ Phase 0 was approved with the user's “go” instruction. Implement Phase 1 onl
 
 Forge. Dark-first, professional developer-tool interface; subtle borders, dense readable data layouts, excellent spacing, color mainly for state. These constraints are explicit in the user's brief.
 
-The user authorized the public landing at `/` with a central dimensional pipeline track. One coral commit carrier follows two metallic rails through GitHub, Actions, JUnit and Sentry checkpoints. The track draws itself, opens a branch for reproduction, returns to the related change for investigation and switches into human review. Motion follows connected routes. Realistic code/event previews, fast Anime.js text reveals and the Anime.js warm charcoal/coral palette remain. Integrations and automation are in development; examples are illustrative. `/app` retains its existing dark foundation, and the 3D logo and Phase 2 backend remain separate work.
+The user authorized the public landing at `/` with a central SVG track using Anime.js createDrawable and createMotionPath. A drawn line connects GitHub, Actions, JUnit and Sentry; a marker follows delivery and returns to the test and code before ending in human review. Headings and explanations use Anime.js splitText for quick clipped character and word reveals. Realistic code/event previews and the Anime.js warm charcoal/coral palette remain. Integrations and automation are in development; examples are illustrative. `/app` retains its existing dark foundation, and the 3D logo and Phase 2 backend remain separate work.
 
 ## Evidence on Hand
 

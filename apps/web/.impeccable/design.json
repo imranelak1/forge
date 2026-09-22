@@ -286,28 +286,28 @@
       },
       "landing-module-code": {
         "role": "primary",
-        "displayName": "Code coral board edge",
-        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
+        "displayName": "Code coral accent",
+        "purpose": "Accent for landing evidence and code previews; separate from application status colors."
       },
       "landing-module-build": {
         "role": "primary",
-        "displayName": "Build orange board edge",
-        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
+        "displayName": "Build orange accent",
+        "purpose": "Accent for landing evidence and code previews; separate from application status colors."
       },
       "landing-module-tests": {
         "role": "primary",
-        "displayName": "Tests lime board edge",
-        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
+        "displayName": "Tests lime accent",
+        "purpose": "Accent for landing evidence and code previews; separate from application status colors."
       },
       "landing-module-production": {
         "role": "primary",
-        "displayName": "Production cyan board edge",
-        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
+        "displayName": "Production cyan accent",
+        "purpose": "Accent for landing evidence and code previews; separate from application status colors."
       },
       "landing-module-evidence": {
         "role": "primary",
-        "displayName": "Evidence blue board edge",
-        "purpose": "Persistent source identity on delivery checkpoints; separate from application status colors."
+        "displayName": "Evidence blue accent",
+        "purpose": "Accent for landing evidence and code previews; separate from application status colors."
       },
       "landing-surface": {
         "role": "neutral",
@@ -368,8 +368,8 @@
       },
       {
         "name": "landing-master-timeline",
-        "value": "Paused Anime.js timeline; five 1000ms chapters; connected route travel, track reveals and a pivoting junction",
-        "purpose": "Native scroll seeks one paused Anime.js timeline across five 1000ms windows. Connect draws the rails through four source checkpoints. Trace carries one commit through the original build, passing tests and release. Understand opens the reproduction branch. Investigate draws the return track toward the related code. Automate pivots the junction tongue before moving the evidence into human review. The routes share their endpoints; the carrier follows curve distance and aligns to the route tangent, including elevation. There is no idle rotation. Checkpoint labels move into a compact logo row when branches open. GLSL reveals the rails, shades their beveled metal and highlights the active route. Reverse scrolling retraces the same journey. Frame-rate-independent damping uses 1 - exp(-delta * 10), with delta capped at 0.05 seconds. Rendering stops at rest, outside the story and in hidden tabs. DPR caps are 1.6 desktop and 1.25 mobile. ResizeObserver tracks the renderer and story so source-preview height changes preserve chapter synchronization."
+        "value": "Paused Anime.js timeline; svg.createDrawable and svg.createMotionPath; five scroll chapters",
+        "purpose": "Native scroll seeks a paused Anime.js timeline across five 1000ms windows. svg.createDrawable draws the delivery line; svg.createMotionPath supplies the marker coordinates within the same SVG viewBox. Connect joins four sources. Trace follows the original build, passing tests and release error. Understand returns to the test checkpoint; Investigate returns to the related pull request; Automate follows the evidence into a review request. Reverse scrolling retraces the same path. Frame-rate-independent damping uses 1 - exp(-delta * 12), capped at 0.05 seconds, and stops at rest, outside the story and in hidden tabs. ResizeObserver tracks the scene and story to preserve chapter synchronization when previews change height. Native HTML checkpoint controls remain available throughout."
       },
       {
         "name": "landing-workflow-playback",
@@ -378,13 +378,13 @@
       },
       {
         "name": "landing-text-sequence",
-        "value": "Anime.js out(4); headings 340ms, 35ms line stagger; simultaneous supporting copy 320ms",
-        "purpose": "Landing headings reveal by line with Anime.js out(4): 340ms motion, 35ms between lines, 14px vertical travel and direction-specific horizontal offsets. Supporting explanations start simultaneously and finish in 320ms with a small positional and clipping reveal. Initial opacity remains at least 0.85; there is no delayed word-by-word fade. Understand resolves a 1px blur. A passage can replay after fully leaving the viewport. Completion, exit, focus and hidden tabs finish the active sequence and restore styles. Reduced motion keeps static text; cleanup reverts timelines and observers."
+        "value": "Anime.js splitText; clipped character and word reveals; out(4); maximum 620ms",
+        "purpose": "Anime.js splitText wraps heading words with clipping masks and splits their characters. Characters travel into place over 440ms with at most 180ms total stagger. Explanations use individually clipped words: 330ms travel, at most 230ms total stagger, beginning 60ms after the heading. Both settle within 620ms without a slow opacity fade. Investigate reverses the heading entrance direction to echo tracing back. Completion, exit, focus, viewport resize and hidden tabs restore the original DOM and ordinary text selection. A passage can replay after fully leaving the viewport. Reduced motion retains static text; cleanup reverts timelines, splits, observers and listeners."
       },
       {
         "name": "landing-static-fallback",
-        "value": "Labeled static SVG track; reduced motion skips WebGL",
-        "purpose": "Server-rendered text, code, native links and a labeled static SVG track remain available without JavaScript. Reduced motion skips WebGL initialization; unavailable WebGL, shader failure and context loss reveal the same fallback. Context restoration resumes rendering. Preference changes and unmount dispose geometry, materials, instance resources, observers, listeners, timelines and the WebGL context. Native checkpoint buttons have source-specific names and pressed states; invisible checkpoints are inert. The canvas is decorative. The page retains its keyboard-visible skip link."
+        "value": "Server-rendered SVG; static line and instant updates for reduced motion",
+        "purpose": "The same labeled SVG, text, code and native anchors are server-rendered and readable without JavaScript. Reduced motion shows the complete line and updates the story immediately without animated travel or text splitting. WebGL is not required. The follower stays within the SVG coordinate system when resized. Native checkpoint buttons expose source-specific names, pressed states and keyboard focus. Unmount cancels animation frames, reverts timelines and removes observers and listeners. Live preference changes are supported."
       }
     ],
     "breakpoints": [
@@ -503,7 +503,7 @@
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` follows one illustrative checkout commit along a dimensional delivery track. Two metallic rails draw through GitHub, Actions, JUnit and Sentry checkpoints. A coral carrier follows the track into production, a reproduction branch, a return route to the code and a switched route to human review. Each chapter retains its realistic code preview and fast Anime.js text reveal. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation in `apps/web`: the overview at `/app`, system status, and setup guide. Authentication, integrations, metrics, charts, and form fields are not implemented and have no established application component conventions here.\n\nThe public landing page at `/` follows one illustrative checkout commit along a clean SVG path. Anime.js draws the line between GitHub, Actions, JUnit and Sentry logos and moves a marker along it. The marker traces delivery, returns to the regression test and related code, then ends at a human review request. Headings reveal by character through clipped words; explanations reveal word by word. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
@@ -524,8 +524,8 @@
       "**Do** preserve unknown, checking, unavailable, and healthy as distinct states.",
       "**Do** keep mobile technical content locally scrollable with a visible cue when needed.",
       "**Do** use real navigation targets and neutral descriptions of health checks.",
-      "**Do** scope the warm charcoal and coral page palette, source colors, display typography, track shaders and checkpoint transitions to the public marketing surface.",
-      "**Do** keep the static delivery track, chapter content, and native navigation available with reduced motion, JavaScript disabled, or unavailable WebGL."
+      "**Do** scope the warm charcoal and coral page palette, source colors, display typography, SVG path drawing and checkpoint transitions to the public marketing surface.",
+      "**Do** keep the static delivery track, chapter content, and native navigation available with reduced motion or JavaScript disabled."
     ],
     "donts": [
       "**Don't** fabricate metrics, customer data, connected sources, or working planned controls.",

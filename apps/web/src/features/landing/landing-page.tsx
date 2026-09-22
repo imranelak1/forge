@@ -37,7 +37,7 @@ const chapters = [
     detail: "Reproduction after the production error",
     items: ["CI #929", "Null coupon", "Failing test"],
     caption:
-      "Understand: the error opens a branch to reproduction. A new test exposes the missing no-coupon case.",
+      "Understand: follow the error back to the tests. A new test exposes the missing no-coupon case.",
   },
   {
     id: "investigate",
@@ -47,7 +47,7 @@ const chapters = [
     detail: "Evidence before conclusions",
     items: ["Sentry error", "Related commit", "Candidate diff"],
     caption:
-      "Investigate: follow the return track to the related change. Review the candidate fix and verify it with the failing test.",
+      "Investigate: follow the same path back to the related change. Review the candidate fix and verify it with the failing test.",
   },
   {
     id: "automate",
@@ -57,7 +57,7 @@ const chapters = [
     detail: "An explicit, reviewable response",
     items: ["Failed test", "Request review", "Human decision"],
     caption:
-      "Automate: the switch routes the linked evidence into a review request. A person decides what happens next.",
+      "Automate: the path ends with a review request and its linked evidence. A person decides what happens next.",
   },
 ];
 
