@@ -17,8 +17,8 @@ export default function GuidePage() {
         <section>
           <h2>Start your installation</h2>
           <p>
-            From the repository root, generate local database credentials and start the three
-            services. Docker Desktop must be running.
+            From the repository root, generate local credentials and start the application, database
+            and background worker. Docker Desktop must be running.
           </p>
           <pre>
             <code>
@@ -52,6 +52,31 @@ export default function GuidePage() {
             <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </section>
+        <section id="github-app">
+          <h2>Connect GitHub repositories</h2>
+          <p>
+            Repository access uses a GitHub App, configured separately from GitHub sign-in. The
+            installation administrator must register the app and add its credentials to the private
+            environment file. Follow <code>docs/github-setup.md</code> in the repository for the
+            required permissions, callback address and webhook setup.
+          </p>
+          <p>
+            Once configured, an organization owner or admin with a verified Forge email can open
+            Integrations, install the app on GitHub and authorize their GitHub account. Choose the
+            installation for your organization, wait for its repository catalog, then select
+            repositories and save.
+          </p>
+          <p>
+            History imports run in the background, starting with the last 90 days. Repositories
+            shows progress, imported pull requests and commits, and retry actions. Webhooks update
+            selected repositories as changes arrive. CI and deployment analytics are planned for
+            later phases.
+          </p>
+          <Link className="text-link" href="/app/integrations">
+            Open integrations
+            <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </section>
         <section id="troubleshooting">
           <h2>When a service is unavailable</h2>
           <p>
@@ -77,7 +102,7 @@ export default function GuidePage() {
           <h2>Build sequence</h2>
           <p>
             Forge is being implemented one phase at a time. This installation contains the
-            foundation, account access and organizations.
+            foundation, account access, organizations and GitHub repository ingestion.
           </p>
           <ol className="phase-list">
             <li>
@@ -93,7 +118,6 @@ export default function GuidePage() {
                 <strong>Authentication & organizations</strong>
                 <p>Secure sessions, team membership and tenant isolation.</p>
               </div>
-              <span className="current-phase">Current</span>
             </li>
             <li>
               <span>Phase 3</span>
@@ -101,6 +125,7 @@ export default function GuidePage() {
                 <strong>GitHub integration</strong>
                 <p>Repository access, historical synchronization and verified webhooks.</p>
               </div>
+              <span className="current-phase">Current</span>
             </li>
             <li>
               <span>Phases 4–9</span>

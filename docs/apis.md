@@ -1,6 +1,6 @@
 # API architecture
 
-Status: Phase 1 health routes and Phase 2 identity, session and organization routes are implemented, including the subsequently requested GitHub/Google sign-in extension. Engineering integration routes for Phases 3–9 remain planned. Application APIs use `/api/v1`; development OpenAPI is at `/api/v1/openapi.json`, with interactive documentation at `/docs`.
+Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Later engineering analytics and automation contracts remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
 
 ## Request path
 
@@ -35,11 +35,13 @@ All organization endpoints have `/organizations/{organization_id}`. The path sel
 | ------------------------------------------------------------ | ------ | ------ | ----- | ----- |
 | Read engineering data, metrics, alerts and rule history      | Yes    | Yes    | Yes   | Yes   |
 | Acknowledge/resolve alerts                                   | No     | Yes    | Yes   | Yes   |
-| Manage projects, request repository sync                     | No     | Yes    | Yes   | Yes   |
+| Manage projects (planned)                                    | No     | Yes    | Yes   | Yes   |
 | Connect integrations, map sources, create upload credentials | No     | No     | Yes   | Yes   |
 | Configure/enable rules and outbound destinations             | No     | No     | Yes   | Yes   |
 | Invite/manage non-owner members                              | No     | No     | Yes   | Yes   |
 | Grant/remove owner, delete organization                      | No     | No     | No    | Yes   |
+
+Phase 3 integration mutations and manual sync require a verified owner/admin; viewers and members can read connection and selected repository data. Project grouping and the broader engineering permissions above remain planned.
 
 Last-owner changes run under a membership/organization lock. Service tokens accept only named machine scopes, initially `test_reports:write` for one repository; they do not inherit human admin rights. Signed webhooks resolve tenancy from server-controlled integration bindings, not browser sessions.
 
@@ -47,49 +49,51 @@ Last-owner changes run under a membership/organization lock. Service tokens acce
 
 `{org}` below abbreviates `/organizations/{organization_id}`. Every listed resource route is tenant scoped. Implement only the endpoints required by the active milestone.
 
-| Phase | Method and route after `/api/v1`                                                              | Behavior                                                                                        |
-| ----- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 1     | `GET /health/live`, `GET /health/ready`                                                       | Process liveness and DB/migration readiness; no internal details exposed                        |
-| 2     | `POST /auth/register`, `POST /auth/login`                                                     | Create identity / set cookies; organization creation is separate                                |
-| 2     | `POST /auth/refresh`, `POST /auth/logout`                                                     | Rotate/revoke session; CSRF and origin protected                                                |
-| 2     | `GET /auth/me`, `GET /auth/csrf`                                                              | Current user/membership summary and bound CSRF token                                            |
-| 2     | `POST /auth/verify-email/request`, `POST /auth/verify-email/confirm`                          | Single-use verification; nonenumerating request response                                        |
-| 2     | `POST /auth/password-reset/request`, `POST /auth/password-reset/confirm`                      | Expiring one-use reset; revoke sessions on completion                                           |
-| 2     | `GET, POST /organizations`; `GET, PATCH, DELETE {org}`                                        | Membership-visible listing; create/update; owner-only immediate soft deactivation               |
-| 2     | `GET /auth/sessions`; `DELETE /auth/sessions/{session_id}`                                    | List active sessions and revoke one immediately                                                 |
-| 2     | `GET {org}/audit`                                                                             | Read the organization's append-only audit history                                               |
-| 2     | `GET {org}/members`; `PATCH, DELETE {org}/members/{member_id}`                                | Role/member management                                                                          |
-| 2     | `POST {org}/invitations`; `POST /invitations/accept`                                          | Verified matching email and single-use token required for acceptance                            |
-| 2+    | `GET /auth/providers`, `GET /auth/connections`                                                | Public provider availability / authenticated connected identities                               |
-| 2+    | `POST /auth/oauth/{provider}/start`, `GET /auth/oauth/{provider}/callback`                    | GitHub/Google login or explicit linking; CSRF-protected start, one-use bound callback state     |
-| 3     | `GET, POST {org}/integrations`; `GET, DELETE {org}/integrations/{id}`                         | Configure/list/disconnect with redacted credentials                                             |
-| 3     | `POST {org}/integrations/github/installations/start`; `GET /integrations/github/callback`     | Bind verified installation to authorized organization                                           |
-| 3     | `GET {org}/integrations/{id}/available-repositories`; `POST {org}/repositories`               | List provider-authorized choices; connect by verified source identity                           |
-| 3     | `GET {org}/repositories`; `GET, PATCH {org}/repositories/{id}`                                | Filtered catalog, settings and freshness                                                        |
-| 3     | `GET, POST {org}/projects`; `GET, PATCH, DELETE {org}/projects/{id}`                          | Project grouping, with validated repository membership                                          |
-| 3     | `POST {org}/repositories/{id}/sync`; `GET {org}/sync-runs/{id}`                               | 202 with durable sync job and progress; safe repeated requests                                  |
-| 3     | `POST /webhooks/github/{app_binding_id}`                                                      | Verify App signature, map signed installation identity to tenant, durably accept or deduplicate |
-| 4     | `GET {org}/repositories/{id}/issues`, `/pull-requests`, `/commits`                            | Paginated engineering records                                                                   |
-| 4     | `GET {org}/pull-requests/{id}`; `GET {org}/commits/{id}`                                      | Reviews, transitions, file metadata and known associations                                      |
-| 4     | `GET {org}/metrics/pull-requests`                                                             | Average, median, P75, P95 and coverage for timing metrics                                       |
-| 5     | `GET {org}/workflow-runs`; `GET {org}/workflow-runs/{id}`                                     | Attempts, jobs and failure evidence                                                             |
-| 5     | `GET {org}/deployments`; `GET {org}/deployments/{id}`                                         | Deployment history and statuses                                                                 |
-| 5     | `GET {org}/metrics/ci`, `GET {org}/metrics/deployments`                                       | Defined aggregate/time-series metrics                                                           |
-| 6     | `POST {org}/repositories/{id}/test-reports`                                                   | Bounded JUnit XML upload, 202 with ingestion/job references                                     |
-| 6     | `GET {org}/test-runs`; `GET {org}/test-runs/{id}`; `GET {org}/tests/{id}/history`             | Suites, executions and identity history                                                         |
-| 6     | `GET {org}/metrics/tests`; `GET, PATCH {org}/repositories/{id}/test-policy`                   | Pass rate and configurable potential-flakiness evidence                                         |
-| 6     | `POST {org}/repositories/{id}/service-tokens`; `DELETE {org}/service-tokens/{id}`             | Reveal upload credential once / revoke                                                          |
-| 7     | `GET {org}/errors`; `GET {org}/errors/{id}`; `GET {org}/metrics/errors`                       | Sentry groups, samples, scoped bucket trends and coverage                                       |
-| 7     | `GET, POST {org}/services`; `PATCH {org}/services/{id}`; `GET, POST {org}/environments`       | Configure deployment/error scope                                                                |
-| 7     | `PUT {org}/integrations/{id}/mappings`                                                        | Validate Sentry project/service/repository/environment mappings                                 |
-| 8     | `GET {org}/repositories/{id}/lifecycle`; `GET {org}/correlations/{id}`                        | Explicit relationships and separate temporal evidence                                           |
-| 9     | `GET, POST {org}/automation-rules`; `GET, PATCH, DELETE {org}/automation-rules/{id}`          | Versioned configuration; deletion archives rule and preserves history                           |
-| 9     | `POST {org}/automation-rules/{id}/preview`                                                    | Historical read-only evaluation with no side effects                                            |
-| 9     | `POST {org}/automation-rules/{id}/enable`, `/disable`                                         | Authorized audited state transitions                                                            |
-| 9     | `GET, POST {org}/webhook-destinations`; `PATCH, DELETE {org}/webhook-destinations/{id}`       | Validated destinations; cannot delete one referenced by enabled rules                           |
-| 9     | `GET {org}/alerts`; `GET {org}/alerts/{id}`; `POST {org}/alerts/{id}/acknowledge`, `/resolve` | Incident list/detail with evidence and audited status changes                                   |
-| 9     | `GET {org}/automation-executions`; `GET {org}/automation-executions/{id}`                     | Separate requested/sent/acknowledged/failed/unknown delivery states                             |
-| 9     | `GET {org}/metrics/overview`; `GET {org}/metric-evidence/{id}`                                | Combined implemented metrics and paginated contributor drill-down                               |
+| Phase | Method and route after `/api/v1`                                                                     | Behavior                                                                                    |
+| ----- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1     | `GET /health/live`, `GET /health/ready`                                                              | Process liveness and DB/migration readiness; no internal details exposed                    |
+| 2     | `POST /auth/register`, `POST /auth/login`                                                            | Create identity / set cookies; organization creation is separate                            |
+| 2     | `POST /auth/refresh`, `POST /auth/logout`                                                            | Rotate/revoke session; CSRF and origin protected                                            |
+| 2     | `GET /auth/me`, `GET /auth/csrf`                                                                     | Current user/membership summary and bound CSRF token                                        |
+| 2     | `POST /auth/verify-email/request`, `POST /auth/verify-email/confirm`                                 | Single-use verification; nonenumerating request response                                    |
+| 2     | `POST /auth/password-reset/request`, `POST /auth/password-reset/confirm`                             | Expiring one-use reset; revoke sessions on completion                                       |
+| 2     | `GET, POST /organizations`; `GET, PATCH, DELETE {org}`                                               | Membership-visible listing; create/update; owner-only immediate soft deactivation           |
+| 2     | `GET /auth/sessions`; `DELETE /auth/sessions/{session_id}`                                           | List active sessions and revoke one immediately                                             |
+| 2     | `GET {org}/audit`                                                                                    | Read the organization's append-only audit history                                           |
+| 2     | `GET {org}/members`; `PATCH, DELETE {org}/members/{member_id}`                                       | Role/member management                                                                      |
+| 2     | `POST {org}/invitations`; `POST /invitations/accept`                                                 | Verified matching email and single-use token required for acceptance                        |
+| 2+    | `GET /auth/providers`, `GET /auth/connections`                                                       | Public provider availability / authenticated connected identities                           |
+| 2+    | `POST /auth/oauth/{provider}/start`, `GET /auth/oauth/{provider}/callback`                           | GitHub/Google login or explicit linking; CSRF-protected start, one-use bound callback state |
+| 3     | `GET {org}/integrations/github`                                                                      | App availability, pending authorization and connection status                               |
+| 3     | `POST {org}/integrations/github/authorize`; `GET /integrations/github/callback`                      | Session-bound GitHub App authorization and fixed UI redirect                                |
+| 3     | `GET {org}/integrations/github/authorizations/{id}/installations`                                    | Fresh installation choices for the authorizing GitHub user                                  |
+| 3     | `POST {org}/integrations/github/connections`                                                         | Verify source administrator, bind installation, enqueue catalog                             |
+| 3     | `POST {org}/integrations/github/connections/{id}/refresh`; `DELETE .../connections/{id}`             | Recheck access and refresh catalog; disconnect and cancel work                              |
+| 3     | `GET {org}/integrations/github/connections/{id}/repositories`; `POST .../connections/{id}/selection` | Cursor-paged catalog and explicit repository selection                                      |
+| 3     | `GET {org}/repositories`                                                                             | Selected repository metadata, stored counts and latest sync                                 |
+| 3     | `POST {org}/repositories/{id}/sync`; `GET {org}/repositories/{id}/sync-runs`                         | Durable sync request and cursor-paged history                                               |
+| 3     | `POST /webhooks/github`                                                                              | Raw-body signature verification and atomic receipt/job acceptance                           |
+| 4     | `GET {org}/repositories/{id}/issues`, `/pull-requests`, `/commits`                                   | Paginated engineering records                                                               |
+| 4     | `GET {org}/pull-requests/{id}`; `GET {org}/commits/{id}`                                             | Reviews, transitions, file metadata and known associations                                  |
+| 4     | `GET {org}/metrics/pull-requests`                                                                    | Average, median, P75, P95 and coverage for timing metrics                                   |
+| 5     | `GET {org}/workflow-runs`; `GET {org}/workflow-runs/{id}`                                            | Attempts, jobs and failure evidence                                                         |
+| 5     | `GET {org}/deployments`; `GET {org}/deployments/{id}`                                                | Deployment history and statuses                                                             |
+| 5     | `GET {org}/metrics/ci`, `GET {org}/metrics/deployments`                                              | Defined aggregate/time-series metrics                                                       |
+| 6     | `POST {org}/repositories/{id}/test-reports`                                                          | Bounded JUnit XML upload, 202 with ingestion/job references                                 |
+| 6     | `GET {org}/test-runs`; `GET {org}/test-runs/{id}`; `GET {org}/tests/{id}/history`                    | Suites, executions and identity history                                                     |
+| 6     | `GET {org}/metrics/tests`; `GET, PATCH {org}/repositories/{id}/test-policy`                          | Pass rate and configurable potential-flakiness evidence                                     |
+| 6     | `POST {org}/repositories/{id}/service-tokens`; `DELETE {org}/service-tokens/{id}`                    | Reveal upload credential once / revoke                                                      |
+| 7     | `GET {org}/errors`; `GET {org}/errors/{id}`; `GET {org}/metrics/errors`                              | Sentry groups, samples, scoped bucket trends and coverage                                   |
+| 7     | `GET, POST {org}/services`; `PATCH {org}/services/{id}`; `GET, POST {org}/environments`              | Configure deployment/error scope                                                            |
+| 7     | `PUT {org}/integrations/{id}/mappings`                                                               | Validate Sentry project/service/repository/environment mappings                             |
+| 8     | `GET {org}/repositories/{id}/lifecycle`; `GET {org}/correlations/{id}`                               | Explicit relationships and separate temporal evidence                                       |
+| 9     | `GET, POST {org}/automation-rules`; `GET, PATCH, DELETE {org}/automation-rules/{id}`                 | Versioned configuration; deletion archives rule and preserves history                       |
+| 9     | `POST {org}/automation-rules/{id}/preview`                                                           | Historical read-only evaluation with no side effects                                        |
+| 9     | `POST {org}/automation-rules/{id}/enable`, `/disable`                                                | Authorized audited state transitions                                                        |
+| 9     | `GET, POST {org}/webhook-destinations`; `PATCH, DELETE {org}/webhook-destinations/{id}`              | Validated destinations; cannot delete one referenced by enabled rules                       |
+| 9     | `GET {org}/alerts`; `GET {org}/alerts/{id}`; `POST {org}/alerts/{id}/acknowledge`, `/resolve`        | Incident list/detail with evidence and audited status changes                               |
+| 9     | `GET {org}/automation-executions`; `GET {org}/automation-executions/{id}`                            | Separate requested/sent/acknowledged/failed/unknown delivery states                         |
+| 9     | `GET {org}/metrics/overview`; `GET {org}/metric-evidence/{id}`                                       | Combined implemented metrics and paginated contributor drill-down                           |
 
 The overview can be introduced incrementally in Phases 4–7 with unavailable metric sections explicitly labeled; the full contract is complete in Phase 9. Email verification/reset requires a configured delivery adapter; local development uses a documented local sink, never a success response that pretends mail was delivered.
 

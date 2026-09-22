@@ -41,6 +41,12 @@ services:
       FORGE_GITHUB_CLIENT_SECRET: ${FORGE_GITHUB_CLIENT_SECRET:-}
       FORGE_GOOGLE_CLIENT_ID: ${FORGE_GOOGLE_CLIENT_ID:-}
       FORGE_GOOGLE_CLIENT_SECRET: ${FORGE_GOOGLE_CLIENT_SECRET:-}
+      FORGE_GITHUB_APP_ID: ${FORGE_GITHUB_APP_ID:-}
+      FORGE_GITHUB_APP_SLUG: ${FORGE_GITHUB_APP_SLUG:-}
+      FORGE_GITHUB_APP_CLIENT_ID: ${FORGE_GITHUB_APP_CLIENT_ID:-}
+      FORGE_GITHUB_APP_CLIENT_SECRET: ${FORGE_GITHUB_APP_CLIENT_SECRET:-}
+      FORGE_GITHUB_APP_PRIVATE_KEY_BASE64: ${FORGE_GITHUB_APP_PRIVATE_KEY_BASE64:-}
+      FORGE_GITHUB_APP_WEBHOOK_SECRET: ${FORGE_GITHUB_APP_WEBHOOK_SECRET:-}
       FORGE_MAIL_BACKEND: ${FORGE_MAIL_BACKEND:-file}
       FORGE_MAIL_DIRECTORY: /app/.local/mail
       FORGE_SMTP_HOST: ${FORGE_SMTP_HOST:-}
@@ -65,6 +71,45 @@ services:
       timeout: 6s
       retries: 6
       start_period: 20s
+
+  worker:
+    build:
+      context: ./apps/api
+      dockerfile: ../../infrastructure/docker/api.Dockerfile
+      target: runtime
+    restart: unless-stopped
+    command: ["python", "-m", "forge.workers.github"]
+    user: "${FORGE_RUNTIME_UID:-10001}:${FORGE_RUNTIME_GID:-10001}"
+    environment:
+      FORGE_COMPONENT: worker
+      FORGE_ENVIRONMENT: ${FORGE_ENVIRONMENT:-development}
+      FORGE_LOG_LEVEL: ${FORGE_LOG_LEVEL:-INFO}
+      FORGE_DATABASE_HOST: postgres
+      FORGE_DATABASE_PORT: 5432
+      FORGE_DATABASE_NAME: ${FORGE_DATABASE_NAME:-forge}
+      FORGE_DATABASE_PASSWORD: ${FORGE_DATABASE_PASSWORD:?Configure .env first}
+      FORGE_AUTH_SECRET: ${FORGE_AUTH_SECRET:?Run node scripts/configure.mjs --upgrade}
+      FORGE_PUBLIC_ORIGIN: ${FORGE_PUBLIC_ORIGIN:-http://localhost:3000}
+      FORGE_GITHUB_APP_ID: ${FORGE_GITHUB_APP_ID:-}
+      FORGE_GITHUB_APP_SLUG: ${FORGE_GITHUB_APP_SLUG:-}
+      FORGE_GITHUB_APP_CLIENT_ID: ${FORGE_GITHUB_APP_CLIENT_ID:-}
+      FORGE_GITHUB_APP_CLIENT_SECRET: ${FORGE_GITHUB_APP_CLIENT_SECRET:-}
+      FORGE_GITHUB_APP_PRIVATE_KEY_BASE64: ${FORGE_GITHUB_APP_PRIVATE_KEY_BASE64:-}
+      FORGE_GITHUB_APP_WEBHOOK_SECRET: ${FORGE_GITHUB_APP_WEBHOOK_SECRET:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import pathlib,time; p=pathlib.Path('/tmp/forge-worker-heartbeat'); assert p.exists() and time.time()-p.stat().st_mtime<90"
+      interval: 15s
+      timeout: 3s
+      retries: 4
+      start_period: 30s
+    stop_grace_period: 60s
 
   frontend:
     build:

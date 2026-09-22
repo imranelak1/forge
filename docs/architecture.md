@@ -1,6 +1,6 @@
 # Forge architecture blueprint
 
-Status: architecture approved on 2026-09-21. Phase 2 implements identity and the SaaS foundation, extended with [GitHub/Google sign-in](social-login.md) at the user's request. Repository integrations and engineering capabilities remain phased according to [the roadmap](roadmap.md). See [the Phase 2 handoff](phase-2-review.md).
+Status: Phase 3 implements verified GitHub App repository connections, signed webhook ingestion and a durable PostgreSQL worker alongside the completed identity/SaaS foundation. See [Phase 3 delivery](phase-3-review.md), [GitHub App setup](github-setup.md), and [ADR 011](adr/011-github-phase-3.md). The diagrams below continue to distinguish the broader phased target.
 
 ## Product and system boundaries
 
@@ -37,7 +37,7 @@ flowchart LR
     Dispatcher --> Receiver[Customer-controlled pipeline webhook]
 ```
 
-Boxes describe logical responsibilities; they are not all independent services. Inbox, jobs, domain records, and outbox share one PostgreSQL database initially. Normalization, correlation, analytics, and automation are modules in the backend codebase. The worker is introduced in Phase 3 and runs as a separate process from the same backend image. Phase 1 Compose contains exactly frontend, backend, and postgres; there is no work queue yet.
+Boxes describe logical responsibilities; they are not all independent services. Inbox, jobs, domain records, and outbox share one PostgreSQL database initially. Normalization, correlation, analytics, and automation are modules in the backend codebase. The worker is introduced in Phase 3 and runs as a separate process from the same backend image. The current Compose stack contains frontend, backend, PostgreSQL and the GitHub worker. No broker or scheduler is running.
 
 ## Future analytical and streaming extensions
 

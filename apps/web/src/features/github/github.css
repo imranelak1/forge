@@ -1,0 +1,335 @@
+.github-content {
+  width: 100%;
+  min-width: 0;
+}
+.github-content > .form-error,
+.github-content > .form-success,
+.github-notice {
+  margin-bottom: 20px;
+}
+.github-provider-title,
+.github-state,
+.repository-branch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.github-state {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.github-provider-title {
+  gap: 10px;
+}
+.github-setup,
+.github-connection,
+.github-recovery,
+.installation-picker,
+.repository-picker {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+}
+.github-setup > p,
+.github-connection > p,
+.installation-picker > p,
+.repository-picker > p {
+  font-size: 13px;
+  max-width: 65ch;
+  line-height: 1.7;
+}
+.github-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.github-recovery > button,
+.installation-picker > button {
+  justify-self: start;
+}
+.installation-picker {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+.catalog-progress,
+.sync-details {
+  display: grid;
+  gap: 6px;
+}
+.sync-details p {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.sync-details .sync-problem {
+  color: var(--warning);
+}
+.disconnect-confirm {
+  padding-block: 16px;
+  border-block: 1px solid var(--border);
+  display: grid;
+  gap: 12px;
+}
+.disconnect-confirm p {
+  font-size: 13px;
+  color: var(--foreground);
+}
+.repository-picker {
+  margin-top: 8px;
+}
+.repository-selection {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.repository-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.repository-choice:first-of-type {
+  border-top: 1px solid var(--border);
+}
+.repository-choice input {
+  accent-color: var(--primary);
+  margin: 4px 0 0;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.repository-choice:has(input:disabled) {
+  cursor: default;
+  color: var(--muted-foreground);
+}
+.repository-choice > span {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.repository-choice strong {
+  font-weight: 500;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.repository-choice > span > span {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.repository-save {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+.repository-picker form > .form-success,
+.repository-picker form > .form-error {
+  margin-top: 16px;
+}
+.github-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  border-block: 1px solid var(--border);
+  margin-block: 20px;
+}
+.github-repositories {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 820px;
+  text-align: left;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.github-repositories thead {
+  background: var(--surface);
+  color: var(--muted-foreground);
+}
+.github-repositories th,
+.github-repositories td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  font-weight: 400;
+}
+.github-repositories thead th {
+  padding-block: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.github-repositories tbody > tr:last-child > * {
+  border-bottom: 0;
+}
+.github-repositories th:first-child {
+  min-width: 220px;
+  max-width: 330px;
+}
+.github-repositories td:nth-child(2) {
+  width: 145px;
+}
+.repository-name {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+  font-size: 13px;
+}
+.repository-name a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  text-decoration: underline;
+}
+.repository-meta {
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.repository-count {
+  color: var(--foreground);
+}
+.repository-actions {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+.github-repositories .sync-expanded {
+  background: var(--surface);
+  padding: 20px;
+}
+.sync-history {
+  max-width: 760px;
+}
+.sync-history h3 {
+  margin-bottom: 16px;
+}
+.sync-history ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sync-history li {
+  padding-block: 12px;
+  border-top: 1px solid var(--border);
+}
+.sync-history-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.sync-history-heading > time {
+  color: var(--muted-foreground);
+}
+.github-empty {
+  border-block: 1px solid var(--border);
+  padding-block: 32px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.github-empty > svg {
+  color: var(--muted-foreground);
+}
+.github-empty > p {
+  max-width: 65ch;
+  font-size: 13px;
+}
+.github-scope-note {
+  margin-top: 28px;
+  max-width: 85ch;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.github-permission {
+  margin-top: 20px;
+}
+.repository-scroll-hint {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .repository-scroll-hint {
+    display: block;
+    margin-top: 20px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 760px) {
+  .repository-scroll-hint {
+    display: none;
+  }
+  .github-table-scroll {
+    overflow: visible;
+  }
+  .github-repositories,
+  .github-repositories tbody {
+    display: block;
+    min-width: 0;
+  }
+  .github-repositories thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .github-repositories tbody > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .github-repositories tbody > tr:last-child {
+    border-bottom: 0;
+  }
+  .github-repositories tbody th,
+  .github-repositories tbody td {
+    display: block;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    border: 0;
+    padding: 0;
+  }
+  .github-repositories tbody th,
+  .github-repositories tbody td:nth-child(n + 4),
+  .github-repositories tbody .sync-expanded {
+    grid-column: 1 / -1;
+  }
+  .github-repositories td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 5px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+  }
+  .repository-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .github-repositories tbody .sync-expanded {
+    padding: 16px;
+  }
+  .sync-history-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .github-toolbar button,
+  .github-toolbar a,
+  .github-recovery > button,
+  .repository-picker button,
+  .installation-picker button,
+  .repository-actions button {
+    min-height: 44px;
+  }
+  .github-repositories th,
+  .github-repositories td {
+    padding-inline: 12px;
+  }
+}

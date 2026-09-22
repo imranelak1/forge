@@ -1,8 +1,13 @@
+import base64
+import binascii
+import re
 from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import SecretStr, field_validator, model_validator
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -11,6 +16,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="FORGE_", extra="ignore")
 
     environment: Literal["development", "test", "production"] = "development"
+    component: Literal["api", "worker"] = "api"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     database_host: str = "127.0.0.1"
     database_port: int = 5432
@@ -30,18 +36,64 @@ class Settings(BaseSettings):
     github_client_secret: SecretStr | None = None
     google_client_id: str | None = None
     google_client_secret: SecretStr | None = None
+    github_app_id: int | None = Field(default=None, gt=0, le=9223372036854775807)
+    github_app_slug: str | None = None
+    github_app_client_id: str | None = None
+    github_app_client_secret: SecretStr | None = None
+    github_app_private_key_base64: SecretStr | None = None
+    github_app_webhook_secret: SecretStr | None = None
 
     @field_validator(
         "github_client_id",
         "github_client_secret",
         "google_client_id",
         "google_client_secret",
+        "github_app_id",
+        "github_app_slug",
+        "github_app_client_id",
+        "github_app_client_secret",
+        "github_app_private_key_base64",
+        "github_app_webhook_secret",
         mode="before",
     )
     @classmethod
     def normalize_oauth_credentials(cls, value: object) -> object:
         if isinstance(value, str):
             return value.strip() or None
+        return value
+
+    @field_validator("github_app_slug")
+    @classmethod
+    def validate_app_slug(cls, value: str | None) -> str | None:
+        if value is not None and not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value):
+            raise ValueError("GitHub App slug must contain lowercase letters, digits and hyphens")
+        if value is not None and len(value) > 100:
+            raise ValueError("GitHub App slug is too long")
+        return value
+
+    @field_validator("github_app_webhook_secret")
+    @classmethod
+    def validate_webhook_secret(cls, value: SecretStr | None) -> SecretStr | None:
+        if value is not None and len(value.get_secret_value().encode()) < 32:
+            raise ValueError("GitHub App webhook secret must contain at least 32 bytes")
+        return value
+
+    @field_validator("github_app_private_key_base64")
+    @classmethod
+    def validate_app_private_key(cls, value: SecretStr | None) -> SecretStr | None:
+        if value is None:
+            return value
+        try:
+            encoded = value.get_secret_value()
+            if len(encoded) > 32768:
+                raise ValueError("size")
+            key = serialization.load_pem_private_key(base64.b64decode(encoded, validate=True), None)
+            if not isinstance(key, rsa.RSAPrivateKey) or key.key_size < 2048:
+                raise ValueError("key")
+        except (ValueError, TypeError, binascii.Error) as exc:
+            raise ValueError(
+                "GitHub App key must be base64-encoded RSA private PEM, at least 2048 bits"
+            ) from exc
         return value
 
     @field_validator("auth_secret")
@@ -69,6 +121,18 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_production(self) -> "Settings":
+        app_fields = (
+            self.github_app_id,
+            self.github_app_slug,
+            self.github_app_client_id,
+            self.github_app_client_secret,
+            self.github_app_private_key_base64,
+            self.github_app_webhook_secret,
+        )
+        if any(value is not None for value in app_fields) and any(
+            value is None for value in app_fields
+        ):
+            raise ValueError("GitHub App configuration requires all six app settings")
         for provider in ("github", "google"):
             client_id = getattr(self, f"{provider}_client_id")
             client_secret = getattr(self, f"{provider}_client_secret")
@@ -77,7 +141,7 @@ class Settings(BaseSettings):
         if self.environment == "production":
             if not self.public_origin.startswith("https://"):
                 raise ValueError("Production requires an HTTPS public origin")
-            if self.mail_backend != "smtp":
+            if self.component == "api" and self.mail_backend != "smtp":
                 raise ValueError("Production requires the SMTP delivery adapter")
         if self.mail_backend == "smtp":
             if not self.smtp_host or not self.smtp_username or not self.smtp_password:

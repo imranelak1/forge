@@ -39,6 +39,12 @@ Use `http://localhost:3000` in the browser. If the web port changes, change `FOR
 
 The default adapter writes `.eml` messages to ignored `.local/mail` with private file permissions. Open the appropriate message and follow its localhost link; tokens live in URL fragments and are stripped by the UI before submission. Verification links expire after 24 hours, password-reset links after one hour and invitations after seven days. They are single-use. A native API started from `apps/api` uses `apps/api/.local/mail` unless `FORGE_MAIL_DIRECTORY` is overridden; Compose uses the root outbox. The configuration helper maps the API container to the host user's non-root IDs on Linux so the bind mount is writable without making emails world-readable.
 
+## GitHub ingestion worker
+
+Compose now starts four services: frontend, backend, PostgreSQL and worker. Repository access requires the six GitHub App settings documented in [GitHub setup](github-setup.md); social-login credentials are separate. With those settings blank the rest of Forge remains usable and connection actions explain that setup is required.
+
+The worker uses the backend runtime image and restricted database role, with no migration, SMTP or social-login secrets. To inspect it, run `docker compose logs --tail=80 worker`. Job logs contain tenant/job IDs, fencing generation and fixed error codes, not provider tokens or payloads. `docker compose restart worker` leaves durable jobs/checkpoints intact; an interrupted job becomes claimable after its 60-second lease expires. All four services should be healthy in `docker compose ps`.
+
 ## Native workflows
 
 Frontend, from the root (stop the container occupying port 3000):

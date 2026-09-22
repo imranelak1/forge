@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T13:45:05.158Z",
+  "generatedAt": "2026-09-22T15:45:40.673Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -523,7 +523,7 @@
       "name": "Workspace access build badge",
       "kind": "chip",
       "description": "Static context label, not a filter or action.",
-      "html": "<span class=\"ds-build\">Phase 2 · Workspace access</span>",
+      "html": "<span class=\"ds-build\">Phase 3 · GitHub integration</span>",
       "css": ".ds-build{display:inline-block;border:1px solid var(--border,#303030);padding:2px 7px;border-radius:4px;color:var(--muted-foreground,#a6a6a6);font:11px/1.55 var(--font-sans,\"Geist Variable\",sans-serif)}"
     },
     {
@@ -579,11 +579,18 @@
       "description": "Equally prominent 44px GitHub/Google actions. Google uses self-hosted Google Sans Medium and its current official mark. Disabled providers have adjacent availability text.",
       "html": "<button class=\"ds-provider-button\"><img src=\"/integrations/google.png\" width=\"20\" height=\"20\" alt=\"\" />Continue with Google</button>",
       "css": "@font-face{font-family:\"Google Sans Sign In\";src:url(\"/fonts/google-sans-medium.ttf\") format(\"truetype\");font-weight:500;font-display:swap}.ds-provider-button{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:44px;gap:10px;padding:0 12px;border:1px solid #8e918f;border-radius:6px;background:#131314;color:#e3e3e3;font:500 14px/20px \"Google Sans Sign In\",\"Geist Variable\",sans-serif}.ds-provider-button img{width:20px;height:20px}.ds-provider-button:focus-visible{outline:2px solid #c8c8c8;outline-offset:4px}.ds-provider-button:disabled{opacity:.5;pointer-events:none}"
+    },
+    {
+      "name": "Repository synchronization",
+      "kind": "custom",
+      "description": "Real repository records in a desktop table; labeled divided rows on mobile. Stored import counts remain distinct from synchronization state. Active work polls every four seconds, with explicit retry and history controls.",
+      "html": "<div class=\"ds-repository\"><strong>Repository name</strong><span>Private · main</span><span class=\"ds-sync\">Queued</span><span>No completed sync yet</span></div>",
+      "css": ".ds-repository{display:grid;gap:6px;border-block:1px solid #303030;padding:16px 0;font:12px/1.55 \"Geist Variable\",sans-serif;color:#a6a6a6}.ds-repository strong{font-size:13px;color:#ededed;font-weight:500}.ds-sync{color:#ededed}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented Phase 1 foundation and Phase 2 workspace access in `apps/web`: the protected overview, account creation and sign-in, email verification and password recovery, team invitations, organization onboarding and switching, organization settings, membership roles, activity, and session revocation. System status and the setup guide remain public. Provider integrations, engineering metrics, and charts remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access and Phase 3 GitHub ingestion in `apps/web`: accounts and social sign-in, organizations and permissions, GitHub App authorization, installation selection, repository selection, imported history and synchronization. System status and the setup guide remain public. Engineering analytics, CI, test and production charts remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",

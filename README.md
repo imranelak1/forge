@@ -4,7 +4,7 @@ Engineering intelligence and pipeline automation for software teams.
 
 Forge traces changes through pull requests, CI, tests, deployments and production errors, with evidence behind insights and auditable pipeline responses.
 
-**Current milestone: Phase 2 — Authentication and SaaS Foundation, with GitHub and Google sign-in.** Accounts, social login, email verification, password reset, organizations, invitations, roles and session revocation use the real API and PostgreSQL. The public Anime.js landing, live system checks and honest engineering empty states remain. Repository integrations and engineering metrics arrive in later phases.
+**Current milestone: Phase 3: GitHub Integration.** GitHub App connections, repository selection, signed webhooks and resumable PR/commit history sync now use PostgreSQL and a separate worker. GitHub/Google sign-in and organization permissions remain separate from repository authorization. Analytics, Actions, tests and Sentry follow in later phases.
 
 ## Run locally
 
@@ -16,7 +16,9 @@ docker compose up -d
 docker compose ps
 ```
 
-The helper generates independent database passwords and an authentication signing key in ignored `.env`. It refuses to overwrite an existing file. Upgrading an existing installation: run `node scripts/configure.mjs --upgrade` to add missing settings while preserving credentials, then `docker compose up -d --build`. Migrations add identity, tenant and OAuth tables without resetting the database.
+The helper generates independent database passwords and an authentication signing key in ignored `.env`. It refuses to overwrite an existing file. Upgrading an existing installation: run `node scripts/configure.mjs --upgrade` to add missing settings while preserving credentials, then `docker compose up -d --build`. Migrations add identity, tenant, OAuth and GitHub ingestion tables without resetting the database.
+
+For **repository access**, follow [GitHub App setup](docs/github-setup.md). Existing social-login credentials do not configure the repository integration.
 
 To enable **GitHub and Google login**, register the provider applications and add their client IDs and secrets to `.env`. Follow [social sign-in setup](docs/social-login.md) for the exact callback URLs. Providers remain visibly unavailable until configured.
 
@@ -29,7 +31,7 @@ Open Forge at **http://localhost:3000** so the browser origin matches `FORGE_PUB
 - Liveness: [localhost:8000/api/v1/health/live](http://localhost:8000/api/v1/health/live)
 - Readiness: [localhost:8000/api/v1/health/ready](http://localhost:8000/api/v1/health/ready)
 
-Default host ports are 3000 (web), 8000 (API), and **15432** (PostgreSQL). Configure alternate ports in `.env` if needed. The database keeps its internal container port 5432. All published ports bind to loopback. Only frontend, backend and postgres run.
+Default host ports are 3000 (web), 8000 (API), and **15432** (PostgreSQL). Configure alternate ports in `.env` if needed. The database keeps its internal container port 5432. All published ports bind to loopback. Frontend, backend, PostgreSQL and the durable GitHub worker run.
 
 ## Verify
 
@@ -72,6 +74,7 @@ The [frontend design reference](apps/web/DESIGN.md) records the implemented typo
 | Document                                               | Contents                                                    |
 | ------------------------------------------------------ | ----------------------------------------------------------- |
 | [Phase 1 handoff](docs/phase-1-review.md)              | Changes, commands, verification and limitations             |
+| [Phase 3 handoff](docs/phase-3-review.md)              | GitHub App, catalog, sync worker, webhooks and validation   |
 | [Phase 2 handoff](docs/phase-2-review.md)              | Authentication, tenant isolation, mail, seed and acceptance |
 | [Development](docs/development.md)                     | Local/native workflows, credentials and migrations          |
 | [Architecture](docs/architecture.md)                   | Diagrams, module boundaries and deployment evolution        |
@@ -85,4 +88,4 @@ The [frontend design reference](apps/web/DESIGN.md) records the implemented typo
 | [ADRs](docs/adr/README.md)                             | Approved architectural decisions                            |
 | [Phase 0 record](docs/phase-0-review.md)               | Historical architecture handoff                             |
 
-This is a local SaaS foundation. Ingestion, workers, analytics and automated actions remain planned. Production operations are Phase 13; completing this milestone does not establish production readiness. Phase 3 begins only after the user's next instruction.
+This is a local SaaS with the first repository ingestion path. Live GitHub access requires a configured GitHub App; historical records are not invented when it is absent. Analytics and automated actions remain planned. Production operations are Phase 13. Phase 4 begins only after the user's next instruction.

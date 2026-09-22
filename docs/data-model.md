@@ -1,10 +1,30 @@
 # Entity and tenant model
 
-Status: Phase 2 implements users, sessions, hashed refresh/identity tokens, organizations, memberships, invitations, audit records and persistent authentication rate limits through Alembic `0002_identity`. The requested GitHub/Google login extension adds external identities and OAuth state in `0003_oauth`. The remaining entities below are the phased target model. `0001_foundation` creates the namespace; migrations introduce later domain tables with their feature phases.
+Status: Alembic `0004_github` adds GitHub authorizations, installation routing, integrations, repositories, sync runs, webhook receipts/inbox, leased jobs, minimal PR/commit projections and normalized events. Tenant tables use forced RLS and composite tenant foreign keys. `0001` through `0003` remain the foundation, identity and social-login history. Entities not listed in this implemented scope remain the phased target.
+
+## Implemented GitHub storage (Phase 3)
+
+`0004_github` adds eleven tables; `0005_github_access` scopes repository uniqueness to an installation and adds the retention index. All eight tenant tables enforce forced RLS. Global control rows are accessed only by session-bound authorization or verified provider routing.
+
+| Table                          | Grain and key                                                                                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `github_app_authorizations`    | Global one-use browser/session/user/organization attempt; hashed state, encrypted temporary user token, expiry                             |
+| `github_installation_bindings` | Global unique installation ID to organization/integration routing; retained after disconnect                                               |
+| `webhook_receipts`             | Global unique delivery UUID, body digest, event, status and resolved routing; no raw payload                                               |
+| `integrations`                 | Tenant-owned GitHub App installation and current access status                                                                             |
+| `repositories`                 | Unique `(organization_id, integration_id, provider_id)`; selection, source metadata and last successful coverage watermark                 |
+| `sync_runs`                    | Catalog/history/incremental run, window, page checkpoint, processed counters and outcome; at most one active run per catalog or repository |
+| `webhook_inbox`                | Tenant-owned accepted delivery payload and processing state                                                                                |
+| `jobs`                         | Tenant-owned durable sync/inbox job with unique dedup key, availability, finite attempts, lease token and fence                            |
+| `pull_requests`                | Current imported snapshot, unique organization/repository/PR number; source timestamp guards older updates                                 |
+| `commits`                      | Imported commit, unique organization/repository/full SHA                                                                                   |
+| `events`                       | Normalized immutable observation, unique organization/source key; repository and integration composite references                          |
+
+Reinstalling an App creates a new integration and repository identities while retaining the old import history. Repository IDs never silently move across installation boundaries. This is an operational ingestion model; review history, project grouping and analytical models below remain planned. The `0005` downgrade refuses uniqueness contraction if multiple installation histories exist rather than deleting them.
 
 ## Shared conventions and invariants
 
-- Internal identifiers are UUIDs; provider IDs are separate opaque strings. A GitHub numeric ID, SHA, PR number, or URL is never a tenant authorization credential.
+- Internal identifiers are UUIDs; provider IDs are separate identifiers (positive bigint GitHub IDs and full commit SHAs in Phase 3). A GitHub numeric ID, SHA, PR number, or URL is never a tenant authorization credential.
 - Every organization-owned row has a non-null `organization_id`. This includes junctions, test cases, background jobs, raw events, metric evidence and action attempts. Global identities and narrowly scoped authentication/routing control records are exceptions documented below.
 - Tenant tables expose `UNIQUE (organization_id, id)`. Tenant references use composite foreign keys such as `(organization_id, repository_id) REFERENCES repositories(organization_id, id)`. Validate same-repository relationships as well, using additional composite keys where required.
 - Use `timestamptz`, store UTC, serialize RFC 3339, and query half-open windows `[from, to)`. Distinguish provider `occurred_at`/`source_updated_at` from Forge `received_at`/`ingested_at`/`updated_at`.

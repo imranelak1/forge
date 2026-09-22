@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider, useAuth } from "@/features/auth/auth-provider";
-import { ApiError, getIdentity } from "@/lib/auth-client";
+import { api, ApiError, getIdentity } from "@/lib/auth-client";
 import type { Identity } from "@/lib/auth-types";
 
 vi.mock("next/navigation", () => ({
@@ -12,6 +12,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/auth-client", async () => ({
   ...(await vi.importActual<typeof import("@/lib/auth-client")>("@/lib/auth-client")),
   getIdentity: vi.fn(),
+  api: vi.fn(),
 }));
 
 const owner: Identity = {
@@ -48,6 +49,10 @@ function Probe() {
     <>
       <p>{auth.loading ? "Checking" : (auth.identity?.user.name ?? "Signed out")}</p>
       <button onClick={() => void auth.authenticated()}>Complete sign in</button>
+      <p>Selected {auth.organization?.name ?? "none"}</p>
+      <button onClick={() => void auth.selectOrganization("remote")}>
+        Select remote organization
+      </button>
     </>
   );
 }
@@ -65,12 +70,57 @@ function mount() {
 
 beforeEach(() => {
   vi.mocked(getIdentity).mockReset();
+  vi.mocked(api).mockReset();
   FakeBroadcastChannel.instances.clear();
   vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel);
   window.history.replaceState({}, "", "/app");
 });
 
 describe("cross-tab authentication changes", () => {
+  it("authorizes a callback organization beyond the first membership page before selecting it", async () => {
+    vi.mocked(getIdentity).mockResolvedValue(owner);
+    vi.mocked(api).mockResolvedValue({
+      id: "remote",
+      name: "Remote team",
+      slug: "remote",
+      role: "admin",
+      is_demo: false,
+    });
+    mount();
+    await screen.findByText("Owner");
+    fireEvent.click(screen.getByRole("button", { name: "Select remote organization" }));
+    await screen.findByText("Selected Remote team");
+    expect(api).toHaveBeenCalledWith("/organizations/remote");
+  });
+
+  it("does not attach a delayed organization response to a different signed-in account", async () => {
+    vi.mocked(getIdentity).mockResolvedValue(owner);
+    let completeMembership: (value: unknown) => void = () => undefined;
+    vi.mocked(api).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          completeMembership = resolve;
+        }),
+    );
+    const client = mount();
+    await screen.findByText("Owner");
+    fireEvent.click(screen.getByRole("button", { name: "Select remote organization" }));
+    vi.mocked(getIdentity).mockResolvedValue(teammate);
+    fireEvent.click(screen.getByRole("button", { name: "Complete sign in" }));
+    await screen.findByText("Teammate");
+    await act(async () => {
+      completeMembership({
+        id: "remote",
+        name: "Other account's team",
+        slug: "remote",
+        role: "admin",
+        is_demo: false,
+      });
+    });
+    expect(client.getQueryData<Identity>(["auth", "me"])?.organizations).toEqual([]);
+    expect(screen.getByText("Selected none")).toBeVisible();
+  });
+
   it("announces completed OAuth only after identity is checked and removes the callback marker", async () => {
     window.history.replaceState({}, "", "/app/settings?tab=members&oauth=signed-in");
     let completeIdentity: (identity: Identity) => void = () => undefined;

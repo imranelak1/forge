@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [synchronizing, setSynchronizing] = useState(false);
   const channelRef = useRef<BroadcastChannel | null>(null);
+  const organizationSelectionRef = useRef(0);
   const enabled = pathname.startsWith("/app") || authPaths.includes(pathname);
   const identity = useQuery<Identity | null>({
     queryKey: identityKey,
@@ -89,9 +90,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [client]);
   const selectOrganization = useCallback(
     async (id: string) => {
-      if (!client.getQueryData<Identity>(identityKey)?.organizations.some((item) => item.id === id))
-        return;
+      const current = client.getQueryData<Identity | null>(identityKey);
+      if (!current) return;
+      const selection = ++organizationSelectionRef.current;
+      if (!current.organizations.some((item) => item.id === id)) {
+        // A provider callback may return to an organization beyond the first
+        // membership page. The API must authorize it before it enters the list.
+        const membership = await api<Organization>(`/organizations/${encodeURIComponent(id)}`);
+        if (
+          selection !== organizationSelectionRef.current ||
+          client.getQueryData<Identity | null>(identityKey)?.session_id !== current.session_id
+        )
+          return;
+        client.setQueryData<Identity | null>(identityKey, (previous) =>
+          previous?.session_id === current.session_id
+            ? {
+                ...previous,
+                organizations: [
+                  ...previous.organizations.filter((item) => item.id !== id),
+                  membership,
+                ],
+              }
+            : previous,
+        );
+      }
       await clearOrganizationQueries();
+      if (
+        selection !== organizationSelectionRef.current ||
+        client.getQueryData<Identity | null>(identityKey)?.session_id !== current.session_id
+      )
+        return;
       setSelectedId(id);
     },
     [client, clearOrganizationQueries],

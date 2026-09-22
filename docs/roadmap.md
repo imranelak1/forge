@@ -20,6 +20,8 @@ Acceptance: register/login/logout/reset, create organization, invite matching ve
 
 ## Phase 3 — GitHub integration
 
+Implementation delivered; see [Phase 3 handoff](phase-3-review.md) for validation and the remaining live GitHub App setup. Automated validation uses isolated provider fixtures, not a connected customer account.
+
 Add GitHub OAuth identity, installation binding, repository catalog, inbox/events/jobs, worker, sync runs/cursors and signed webhook ingress. Create minimal PR/commit persistence needed for history sync; analytic extensions arrive in Phase 4. Migrate every new table. Connect only repositories authorized by the verified installation.
 
 Acceptance: connect a sandbox repository, backfill resumably, inspect real sync states; duplicate webhook does not duplicate records, bad signature/source mapping fails, worker restart resumes durable work. Frontend/backend/postgres remain the base stack; worker is added now for a concrete workload. Unsupported future events are not advertised as processed.

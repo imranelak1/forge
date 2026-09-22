@@ -1,4 +1,5 @@
 import { validOAuthCallbackRedirect } from "@/lib/oauth";
+import { validGitHubCallbackRedirect } from "@/features/github/types";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -16,6 +17,28 @@ const routes: [RegExp, string[]][] = [
   [new RegExp(`^organizations/${uuid}/(members|audit)$`), ["GET"]],
   [new RegExp(`^organizations/${uuid}/members/${uuid}$`), ["PATCH", "DELETE"]],
   [new RegExp(`^organizations/${uuid}/invitations$`), ["POST"]],
+  [new RegExp(`^organizations/${uuid}/integrations/github$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/integrations/github/authorize$`), ["POST"]],
+  [
+    new RegExp(`^organizations/${uuid}/integrations/github/authorizations/${uuid}/installations$`),
+    ["GET"],
+  ],
+  [new RegExp(`^organizations/${uuid}/integrations/github/connections$`), ["POST"]],
+  [new RegExp(`^organizations/${uuid}/integrations/github/connections/${uuid}$`), ["DELETE"]],
+  [
+    new RegExp(
+      `^organizations/${uuid}/integrations/github/connections/${uuid}/(refresh|selection)$`,
+    ),
+    ["POST"],
+  ],
+  [
+    new RegExp(`^organizations/${uuid}/integrations/github/connections/${uuid}/repositories$`),
+    ["GET"],
+  ],
+  [new RegExp(`^organizations/${uuid}/repositories$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/repositories/${uuid}/sync-runs$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/repositories/${uuid}/sync$`), ["POST"]],
+  [/^integrations\/github\/callback$/, ["GET"]],
   [/^invitations\/accept$/, ["POST"]],
 ];
 const maxBody = 16_384;
@@ -107,6 +130,8 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
 
   const incoming = new URL(request.url);
   const oauthCallback = /^auth\/oauth\/(github|google)\/callback$/.test(target);
+  const githubCallback = target === "integrations/github/callback";
+  const callback = oauthCallback || githubCallback;
   const upstream = new URL(
     `/api/v1/${target}`,
     process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000",
@@ -128,8 +153,8 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
     // OAuth clients must ignore unrecognized response extensions (RFC 6749,
     // section 4.1.2). Drop them here; they cannot affect upstream routing or login.
     // Known security fields still have size and duplicate checks below.
-    if (oauthCallback && !Object.hasOwn(callbackParameters, key)) continue;
-    const maximum = oauthCallback
+    if (callback && !Object.hasOwn(callbackParameters, key)) continue;
+    const maximum = callback
       ? Object.hasOwn(callbackParameters, key)
         ? callbackParameters[key]
         : undefined
@@ -180,7 +205,7 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       "Cookie",
       cookie
         .split(";")
-        .filter((item) => /^\s*forge_(access|refresh|csrf|preauth|oauth)=/.test(item))
+        .filter((item) => /^\s*forge_(access|refresh|csrf|preauth|oauth|github_app)=/.test(item))
         .join(";"),
     );
   for (const key of ["origin", "x-csrf-token"]) {
@@ -194,7 +219,7 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       headers,
       body,
       cache: "no-store",
-      redirect: oauthCallback ? "manual" : "error",
+      redirect: callback ? "manual" : "error",
       signal: AbortSignal.timeout(10_000),
     });
     const responseHeaders = new Headers({
@@ -203,9 +228,15 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
     });
-    if (oauthCallback && result.status >= 300 && result.status < 400) {
+    if (callback && result.status >= 300 && result.status < 400) {
       const destination = result.headers.get("Location");
-      if (result.status !== 303 || !validOAuthCallbackRedirect(destination))
+      if (
+        result.status !== 303 ||
+        !destination ||
+        !(githubCallback
+          ? validGitHubCallbackRedirect(destination)
+          : validOAuthCallbackRedirect(destination))
+      )
         return reply(502, "The sign-in response could not be verified. Please start again.");
       responseHeaders.set("Location", destination);
       for (const cookieValue of result.headers.getSetCookie())

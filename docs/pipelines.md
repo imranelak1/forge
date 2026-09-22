@@ -1,6 +1,18 @@
 # Ingestion, correlation and automation pipelines
 
-Status: architecture specification. Durable ingestion begins in Phase 3, correlations in Phase 8, automated responses in Phase 9.
+Status: Phase 3 implements the PostgreSQL inbox, fenced job leases, page checkpoints and PR/commit normalization. The worker runs separately from the API. Correlations, action outbox and automation remain Phases 8 and 9; scheduled orchestration remains Phase 10.
+
+## Implemented Phase 3 behavior
+
+The `worker` Compose service runs `python -m forge.workers.github` against the restricted runtime role. One fenced 60-second lease processes one provider page (100 records), then commits its projections and checkpoint together. Jobs survive process restarts. The process heartbeat reports recent healthy iterations; it is distinct from a job lease. The combined load/fetch/persist operation has a 50-second deadline; HTTP calls also have bounded timeouts. No job lease renewal is implemented.
+
+Initial history covers 90 days of updated PRs and default-branch commits. Incremental sync overlaps the last successful watermark by ten minutes. A push also queues reconciliation, including when its payload may be truncated. Requests coalesce into active runs and preserve a follow-up request made during a run. Failed/partial runs resume their saved checkpoint. Each stage has a 100-page capacity bound; each page has eight attempts. Rate-limit Retry-After is honored up to one day; ordinary retries use exponential backoff plus jitter. Capacity and permanent failures stay visible instead of silently reporting completeness.
+
+The worker rechecks active tenant/source/selection and the integration access revision before committing provider results. Removal, suspension and disconnect cancel affected work and invalidate stale leases. Installation lifecycle jobs fetch fresh provider state before reactivating access. PR deliveries fetch an authoritative current snapshot; source timestamp guards reject older projections. Delivery receipts deduplicate exact replays and reject delivery IDs reused with different body digests/events.
+
+Each claimed tenant job opportunistically clears at most 100 successfully processed raw webhook payloads older than seven days. Receipt/dedup metadata and normalized rows remain. Idle tenants wait until their next job for cleanup; failed and queued payloads are retained for diagnosis. This is not a scheduled retention or purge system.
+
+There is no automated polling, missed-delivery recovery, webhook replay UI, per-tenant fairness scheduler, or analytics/action processing in this phase. The remaining diagrams and contracts describe the later target pipeline.
 
 ## Durable processing instead of request-bound jobs
 

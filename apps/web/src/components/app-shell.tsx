@@ -15,6 +15,7 @@ import {
   GitPullRequest,
   LayoutDashboard,
   Monitor,
+  Plug,
   ShieldCheck,
   Settings,
   UserRound,
@@ -38,7 +39,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [organizationError, setOrganizationError] = useState("");
   const links = identity
     ? [
-        ...navigation,
+        navigation[0],
+        { href: "/app/repositories", label: "Repositories", icon: GitBranch },
+        { href: "/app/integrations", label: "Integrations", icon: Plug },
+        ...navigation.slice(1),
         { href: "/app/settings", label: "Organization settings", icon: Settings },
         { href: "/app/account", label: "Account", icon: UserRound },
       ]
@@ -135,7 +139,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Engineering tools <span>Planned</span>
           </p>
           {[
-            { icon: GitBranch, label: "Repositories" },
             { icon: GitPullRequest, label: "Pull requests" },
             { icon: Workflow, label: "CI & deployments" },
             { icon: ShieldCheck, label: "Test intelligence" },
@@ -165,7 +168,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ChevronRight size={14} aria-hidden="true" />
             <span>{current}</span>
           </div>
-          <span className="build-label">Phase 2 · Workspace access</span>
+          <span className="build-label">Phase 3 · GitHub integration</span>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>
           {children}

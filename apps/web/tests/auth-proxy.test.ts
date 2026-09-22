@@ -183,6 +183,89 @@ describe("authentication transport boundary", () => {
 });
 
 describe("OAuth transport boundary", () => {
+  it("forwards a GitHub App callback only to a fixed local integration destination", async () => {
+    const org = "11111111-1111-1111-1111-111111111111";
+    const fetcher = vi.fn(async (url: URL, options: RequestInit) => {
+      expect(url.pathname).toBe("/api/v1/integrations/github/callback");
+      expect(options.redirect).toBe("manual");
+      expect(new Headers(options.headers).get("Cookie")).toBe(
+        "forge_github_app=binding; forge_access=session",
+      );
+      return new Response(null, {
+        status: 303,
+        headers: {
+          Location: `/app/integrations?organization=${org}&github=authorized`,
+          "Set-Cookie": "forge_github_app=; Max-Age=0; Path=/api/v1/integrations/github; HttpOnly",
+        },
+      });
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const result = await GET(
+      new Request(
+        "http://localhost:3000/api/v1/integrations/github/callback?code=single-use&state=bound",
+        {
+          headers: { Cookie: "forge_github_app=binding; forge_access=session; unrelated=private" },
+        },
+      ),
+      context("integrations/github/callback"),
+    );
+    expect(result.status).toBe(303);
+    expect(result.headers.get("Location")).toBe(
+      `/app/integrations?organization=${org}&github=authorized`,
+    );
+    expect(result.headers.get("Referrer-Policy")).toBe("no-referrer");
+    expect(result.headers.getSetCookie()).toHaveLength(1);
+  });
+
+  it("rejects injected GitHub integration redirects and duplicated callback state", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(null, {
+        status: 303,
+        headers: {
+          Location: "/app/integrations?github=authorized&next=https://attacker.example",
+        },
+      }),
+    );
+    vi.stubGlobal("fetch", fetcher);
+    const rejected = await GET(
+      new Request("http://localhost:3000/api/v1/integrations/github/callback?state=one&state=two"),
+      context("integrations/github/callback"),
+    );
+    expect(rejected.status).toBe(400);
+    expect(fetcher).not.toHaveBeenCalled();
+    const result = await GET(
+      new Request("http://localhost:3000/api/v1/integrations/github/callback?state=bound"),
+      context("integrations/github/callback"),
+    );
+    expect(result.status).toBe(502);
+    expect(result.headers.has("Location")).toBe(false);
+  });
+
+  it("requires existing mutation protection for repository sync and selection", async () => {
+    const org = "11111111-1111-1111-1111-111111111111";
+    const entity = "22222222-2222-2222-2222-222222222222";
+    vi.stubEnv("FORGE_PUBLIC_ORIGIN", "http://localhost:3000");
+    const fetcher = vi.fn().mockResolvedValue(Response.json({ sync: {} }, { status: 202 }));
+    vi.stubGlobal("fetch", fetcher);
+    const path = `organizations/${org}/repositories/${entity}/sync`;
+    expect(
+      (await POST(write(path, { headers: { Origin: "http://localhost:3000" } }), context(path)))
+        .status,
+    ).toBe(403);
+    expect(fetcher).not.toHaveBeenCalled();
+    expect((await POST(write(path), context(path))).status).toBe(202);
+    expect(
+      (
+        await GET(
+          new Request(
+            `http://localhost:3000/api/v1/organizations/${org}/repositories/${entity}/arbitrary`,
+          ),
+          context(`organizations/${org}/repositories/${entity}/arbitrary`),
+        )
+      ).status,
+    ).toBe(404);
+  });
+
   it.each(["github", "google"])(
     "forwards %s callback without following redirects and preserves session cookies",
     async (provider) => {

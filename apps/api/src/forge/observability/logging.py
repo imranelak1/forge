@@ -9,7 +9,7 @@ class JsonFormatter(logging.Formatter):
         payload = {
             "timestamp": datetime.now(UTC).isoformat(),
             "level": record.levelname,
-            "service": "forge-api",
+            "service": "forge-worker" if record.name.startswith("forge.worker") else "forge-api",
             "event": record.getMessage(),
         }
         for key in (
@@ -23,6 +23,10 @@ class JsonFormatter(logging.Formatter):
             "oauth_stage",
             "oauth_error",
             "oauth_reason",
+            "organization_id",
+            "job_id",
+            "fence",
+            "error_code",
         ):
             if hasattr(record, key):
                 payload[key] = getattr(record, key)

@@ -11,9 +11,11 @@ from starlette.responses import Response
 
 from forge import __version__
 from forge.api.problems import problem
+from forge.api.v1.github import router as github_router
 from forge.api.v1.health import router as health_router
 from forge.api.v1.identity import router as identity_router
 from forge.api.v1.oauth import router as oauth_router
+from forge.api.v1.webhooks import router as webhooks_router
 from forge.config import Settings
 from forge.domain.identity import DomainError
 from forge.migration import migration_heads
@@ -21,10 +23,12 @@ from forge.observability.logging import configure_logging
 from forge.repositories.database import create_database_engine
 from forge.repositories.health import PostgresHealthRepository
 from forge.repositories.identity import IdentityRepository
+from forge.services.github import GitHubService
 from forge.services.health import HealthService
 from forge.services.identity import IdentityService
 from forge.services.oauth import OAuthService
 from forge.services.organizations import OrganizationService
+from forge.services.webhooks import GitHubWebhookService
 
 logger = logging.getLogger("forge.http")
 
@@ -38,11 +42,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
         await app.state.oauth_service.provider.client.aclose()
+        await app.state.github_service.provider.client.aclose()
         await engine.dispose()
 
     app = FastAPI(
         title="Forge API",
-        description="Engineering intelligence. Authentication and SaaS foundation.",
+        description="Engineering intelligence. GitHub connections and durable ingestion.",
         version=__version__,
         lifespan=lifespan,
         docs_url="/docs" if settings.environment != "production" else None,
@@ -54,6 +59,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.identity_service = IdentityService(IdentityRepository(engine), settings)
     app.state.organization_service = OrganizationService(app.state.identity_service)
     app.state.oauth_service = OAuthService(app.state.identity_service, settings)
+    app.state.github_service = GitHubService(app.state.identity_service, settings)
+    app.state.webhook_service = GitHubWebhookService(
+        settings, app.state.identity_service.repository
+    )
 
     @app.middleware("http")
     async def request_context(
@@ -68,16 +77,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response: Response
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
             # Read a bounded stream even if Content-Length is absent or dishonest.
+            limit = 1048576 if request.url.path == "/api/v1/webhooks/github" else 16384
             body = bytearray()
             async for chunk in request.stream():
                 body.extend(chunk)
-                if len(body) > 16384:
+                if len(body) > limit:
                     response = problem(
                         request,
                         status=413,
                         code="body_too_large",
                         title="Request too large",
-                        detail="Request bodies must be smaller than 16 KiB.",
+                        detail=f"Request bodies must not exceed {limit // 1024} KiB.",
                     )
                     response.headers["X-Request-ID"] = request_id
                     response.headers["Cache-Control"] = "no-store"
@@ -155,4 +165,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(identity_router, prefix="/api/v1")
     app.include_router(oauth_router, prefix="/api/v1")
+    app.include_router(webhooks_router, prefix="/api/v1")
+    app.include_router(github_router, prefix="/api/v1")
     return app

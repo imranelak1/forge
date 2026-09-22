@@ -1,6 +1,6 @@
 # Security, operations and verification
 
-Status: Phase 2 implements the identity/session/CSRF, organization RBAC and tenant RLS controls described in [the phase handoff](phase-2-review.md). The [GitHub/Google sign-in extension](social-login.md) adds browser-bound OAuth, PKCE, Google OIDC validation and explicit account linking. Repository provider integrations, worker, analytics and production controls below remain requirements for later phases.
+Status: Phase 3 adds GitHub App account-administrator proof, encrypted short-lived authorization, signed webhook intake, tenant-scoped persistence and fenced worker jobs to the implemented identity/session/RBAC/RLS controls. See [ADR 011](adr/011-github-phase-3.md). Production deployment and remaining analytical/automation controls are still later requirements.
 
 ## Tenant boundary
 
