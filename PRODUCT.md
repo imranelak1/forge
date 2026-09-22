@@ -14,6 +14,8 @@ User-selected: Next.js, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, Rec
 
 Software development teams investigating engineering delivery and configuring pipeline responses.
 
+Planned expansion also serves open-source dependency evaluators, first-time contributors, public-repository maintainers and individual developers reflecting on their own work or monitoring one or two side projects. These audiences are planned, not current feature claims.
+
 ## Product Purpose
 
 Forge connects engineering activity, traces software lifecycles and turns measured changes into explainable insights and auditable automation.
@@ -25,6 +27,8 @@ Issue → pull request → commits → CI → tests → deployment → productio
 ## Capabilities and Constraints
 
 Phase 2 implements accounts, sessions, organizations, invitations, roles and tenant isolation. The user subsequently authorized GitHub and Google sign-in, including explicit connections to existing verified accounts. Provider-issued credentials are required to enable each option. Phase 3 adds verified GitHub App connections, repository selection, signed webhooks and durable PR/commit history sync. Phase 4 adds database-backed PR timing, daily trends, pull request/commit details, review/lifecycle/file evidence and optional issue links. Phase 5 adds Actions attempts/jobs, CI outcomes and timing, independent deployment/status history and audited environment classification. Test and production-error analytics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
+
+Phase 6 remains next. The [planned product expansion](docs/product-expansion.md) adds six directions without changing the Phase 0–13 order or gates: public OSS health pages, contributor guidance, an individually owned private engineering profile/year-in-review, free monitoring for one or two side projects, explicitly opted-in aggregate benchmarks, and free quiet maintainer tools. Their MVPs, evidence requirements and dependency milestones are planning decisions only.
 
 ## Brand Commitments
 
@@ -42,6 +46,10 @@ The approved architecture and milestone contracts live in docs/. Identity and or
 - Preserve missing data and uncertainty.
 - Keep tenant authorization at every boundary.
 - Make pipeline responses inspectable and retry-safe.
+- Keep the shared public repository catalog separate from tenant/private evidence; public visibility does not imply access to all CI or test data.
+- Let individuals control personal profiles through specific consent and revocation; keep them private by default and inaccessible to employers or organization administrators.
+- Require separate opt-in and adequate anonymized cohorts for public benchmarks, including public repositories; never publish identifiable examples or contributor rankings.
+- Make maintainer automation authorized, quiet and reviewable, with drafts and explicit enablement; never auto-merge.
 
 ## Open Decisions
 

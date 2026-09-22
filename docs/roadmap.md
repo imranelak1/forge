@@ -2,6 +2,8 @@
 
 Work one phase at a time. Each phase begins with its scope and ends with changed files, migrations, routes, checks, exact local/manual-test commands, known limitations and a **PHASE COMPLETE** summary. Stop for the user's next instruction at every gate.
 
+Current next implementation phase: **Phase 6 — Test intelligence**. The six [planned product expansion tracks](product-expansion.md) add product direction and dependency milestones only; they do not reorder Phases 0–13 or authorize implementation at an existing gate.
+
 ## Phase 0 — Architecture and modeling
 
 Deliver the Forge blueprint, diagrams, entity/API/pipeline/analytical models, security/operations strategy and ADRs. No application code, migrations, infrastructure provisioning or dependency installation. Approval accepts the direction; individual integration permissions and production sizing are verified during their phases.
@@ -91,3 +93,17 @@ Acceptance: CI builds/scans immutable images, deploy smoke tests pass, restore d
 ## Choices deferred to the relevant phase
 
 Dependency/runtime versions and development ports belong to Phase 1; transactional email provider to Phase 2; GitHub App registration/scopes to Phase 3; supported JUnit dialect fixtures to Phase 6; Sentry account capability/retention to Phase 7; customer halt-receiver contract to Phase 9; infrastructure capacity gates to Phases 10–12; hosting, recovery budget and deployment region to Phase 13. None blocks review of this Phase 0 design.
+
+## Planned product tracks and dependency milestones
+
+The [product expansion plan](product-expansion.md) defines audiences, evidence limits, small MVPs and acceptance/success signals for six directions. They remain planned; each pilot needs a bounded scope decision at a gate.
+
+| Milestone                 | Planned work                                                                                        | Dependency and release boundary                                                                                                                                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Public-data pilot         | Shareable OSS health pages, contributor guidance and free maintainer draft tools                    | Build on Phases 4–6 after Phase 6. First establish a separate public catalog, publication consent and reliable historical contributor coverage. Outbound maintainer nudges wait for Phase 9.                                         |
+| Personal pilot            | Private engineering profile and year-in-review owned by the individual                              | Build on Phases 2–5 after the public-data foundation; require separate personal consent, revocation and authorization, with no employer/admin access. Annual comparisons require sufficient history.                                 |
+| Side-project pilot        | Free monitoring for one or two projects, post-deployment watch and optional team adoption           | Propose after Phases 7–9. Require explicit deployment/error mappings and quiet, opt-in alerts; CI success never substitutes for deployment evidence.                                                                                 |
+| Benchmark pilot           | Opt-in, anonymized aggregate comparisons by language/team-size bands                                | Require stable covered metrics, enough independent opt-in participants, cohort suppression and privacy validation. Public-repository status does not imply consent. Phase 10 is optional support, not a prerequisite for collection. |
+| Public production release | Approved pilots with enforceable quotas, deletion, visibility-change handling and operating budgets | Phase 13 operational acceptance applies before production launch. Phases 11–12 remain conditional on measured need.                                                                                                                  |
+
+Prioritize public usefulness and maintainer help, then personal reflection, then monitoring; publish benchmarks only once participation and privacy requirements are met. These milestones are dependency checks, not extra numbered phases or an instruction to start work now.
