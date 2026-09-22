@@ -13,6 +13,7 @@ from forge import __version__
 from forge.api.problems import problem
 from forge.api.v1.health import router as health_router
 from forge.api.v1.identity import router as identity_router
+from forge.api.v1.oauth import router as oauth_router
 from forge.config import Settings
 from forge.domain.identity import DomainError
 from forge.migration import migration_heads
@@ -22,6 +23,7 @@ from forge.repositories.health import PostgresHealthRepository
 from forge.repositories.identity import IdentityRepository
 from forge.services.health import HealthService
 from forge.services.identity import IdentityService
+from forge.services.oauth import OAuthService
 from forge.services.organizations import OrganizationService
 
 logger = logging.getLogger("forge.http")
@@ -35,6 +37,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
+        await app.state.oauth_service.provider.client.aclose()
         await engine.dispose()
 
     app = FastAPI(
@@ -50,6 +53,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.identity_service = IdentityService(IdentityRepository(engine), settings)
     app.state.organization_service = OrganizationService(app.state.identity_service)
+    app.state.oauth_service = OAuthService(app.state.identity_service, settings)
 
     @app.middleware("http")
     async def request_context(
@@ -150,4 +154,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(identity_router, prefix="/api/v1")
+    app.include_router(oauth_router, prefix="/api/v1")
     return app

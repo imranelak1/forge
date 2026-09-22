@@ -1,6 +1,6 @@
 # Security, operations and verification
 
-Status: Phase 2 implements the identity/session/CSRF, organization RBAC and tenant RLS controls described in [the phase handoff](phase-2-review.md). Provider, worker, analytics and production controls below remain requirements for later phases.
+Status: Phase 2 implements the identity/session/CSRF, organization RBAC and tenant RLS controls described in [the phase handoff](phase-2-review.md). The [GitHub/Google sign-in extension](social-login.md) adds browser-bound OAuth, PKCE, Google OIDC validation and explicit account linking. Repository provider integrations, worker, analytics and production controls below remain requirements for later phases.
 
 ## Tenant boundary
 

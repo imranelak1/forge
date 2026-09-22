@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T13:22:27.334Z",
+  "generatedAt": "2026-09-22T13:45:05.158Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -354,6 +354,18 @@
           "oklch(83.57% 0.0759 29.98)",
           "oklch(95.00% 0.0759 29.98)"
         ]
+      },
+      "provider-background": {
+        "role": "neutral",
+        "displayName": "Provider button background"
+      },
+      "provider-border": {
+        "role": "neutral",
+        "displayName": "Provider button border"
+      },
+      "provider-text": {
+        "role": "neutral",
+        "displayName": "Provider button text"
       }
     },
     "typographyMeta": {
@@ -384,6 +396,10 @@
       "compact-label": {
         "displayName": "Compact metadata",
         "purpose": "Health labels, the phase badge, and session references; session references use system monospace."
+      },
+      "google-sign-in": {
+        "displayName": "Google sign-in",
+        "purpose": "Provider brand typography; Google button only"
       }
     },
     "shadows": [],
@@ -555,6 +571,14 @@
       "description": "Native Story progress seeks the five-stage story through native scroll. Keyboard and touch remain available. Restart story returns to the opening track.",
       "html": "<div class=\"ds-core-scrubber\"><label for=\"ds-story-progress\">Follow the change</label><input id=\"ds-story-progress\" aria-label=\"Story progress\" type=\"range\" min=\"0\" max=\"5\" step=\"0.01\" value=\"0\" /><button type=\"button\" class=\"ds-core-reset\" aria-label=\"Restart story\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 11a9 9 0 1 1 2.4 6.2M3 4v7h7\"/></svg><span>Restart</span></button></div>",
       "css": ".ds-core-scrubber{display:flex;align-items:center;justify-content:center;gap:18px;background:#252423;color:#b4b1af;font:11px var(--font-sans,\"Geist Variable\",sans-serif)}.ds-core-scrubber input{appearance:none;width:220px;height:32px;background:transparent;cursor:ew-resize;accent-color:#ff4b4b}.ds-core-scrubber input::-webkit-slider-runnable-track{height:3px;background:#85827e}.ds-core-scrubber input::-webkit-slider-thumb{appearance:none;width:10px;height:19px;margin-top:-8px;background:#ff4b4b;border:2px solid #252423;border-radius:0}.ds-core-scrubber input::-moz-range-track{height:3px;background:#85827e}.ds-core-scrubber input::-moz-range-thumb{width:7px;height:17px;background:#ff4b4b;border:2px solid #252423;border-radius:0}.ds-core-scrubber input:focus-visible{outline:2px solid #ff4b4b;outline-offset:4px}@media(max-width:799px){.ds-core-scrubber{gap:12px;font-size:10px}.ds-core-scrubber input{width:180px}}.ds-core-reset{display:inline-flex;align-items:center;gap:7px;background:transparent;color:#b4b1af;border:0;font-size:11px;min-height:36px;padding:7px;cursor:pointer}.ds-core-reset:focus-visible{outline:2px solid #ff4b4b;outline-offset:4px}@media(max-width:799px){.ds-core-reset{font-size:10px}}"
+    },
+    {
+      "name": "Social sign-in button",
+      "kind": "button",
+      "refersTo": "provider-button",
+      "description": "Equally prominent 44px GitHub/Google actions. Google uses self-hosted Google Sans Medium and its current official mark. Disabled providers have adjacent availability text.",
+      "html": "<button class=\"ds-provider-button\"><img src=\"/integrations/google.png\" width=\"20\" height=\"20\" alt=\"\" />Continue with Google</button>",
+      "css": "@font-face{font-family:\"Google Sans Sign In\";src:url(\"/fonts/google-sans-medium.ttf\") format(\"truetype\");font-weight:500;font-display:swap}.ds-provider-button{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:44px;gap:10px;padding:0 12px;border:1px solid #8e918f;border-radius:6px;background:#131314;color:#e3e3e3;font:500 14px/20px \"Google Sans Sign In\",\"Geist Variable\",sans-serif}.ds-provider-button img{width:20px;height:20px}.ds-provider-button:focus-visible{outline:2px solid #c8c8c8;outline-offset:4px}.ds-provider-button:disabled{opacity:.5;pointer-events:none}"
     }
   ],
   "narrative": {

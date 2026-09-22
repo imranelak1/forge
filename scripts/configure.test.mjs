@@ -33,6 +33,11 @@ test("configuration creates independent secrets and upgrades without rotating cr
       "FORGE_AUTH_SECRET",
     ];
     for (const key of secretKeys) assert.match(values[key], /^[a-f0-9]{64}$/);
+    // Provider credentials come from provider consoles, never generated placeholders.
+    for (const provider of ["GITHUB", "GOOGLE"]) {
+      assert.equal(values[`FORGE_${provider}_CLIENT_ID`], "");
+      assert.equal(values[`FORGE_${provider}_CLIENT_SECRET`], "");
+    }
     assert.equal(new Set(secretKeys.map((key) => values[key])).size, 4);
     assert.equal(run().status, 1);
     assert.equal(await readFile(envPath, "utf8"), original);
@@ -53,6 +58,24 @@ test("configuration creates independent secrets and upgrades without rotating cr
     const upgraded = await readFile(envPath, "utf8");
     assert.equal(run("--upgrade").status, 0);
     assert.equal(await readFile(envPath, "utf8"), upgraded);
+
+    const oauthConfigured = upgraded
+      .replace(/^FORGE_GITHUB_CLIENT_ID=.*$/m, "FORGE_GITHUB_CLIENT_ID=registered-client")
+      .replace(
+        /^FORGE_GITHUB_CLIENT_SECRET=.*$/m,
+        "FORGE_GITHUB_CLIENT_SECRET=provider-issued-secret",
+      )
+      .replace(/^FORGE_GOOGLE_CLIENT_ID=.*\r?\n/m, "")
+      .replace(/^FORGE_GOOGLE_CLIENT_SECRET=.*\r?\n/m, "");
+    await writeFile(envPath, oauthConfigured);
+    const oauthUpgrade = run("--upgrade");
+    assert.equal(oauthUpgrade.status, 0);
+    const oauthValues = parseEnv(await readFile(envPath, "utf8"));
+    assert.equal(oauthValues.FORGE_GITHUB_CLIENT_ID, "registered-client");
+    assert.equal(oauthValues.FORGE_GITHUB_CLIENT_SECRET, "provider-issued-secret");
+    assert.equal(oauthValues.FORGE_GOOGLE_CLIENT_ID, "");
+    assert.equal(oauthValues.FORGE_GOOGLE_CLIENT_SECRET, "");
+    assert.ok(!oauthUpgrade.stdout.includes("provider-issued-secret"));
   } finally {
     assert.equal(dirname(resolve(temporaryRoot)), resolve(tmpdir()));
     assert.ok(basename(temporaryRoot).startsWith("forge-configure-"));

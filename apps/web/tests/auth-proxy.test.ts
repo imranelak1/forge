@@ -181,3 +181,124 @@ describe("authentication transport boundary", () => {
     expect((await response.json()).detail).toContain("could not be reached");
   });
 });
+
+describe("OAuth transport boundary", () => {
+  it.each(["github", "google"])(
+    "forwards %s callback without following redirects and preserves session cookies",
+    async (provider) => {
+      const route = `auth/oauth/${provider}/callback`;
+      const fetcher = vi.fn(async (url: URL, options: RequestInit) => {
+        expect(url.searchParams.get("code")).toBe("single-use-code");
+        expect(url.searchParams.get("state")).toBe("browser-bound-state");
+        expect(options.redirect).toBe("manual");
+        expect(new Headers(options.headers).get("Cookie")).toBe("forge_oauth=binding");
+        const headers = new Headers({ Location: "/app?oauth=signed-in" });
+        headers.append("Set-Cookie", "forge_access=session; HttpOnly; Path=/api/v1");
+        headers.append("Set-Cookie", "forge_oauth=; Max-Age=0; HttpOnly; Path=/api/v1/auth/oauth");
+        return new Response(null, { status: 303, headers });
+      });
+      vi.stubGlobal("fetch", fetcher);
+      const result = await GET(
+        new Request(
+          `http://localhost:3000/api/v1/${route}?code=single-use-code&state=browser-bound-state&scope=openid&authuser=0&prompt=consent&hd=example.com`,
+          { headers: { Cookie: "forge_oauth=binding; unrelated=private" } },
+        ),
+        context(route),
+      );
+      expect(result.status).toBe(303);
+      expect(result.headers.get("Location")).toBe("/app?oauth=signed-in");
+      expect(result.headers.getSetCookie()).toHaveLength(2);
+      expect(result.headers.get("Referrer-Policy")).toBe("no-referrer");
+      expect(result.headers.get("Cache-Control")).toBe("no-store");
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each([
+    "code=one&code=two",
+    "state=one&state=two",
+    "returnTo=https://attacker.example",
+    "toString=prototype",
+  ])("rejects ambiguous or unexpected callback parameters: %s", async (query) => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    expect(
+      (
+        await GET(
+          new Request(`http://localhost:3000/api/v1/auth/oauth/github/callback?${query}`),
+          context("auth/oauth/github/callback"),
+        )
+      ).status,
+    ).toBe(400);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    "https://attacker.example/",
+    "//attacker.example/",
+    "/login?oauth_error=unknown",
+    "/app/../../login?arbitrary=true",
+  ])("blocks unsafe upstream redirect %s before exposing cookies", async (destination) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(null, {
+          status: 303,
+          headers: { Location: destination, "Set-Cookie": "forge_access=untrusted" },
+        }),
+      ),
+    );
+    const result = await GET(
+      new Request("http://localhost:3000/api/v1/auth/oauth/google/callback?state=opaque"),
+      context("auth/oauth/google/callback"),
+    );
+    expect(result.status).toBe(502);
+    expect(result.headers.has("Location")).toBe(false);
+    expect(result.headers.getSetCookie()).toHaveLength(0);
+  });
+
+  it("requires origin and CSRF protection before starting either provider", async () => {
+    vi.stubEnv("FORGE_PUBLIC_ORIGIN", "http://localhost:3000");
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    expect(
+      (
+        await POST(
+          write("auth/oauth/github/start", {
+            headers: { Origin: "https://attacker.example", "X-CSRF-Token": "token" },
+          }),
+          context("auth/oauth/github/start"),
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await POST(
+          write("auth/oauth/google/start", { headers: { Origin: "http://localhost:3000" } }),
+          context("auth/oauth/google/start"),
+        )
+      ).status,
+    ).toBe(403);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("accepts a fixed provider cancellation redirect without revealing the provider description", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(null, { status: 303, headers: { Location: "/login?oauth_error=denied" } }),
+        ),
+    );
+    const result = await GET(
+      new Request(
+        "http://localhost:3000/api/v1/auth/oauth/google/callback?error=access_denied&error_description=private&state=opaque",
+      ),
+      context("auth/oauth/google/callback"),
+    );
+    expect(result.status).toBe(303);
+    expect(result.headers.get("Location")).toBe("/login?oauth_error=denied");
+    expect(await result.text()).toBe("");
+  });
+});

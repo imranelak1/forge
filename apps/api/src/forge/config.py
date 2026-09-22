@@ -26,6 +26,23 @@ class Settings(BaseSettings):
     smtp_username: str | None = None
     smtp_password: SecretStr | None = None
     smtp_from: str = "Forge <noreply@forge.local>"
+    github_client_id: str | None = None
+    github_client_secret: SecretStr | None = None
+    google_client_id: str | None = None
+    google_client_secret: SecretStr | None = None
+
+    @field_validator(
+        "github_client_id",
+        "github_client_secret",
+        "google_client_id",
+        "google_client_secret",
+        mode="before",
+    )
+    @classmethod
+    def normalize_oauth_credentials(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
 
     @field_validator("auth_secret")
     @classmethod
@@ -52,6 +69,11 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_production(self) -> "Settings":
+        for provider in ("github", "google"):
+            client_id = getattr(self, f"{provider}_client_id")
+            client_secret = getattr(self, f"{provider}_client_secret")
+            if bool(client_id) != bool(client_secret):
+                raise ValueError(f"{provider.title()} OAuth requires both client ID and secret")
         if self.environment == "production":
             if not self.public_origin.startswith("https://"):
                 raise ValueError("Production requires an HTTPS public origin")

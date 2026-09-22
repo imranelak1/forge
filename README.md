@@ -4,7 +4,7 @@ Engineering intelligence and pipeline automation for software teams.
 
 Forge traces changes through pull requests, CI, tests, deployments and production errors, with evidence behind insights and auditable pipeline responses.
 
-**Current milestone: Phase 2 — Authentication and SaaS Foundation.** Accounts, email verification, password reset, organizations, invitations, roles and session revocation now use the real API and PostgreSQL. The public Anime.js landing, live system checks and honest engineering empty states remain. Provider integrations and engineering metrics arrive in later phases.
+**Current milestone: Phase 2 — Authentication and SaaS Foundation, with GitHub and Google sign-in.** Accounts, social login, email verification, password reset, organizations, invitations, roles and session revocation use the real API and PostgreSQL. The public Anime.js landing, live system checks and honest engineering empty states remain. Repository integrations and engineering metrics arrive in later phases.
 
 ## Run locally
 
@@ -16,7 +16,9 @@ docker compose up -d
 docker compose ps
 ```
 
-The helper generates independent database passwords and an authentication signing key in ignored `.env`. It refuses to overwrite an existing file. Upgrading an existing installation: run `node scripts/configure.mjs --upgrade` to add missing settings while preserving credentials, then `docker compose up -d --build`. Migration `0002_identity` adds identity and tenant tables without resetting the database.
+The helper generates independent database passwords and an authentication signing key in ignored `.env`. It refuses to overwrite an existing file. Upgrading an existing installation: run `node scripts/configure.mjs --upgrade` to add missing settings while preserving credentials, then `docker compose up -d --build`. Migrations add identity, tenant and OAuth tables without resetting the database.
+
+To enable **GitHub and Google login**, register the provider applications and add their client IDs and secrets to `.env`. Follow [social sign-in setup](docs/social-login.md) for the exact callback URLs. Providers remain visibly unavailable until configured.
 
 Open Forge at **http://localhost:3000** so the browser origin matches `FORGE_PUBLIC_ORIGIN`. Development emails are saved as `.local/mail/*.eml`; open the link inside the matching message to verify an address, reset a password or accept an invitation. No real email is sent with the default file adapter. Production configuration requires HTTPS and authenticated SMTP with STARTTLS.
 

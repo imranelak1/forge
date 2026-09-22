@@ -24,7 +24,7 @@ Issue → pull request → commits → CI → tests → deployment → productio
 
 ## Capabilities and Constraints
 
-Phase 2 was authorized by the user's instruction to continue the planned work. Implement accounts, sessions, organizations, invitations, roles and tenant isolation, then stop at the phase gate. Provider integrations and engineering metrics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
+Phase 2 implements accounts, sessions, organizations, invitations, roles and tenant isolation. The user subsequently authorized GitHub and Google sign-in, including explicit connections to existing verified accounts. Provider-issued credentials are required to enable each option. Repository integrations and engineering metrics remain future work. No fabricated metrics, fake functioning controls or unimplemented provider connections.
 
 ## Brand Commitments
 

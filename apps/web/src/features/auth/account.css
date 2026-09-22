@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Google Sans Sign In";
+  src: url("/fonts/google-sans-medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 .auth-page {
   min-height: 100dvh;
   display: flex;
@@ -20,6 +27,91 @@
 }
 .auth-home {
   margin: auto auto 8px;
+}
+.social-sign-in {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.provider-buttons,
+.provider-recovery,
+.connected-accounts {
+  display: grid;
+  gap: 12px;
+}
+.provider-button {
+  width: 100%;
+  min-height: 44px;
+  border-color: #8e918f;
+  background: #131314;
+  color: #e3e3e3;
+  gap: 10px;
+  padding-inline: 12px;
+}
+.provider-button-google {
+  font-family: "Google Sans Sign In", "Geist Variable", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+.provider-github-logo {
+  filter: invert(1);
+}
+.provider-github-logo,
+.provider-google-logo {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+.provider-button .provider-google-logo {
+  width: 20px;
+  height: 20px;
+}
+.provider-recovery > button {
+  justify-self: start;
+}
+.auth-method-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.auth-method-divider::before,
+.auth-method-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--border);
+}
+.connection-list {
+  list-style: none;
+  padding: 0;
+}
+.connection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.connection-row:first-child {
+  padding-top: 0;
+}
+.connection-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  font-size: 13px;
+}
+.connection-identity p {
+  margin-top: 4px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.connection-row > button {
+  flex-shrink: 0;
 }
 .auth-loading {
   padding: 48px;
@@ -337,6 +429,14 @@
   }
 }
 @media (max-width: 760px) {
+  .connection-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .connection-row > button {
+    min-height: 44px;
+  }
   .form-field input,
   .form-field select,
   .organization-switcher select {

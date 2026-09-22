@@ -138,9 +138,9 @@ class IdentityService:
     async def login(self, email: str, password: str) -> SessionResult:
         async with self.repository.transaction() as connection:
             user = await self.repository.user_by_email(connection, email, lock=True)
-            encoded = user["password_hash"] if user else DUMMY_HASH
+            encoded = (user["password_hash"] or DUMMY_HASH) if user else DUMMY_HASH
             correct = await self.check_password(password, encoded)
-            if not correct or not user:
+            if not correct or not user or not user["password_hash"]:
                 raise DomainError(401, "invalid_credentials", "Email or password is incorrect.")
             if PASSWORDS.check_needs_rehash(encoded):
                 new_hash = await self.hash_password(password)

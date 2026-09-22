@@ -1,6 +1,6 @@
 # Forge architecture blueprint
 
-Status: architecture approved on 2026-09-21. Phase 2 implements identity and the SaaS foundation; integrations and engineering capabilities remain phased according to [the roadmap](roadmap.md). See [the current handoff](phase-2-review.md).
+Status: architecture approved on 2026-09-21. Phase 2 implements identity and the SaaS foundation, extended with [GitHub/Google sign-in](social-login.md) at the user's request. Repository integrations and engineering capabilities remain phased according to [the roadmap](roadmap.md). See [the Phase 2 handoff](phase-2-review.md).
 
 ## Product and system boundaries
 

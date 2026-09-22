@@ -1,6 +1,6 @@
 # API architecture
 
-Status: Phase 1 health routes and Phase 2 identity, session and organization routes are implemented. Routes for Phases 3–9 remain planned. Application APIs use `/api/v1`; development OpenAPI is at `/api/v1/openapi.json`, with interactive documentation at `/docs`.
+Status: Phase 1 health routes and Phase 2 identity, session and organization routes are implemented, including the subsequently requested GitHub/Google sign-in extension. Engineering integration routes for Phases 3–9 remain planned. Application APIs use `/api/v1`; development OpenAPI is at `/api/v1/openapi.json`, with interactive documentation at `/docs`.
 
 ## Request path
 
@@ -60,7 +60,8 @@ Last-owner changes run under a membership/organization lock. Service tokens acce
 | 2     | `GET {org}/audit`                                                                             | Read the organization's append-only audit history                                               |
 | 2     | `GET {org}/members`; `PATCH, DELETE {org}/members/{member_id}`                                | Role/member management                                                                          |
 | 2     | `POST {org}/invitations`; `POST /invitations/accept`                                          | Verified matching email and single-use token required for acceptance                            |
-| 3     | `GET /auth/github/start`, `GET /auth/github/callback`                                         | OAuth login or authenticated linking, one-use state                                             |
+| 2+    | `GET /auth/providers`, `GET /auth/connections`                                                | Public provider availability / authenticated connected identities                               |
+| 2+    | `POST /auth/oauth/{provider}/start`, `GET /auth/oauth/{provider}/callback`                    | GitHub/Google login or explicit linking; CSRF-protected start, one-use bound callback state     |
 | 3     | `GET, POST {org}/integrations`; `GET, DELETE {org}/integrations/{id}`                         | Configure/list/disconnect with redacted credentials                                             |
 | 3     | `POST {org}/integrations/github/installations/start`; `GET /integrations/github/callback`     | Bind verified installation to authorized organization                                           |
 | 3     | `GET {org}/integrations/{id}/available-repositories`; `POST {org}/repositories`               | List provider-authorized choices; connect by verified source identity                           |

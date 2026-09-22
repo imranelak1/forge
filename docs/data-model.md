@@ -1,6 +1,6 @@
 # Entity and tenant model
 
-Status: Phase 2 implements users, sessions, hashed refresh/identity tokens, organizations, memberships, invitations, audit records and persistent authentication rate limits through Alembic `0002_identity`. The remaining entities below are the phased target model. `0001_foundation` creates the namespace; migrations introduce later domain tables with their feature phases.
+Status: Phase 2 implements users, sessions, hashed refresh/identity tokens, organizations, memberships, invitations, audit records and persistent authentication rate limits through Alembic `0002_identity`. The requested GitHub/Google login extension adds external identities and OAuth state in `0003_oauth`. The remaining entities below are the phased target model. `0001_foundation` creates the namespace; migrations introduce later domain tables with their feature phases.
 
 ## Shared conventions and invariants
 
@@ -63,7 +63,7 @@ Optional commit/workflow/release links are described below rather than drawn as 
 
 | Entity            | Grain and important fields                                                                                | Constraints                                                                                     |
 | ----------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `users`           | Global person: canonical email, name, required Argon2id password hash, email_verified boolean, created_at | Unique canonical email; never expose password hash                                              |
+| `users`           | Global person: canonical email, name, nullable Argon2id password hash, email_verified boolean, created_at | Unique canonical email; null hash for provider-only accounts; never expose password hash        |
 | `organizations`   | Tenant root: name, slug, created_by, is_demo, created_at, deleted_at                                      | Unique slug; its id is the tenant boundary; soft deactivation denies access                     |
 | `memberships`     | One organization/user pair: role owner/admin/member/viewer and created_at                                 | Composite organization/id primary key, unique organization/user, locked last-owner invariant    |
 | `invitations`     | Organization, email, role, token_hash, inviter membership, expiry, used_at, revoked_at                    | Composite tenant inviter reference; one-use token; current inviter role rechecked on acceptance |
@@ -73,7 +73,7 @@ Optional commit/workflow/release links are described below rather than drawn as 
 | `rate_limits`     | Hashed operation/IP or operation/account key: window_start, attempts                                      | Atomic PostgreSQL window counter shared by API processes                                        |
 | `audit_events`    | Tenant action: actor_id, subject_id, action, created_at                                                   | Composite organization/id primary key; runtime has SELECT/INSERT only                           |
 
-OAuth identities and one-use OAuth state arrive in Phase 3. Nullable passwords for OAuth-only users, user disablement, organization timezone, richer audit payloads and security-event retention are future schema extensions; Phase 2 does not claim those columns exist.
+`0003_oauth` adds `external_identities` keyed by `(provider, subject)`, unique on `(user_id, provider)`, with the observed provider email and creation time. `oauth_states` stores hashed state/browser binding, provider, intent, safe local destination, optional user/session binding, expiry and consumption timestamps. PKCE verifiers and Google nonces are derived with purpose-separated HMAC; raw provider tokens are not stored. Both are global authentication tables. User disablement, organization timezone, richer audit payloads and security-event retention remain future extensions.
 
 Global auth records cannot be queried through tenant resource endpoints. Organization creation inserts the root and initial owner atomically through a narrow bootstrap use case. Membership discovery is user-scoped and does not grant access to arbitrary organization data.
 

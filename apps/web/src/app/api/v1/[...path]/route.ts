@@ -1,9 +1,13 @@
+import { validOAuthCallbackRedirect } from "@/lib/oauth";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const uuid = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
 const routes: [RegExp, string[]][] = [
-  [/^auth\/(csrf|me|sessions)$/, ["GET"]],
+  [/^auth\/(csrf|me|sessions|providers|connections)$/, ["GET"]],
+  [/^auth\/oauth\/(github|google)\/start$/, ["POST"]],
+  [/^auth\/oauth\/(github|google)\/callback$/, ["GET"]],
   [/^auth\/(register|login|refresh|logout)$/, ["POST"]],
   [/^auth\/(verify-email|password-reset)\/(request|confirm)$/, ["POST"]],
   [new RegExp(`^auth/sessions/${uuid}$`), ["DELETE"]],
@@ -52,7 +56,12 @@ const reply = (status: number, detail: string) =>
     { detail },
     {
       status,
-      headers: { "Cache-Control": "no-store", "Content-Type": "application/problem+json" },
+      headers: {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/problem+json",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+      },
     },
   );
 
@@ -97,12 +106,36 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
     return reply(403, "The session protection token is missing. Please retry.");
 
   const incoming = new URL(request.url);
+  const oauthCallback = /^auth\/oauth\/(github|google)\/callback$/.test(target);
   const upstream = new URL(
     `/api/v1/${target}`,
     process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000",
   );
+  const callbackParameters: Record<string, number> = {
+    code: 4096,
+    state: 2048,
+    error: 256,
+    error_description: 2048,
+    scope: 2048,
+    authuser: 16,
+    prompt: 128,
+    hd: 254,
+  };
+  if (incoming.search.length > 16_384) return reply(400, "Unsupported query parameters.");
   for (const [key, value] of incoming.searchParams) {
-    if (request.method !== "GET" || !["cursor", "limit"].includes(key) || value.length > 2048)
+    const maximum = oauthCallback
+      ? Object.hasOwn(callbackParameters, key)
+        ? callbackParameters[key]
+        : undefined
+      : ["cursor", "limit"].includes(key)
+        ? 2048
+        : undefined;
+    if (
+      request.method !== "GET" ||
+      !maximum ||
+      value.length > maximum ||
+      upstream.searchParams.has(key)
+    )
       return reply(400, "Unsupported query parameters.");
     upstream.searchParams.set(key, value);
   }
@@ -141,7 +174,7 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       "Cookie",
       cookie
         .split(";")
-        .filter((item) => /^\s*forge_(access|refresh|csrf|preauth)=/.test(item))
+        .filter((item) => /^\s*forge_(access|refresh|csrf|preauth|oauth)=/.test(item))
         .join(";"),
     );
   for (const key of ["origin", "x-csrf-token"]) {
@@ -155,14 +188,24 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       headers,
       body,
       cache: "no-store",
-      redirect: "error",
+      redirect: oauthCallback ? "manual" : "error",
       signal: AbortSignal.timeout(10_000),
     });
     const responseHeaders = new Headers({
       "Cache-Control": "no-store",
       "X-Request-ID": requestId,
       "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "no-referrer",
     });
+    if (oauthCallback && result.status >= 300 && result.status < 400) {
+      const destination = result.headers.get("Location");
+      if (result.status !== 303 || !validOAuthCallbackRedirect(destination))
+        return reply(502, "The sign-in response could not be verified. Please start again.");
+      responseHeaders.set("Location", destination);
+      for (const cookieValue of result.headers.getSetCookie())
+        responseHeaders.append("Set-Cookie", cookieValue);
+      return new Response(null, { status: 303, headers: responseHeaders });
+    }
     responseHeaders.set(
       "Content-Type",
       result.headers.get("Content-Type")?.includes("json")

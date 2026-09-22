@@ -9,6 +9,8 @@ import { api, errorMessage, safeReturn } from "@/lib/auth-client";
 import type { Organization } from "@/lib/auth-types";
 import { useAuth } from "./auth-provider";
 import { Field, FormMessage } from "./form-parts";
+import { SocialSignIn } from "./social-auth";
+import { oauthErrorMessage } from "@/lib/oauth";
 
 function AuthFrame({
   title,
@@ -44,9 +46,13 @@ function AuthFrame({
 export function CredentialsForm({
   mode,
   onComplete,
+  disabled = false,
+  onBusyChange,
 }: {
   mode: "login" | "register";
   onComplete?: () => void;
+  disabled?: boolean;
+  onBusyChange?: (value: boolean) => void;
 }) {
   const { authenticated } = useAuth();
   const router = useRouter();
@@ -55,9 +61,12 @@ export function CredentialsForm({
   const [error, setError] = useState("");
   const target = safeReturn(params.get("returnTo"));
   const registering = mode === "register";
+  const unavailable = busy || disabled;
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (unavailable) return;
     setBusy(true);
+    onBusyChange?.(true);
     setError("");
     const form = new FormData(event.currentTarget);
     try {
@@ -77,6 +86,7 @@ export function CredentialsForm({
       setError(errorMessage(err));
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
     }
   }
   return (
@@ -88,7 +98,7 @@ export function CredentialsForm({
           autoComplete="name"
           required
           maxLength={100}
-          disabled={busy}
+          disabled={unavailable}
         />
       )}
       <Field
@@ -98,7 +108,7 @@ export function CredentialsForm({
         autoComplete="email"
         required
         maxLength={254}
-        disabled={busy}
+        disabled={unavailable}
       />
       <Field
         label="Password"
@@ -113,10 +123,10 @@ export function CredentialsForm({
             ? "Use at least 12 characters. Spaces and password managers are welcome."
             : undefined
         }
-        disabled={busy}
+        disabled={unavailable}
       />
       <FormMessage error={error} />
-      <Button type="submit" disabled={busy}>
+      <Button type="submit" disabled={unavailable}>
         {busy
           ? registering
             ? "Creating account..."
@@ -136,6 +146,7 @@ export function CredentialsForm({
 
 export function CredentialsPage({ mode }: { mode: "login" | "register" }) {
   const params = useSearchParams();
+  const [pendingMethod, setPendingMethod] = useState<"social" | "credentials" | null>(null);
   const registering = mode === "register";
   const target = safeReturn(params.get("returnTo"));
   return (
@@ -147,7 +158,17 @@ export function CredentialsPage({ mode }: { mode: "login" | "register" }) {
           : "Open your organization and continue your work."
       }
     >
-      <CredentialsForm mode={mode} />
+      <FormMessage error={oauthErrorMessage(params.get("oauth_error"))} />
+      <SocialSignIn
+        returnTo={target}
+        disabled={pendingMethod === "credentials"}
+        onBusyChange={(value) => setPendingMethod(value ? "social" : null)}
+      />
+      <CredentialsForm
+        mode={mode}
+        disabled={pendingMethod === "social"}
+        onBusyChange={(value) => setPendingMethod(value ? "credentials" : null)}
+      />
       <p className="auth-switch">
         {registering ? "Already have an account?" : "New to Forge?"}{" "}
         <Link

@@ -67,9 +67,34 @@ beforeEach(() => {
   vi.mocked(getIdentity).mockReset();
   FakeBroadcastChannel.instances.clear();
   vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel);
+  window.history.replaceState({}, "", "/app");
 });
 
 describe("cross-tab authentication changes", () => {
+  it("announces completed OAuth only after identity is checked and removes the callback marker", async () => {
+    window.history.replaceState({}, "", "/app/settings?tab=members&oauth=signed-in");
+    let completeIdentity: (identity: Identity) => void = () => undefined;
+    vi.mocked(getIdentity).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          completeIdentity = resolve;
+        }),
+    );
+    const otherTab = new FakeBroadcastChannel("forge-auth");
+    const received = vi.fn();
+    otherTab.onmessage = received;
+    mount();
+    await screen.findByText("Checking");
+    expect(received).not.toHaveBeenCalled();
+    await act(async () => {
+      completeIdentity(owner);
+    });
+    await screen.findByText("Owner");
+    expect(received).toHaveBeenCalledTimes(1);
+    expect(window.location.pathname + window.location.search).toBe("/app/settings?tab=members");
+    otherTab.close();
+  });
+
   it("keeps this tab signed in after publishing its own completed sign-in", async () => {
     vi.mocked(getIdentity).mockRejectedValueOnce(new ApiError(401, "Sign in"));
     mount();

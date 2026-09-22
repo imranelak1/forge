@@ -1,13 +1,14 @@
 "use client";
 
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { api, errorMessage } from "@/lib/auth-client";
 import type { PageResult, Session } from "@/lib/auth-types";
 import { useAuth } from "./auth-provider";
 import { FormMessage } from "./form-parts";
 import { RequestEmailForm } from "./auth-pages";
+import { ConnectedAccounts } from "./social-auth";
 
 const date = (value: string) =>
   new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
@@ -61,7 +62,7 @@ export function AccountSettings() {
       <div className="page-heading">
         <div>
           <h1>Account settings</h1>
-          <p>Manage your email verification and signed-in sessions.</p>
+          <p>Manage your sign-in methods, email verification and active sessions.</p>
         </div>
         <Button variant="outline" disabled={!!busy} onClick={() => void signOut()}>
           {busy === "logout" ? "Signing out..." : "Sign out"}
@@ -94,6 +95,9 @@ export function AccountSettings() {
           </div>
         )}
       </section>
+      <Suspense fallback={<p role="status">Loading connected accounts...</p>}>
+        <ConnectedAccounts />
+      </Suspense>
       <section className="settings-section" aria-labelledby="sessions-title">
         <div className="settings-section-heading">
           <h2 id="sessions-title">Active sessions</h2>

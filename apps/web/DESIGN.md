@@ -15,6 +15,9 @@ colors:
   warning: "#dfba7b"
   field-border: "#666666"
   form-error: "#efb0a5"
+  provider-background: "#131314"
+  provider-border: "#8e918f"
+  provider-text: "#e3e3e3"
   inset: "#191919"
   navigation-hover: "#242424"
   navigation-active: "#2a2a2a"
@@ -39,6 +42,11 @@ colors:
   landing-module-production: "#05dbe9"
   landing-module-evidence: "#4d9cff"
 typography:
+  google-sign-in:
+    fontFamily: '"Google Sans Sign In", "Geist Variable", sans-serif'
+    fontSize: "14px"
+    fontWeight: 500
+    lineHeight: "20px"
   landing-display:
     fontFamily: '"Geist Variable", sans-serif'
     fontSize: "clamp(60px, 5.8vw, 84px)"
@@ -113,6 +121,12 @@ spacing:
   "28": "28px"
   "32": "32px"
 components:
+  provider-button:
+    backgroundColor: "{colors.provider-background}"
+    textColor: "{colors.provider-text}"
+    rounded: "{rounded.control}"
+    padding: "0 12px"
+    height: "44px"
   landing-button:
     backgroundColor: "{colors.landing-button}"
     textColor: "{colors.landing-button-text}"
@@ -265,7 +279,7 @@ The landing illustration is an authored SVG path with rounded turns, a 2.5-unit 
 
 ## Shapes
 
-Forms are compact rectangles: badges use the badge radius, navigation uses the navigation radius, and buttons, notices, tables, service lists, and code blocks use the control radius. Circular geometry appears in state icons rather than pill-shaped containers. Lucide stroke icons provide navigation and status imagery; the shipping favicon is SVG. There are no shipping raster assets.
+Forms are compact rectangles: badges use the badge radius, navigation uses the navigation radius, and buttons, notices, tables, service lists, and code blocks use the control radius. Circular geometry appears in state icons rather than pill-shaped containers. Lucide stroke icons provide navigation and status imagery; the shipping favicon is SVG. The Google sign-in mark is the official current PNG brand asset; other integration marks remain SVG. Provider marks are not redrawn or used as decorative imagery.
 
 Landing actions and checkpoint controls use 3px corners. The SVG delivery line draws through four source checkpoints and finishes at review. Local integration SVGs retain their source geometry and render in white or black to suit the section; provenance is in `public/integrations/SOURCES.md`.
 
@@ -278,6 +292,14 @@ The shared primitive provides primary, outline, and ghost variants. Default cont
 Form submits have a 40px minimum height and align to the start in workspace settings; direct public form submits stretch to the form width. Primary buttons carry submission and acceptance, outline buttons carry retry, session revocation, and confirmations, and ghost buttons carry cancellation or reveal inline member removal. Mobile form/action height overrides are described in Layout.
 
 Outline buttons have a one-pixel border and canvas fill, changing to muted fill on hover. Ghost buttons gain muted fill on hover. Primary buttons reduce their background opacity to 90% on hover. Disabled controls use 50% opacity and suppress pointer events. Color transitions use Tailwind's default 150ms timing. Keyboard focus uses a two-pixel ring offset by four pixels.
+
+### Social sign-in and connections
+
+Login and registration place two equally prominent, full-width provider actions above the email form, with 12px gaps and a quiet ruled "or use your email" separator. Both actions use the provider background, border and text tokens, a 44px minimum height, 12px horizontal padding and 20px official marks. The Google action alone uses self-hosted Google Sans Medium at 14px/20px, as required by its sign-in branding; Geist remains the application typeface. Provider colors and type stay scoped to these controls.
+
+Availability comes from the API. Unconfigured options are disabled with a nearby explanation; loading and errors are announced, with a retry for discovery failures. Starting either email or provider authentication disables conflicting form actions. Fixed callback errors explain recovery without displaying arbitrary provider text.
+
+Account settings place Connected accounts between identity details and sessions. Each divided row pairs the provider mark/name and email or availability with its connection state or Connect action. Connecting requires a verified Forge email. Below 760px the action moves below its provider identity and uses a 44px touch target. This surface authorizes sign-in only and says that it does not connect repositories.
 
 ### Navigation and links
 

@@ -62,7 +62,7 @@ class IdentityRepository:
         identifier: UUID,
         name: str,
         email: str,
-        password_hash: str,
+        password_hash: str | None,
         *,
         verified: bool = False,
     ) -> None:

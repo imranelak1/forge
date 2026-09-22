@@ -147,6 +147,7 @@ def clear_cookies(request: Request, response: Response) -> None:
         ("forge_refresh", "/api/v1/auth"),
         ("forge_csrf", "/"),
         ("forge_preauth", "/api/v1"),
+        ("forge_oauth", "/api/v1/auth/oauth"),
     ):
         response.delete_cookie(
             name,

@@ -190,6 +190,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [client]);
 
+  useEffect(() => {
+    // OAuth returns through a full navigation. Announce the cookie change only
+    // after the API confirms this tab's identity, then remove the public marker.
+    if (!identity.data || identity.isFetching) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("oauth") !== "signed-in") return;
+    channelRef.current?.postMessage({ type: "changed" });
+    url.searchParams.delete("oauth");
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+  }, [identity.data, identity.isFetching, pathname]);
+
   const organization =
     identity.data?.organizations.find((item) => item.id === selectedId) ??
     identity.data?.organizations[0];
