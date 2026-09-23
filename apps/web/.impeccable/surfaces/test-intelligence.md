@@ -27,7 +27,7 @@ FORM: Code-led extension of the incumbent Operate surfaces. Authoritative backen
 
 MOTION: Existing short hover/focus feedback only. Loading, save, retry, copy and revoke feedback communicate task state. The upload credential is displayed only in local component memory after issue, never in URLs, persistent storage or query caches; dismissal/navigation clears it.
 
-FINISH: The Phase 6 implementation and bounded visual review are complete. The fresh `phase6_finish_review` agent inspected ten actual-demo screenshots and seven feature files and reported no blockers. The parent separately reviewed the overview and mobile settings; the frontend builder reviewed report/history details and corrected repository settings at desktop/mobile sizes. The one hierarchy finding was resolved by placing potential-flakiness evidence before the longer report feed. Confirmation verified the resulting table order and readable responsive rows. A focused skip-link overlay in one mobile section capture is being replaced by the parent after clearing focus; this requires no interface change.
+FINISH: The Phase 6 implementation and bounded visual review are complete. The fresh `phase6_finish_review` agent inspected ten actual-demo screenshots and seven feature files and reported no blockers. The parent separately reviewed the overview and mobile settings; the frontend builder reviewed report/history details and corrected repository settings at desktop/mobile sizes. The one hierarchy finding was resolved by placing potential-flakiness evidence before the longer report feed. Confirmation verified the resulting table order and readable responsive rows. The supplementary mobile investigation capture now uses the actual viewport to avoid an offscreen fixed-link artifact from element screenshots; no interface change was needed.
 
 ## Validation receipt
 
@@ -35,7 +35,7 @@ FINISH: The Phase 6 implementation and bounded visual review are complete. The f
 - Frontend validation: 199 unit tests passed, including 40 test-intelligence UI/proxy checks. TypeScript, ESLint, formatting and the production build passed. The 16 affected UI tests passed again after the hierarchy and completion-coverage copy corrections.
 - Browser validation: all 78 production regression checks passed, including ten new desktop/mobile test-intelligence flows for report/history navigation, policy and token handling, viewer restrictions, organization switching, retryable failures and empty states.
 - The parent reported 372 passing backend tests. This frontend receipt does not substitute for the API/security review recorded in `docs/phase-6-review.md`.
-- DESIGN.md, the workspace surface brief and `.impeccable/design.json` describe the completed Phase 6 behavior. No design tokens or raster assets were introduced. The approved landing remains unchanged.
+- The final Impeccable detector scan of changed UI targets returned no findings. DESIGN.md, the workspace surface brief and `.impeccable/design.json` describe the completed Phase 6 behavior. No design tokens or raster assets were introduced. The approved landing remains unchanged.
 
 ## Truth and limits
 
