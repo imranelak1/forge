@@ -17,9 +17,12 @@ from forge.api.v1.github import router as github_router
 from forge.api.v1.health import router as health_router
 from forge.api.v1.identity import router as identity_router
 from forge.api.v1.oauth import router as oauth_router
+from forge.api.v1.test_analytics import router as test_analytics_router
+from forge.api.v1.tests import router as tests_router
 from forge.api.v1.webhooks import router as webhooks_router
 from forge.config import Settings
 from forge.domain.identity import DomainError
+from forge.domain.tests import REPORT_PATH
 from forge.migration import migration_heads
 from forge.observability.logging import configure_logging
 from forge.repositories.database import create_database_engine
@@ -32,6 +35,8 @@ from forge.services.health import HealthService
 from forge.services.identity import IdentityService
 from forge.services.oauth import OAuthService
 from forge.services.organizations import OrganizationService
+from forge.services.test_analytics import TestAnalyticsService
+from forge.services.tests import TestService
 from forge.services.webhooks import GitHubWebhookService
 
 logger = logging.getLogger("forge.http")
@@ -66,6 +71,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.github_service = GitHubService(app.state.identity_service, settings)
     app.state.analytics_service = AnalyticsService(app.state.identity_service)
     app.state.delivery_service = DeliveryService(app.state.identity_service)
+    app.state.test_service = TestService(app.state.identity_service)
+    app.state.test_analytics_service = TestAnalyticsService(app.state.identity_service)
     app.state.webhook_service = GitHubWebhookService(
         settings, app.state.identity_service.repository
     )
@@ -81,7 +88,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         request.state.request_id = request_id
         started = perf_counter()
         response: Response
-        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+        machine_upload = request.method == "POST" and REPORT_PATH.fullmatch(request.url.path)
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"} and not machine_upload:
             # Read a bounded stream even if Content-Length is absent or dishonest.
             limit = 1048576 if request.url.path == "/api/v1/webhooks/github" else 16384
             body = bytearray()
@@ -175,4 +183,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(github_router, prefix="/api/v1")
     app.include_router(analytics_router, prefix="/api/v1")
     app.include_router(delivery_router, prefix="/api/v1")
+    app.include_router(tests_router, prefix="/api/v1")
+    app.include_router(test_analytics_router, prefix="/api/v1")
     return app

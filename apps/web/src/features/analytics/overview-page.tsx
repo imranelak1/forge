@@ -82,6 +82,9 @@ function OverviewContent({
         <Link className="text-link" href="/app/deployments">
           Deployment frequency and evidence
         </Link>
+        <Link className="text-link" href="/app/tests">
+          Test outcomes and report evidence
+        </Link>
       </nav>
       <div className="analytics-refresh">
         <RefreshData organization={organization.id} />

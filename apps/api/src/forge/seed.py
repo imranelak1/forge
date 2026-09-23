@@ -54,7 +54,9 @@ async def seed() -> None:
             print(
                 f"{name}: {counts['pull_requests']} generated PRs and "
                 f"{counts['commits']} generated commits, {counts['workflow_runs']} workflow "
-                f"attempts and {counts['deployments']} deployments; live sources are disconnected."
+                f"attempts, {counts['deployments']} deployments and "
+                f"{counts['test_reports']} parsed JUnit reports "
+                f"({counts['test_executions']} test executions); live sources are disconnected."
             )
             if created:
                 print(f"Created synthetic demo identity: {email}\nPassword: {password}")

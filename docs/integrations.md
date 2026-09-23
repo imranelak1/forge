@@ -1,6 +1,6 @@
 # Integration architecture
 
-Status: GitHub App authorization, repository catalog, PR/commit history sync and signed push/pull-request/installation webhook ingestion are implemented in Phase 3. See [setup and limits](github-setup.md). Phase 4 adds review/lifecycle/commit-file enrichment, explicit PR membership and optional issue references. Phase 5 adds Actions attempts/jobs, deployment/status collection and their webhook reconciliation. JUnit and Sentry remain later milestones.
+Status: GitHub App authorization, repository catalog, PR/commit history sync and signed push/pull-request/installation webhook ingestion are implemented in Phase 3. See [setup and limits](github-setup.md). Phase 4 adds review/lifecycle/commit-file enrichment, explicit PR membership and optional issue references. Phase 5 adds Actions attempts/jobs, deployment/status collection and their webhook reconciliation. Phase 6 implements direct JUnit upload and test intelligence. Sentry remains Phase 7.
 
 ## Common adapter contract
 
@@ -55,9 +55,11 @@ Actions success is not proof of a deployment. Ingest GitHub deployment/status ob
 
 ## JUnit ingestion (Phase 6)
 
-Support direct XML upload authenticated by a repository-scoped CI token initially. Associate with verified workflow run/attempt, commit SHA, report key and shard where supplied. Missing source parents can be reconciled later, but known cross-tenant or cross-repository IDs are rejected. Re-uploading identical content for the same report identity returns the original receipt. A corrected report explicitly supersedes its predecessor; do not silently count both.
+Direct XML upload is authenticated by an expiring repository-scoped `test_reports:write` token. Associate with an already imported exact workflow run/attempt, copied full commit SHA, report key and shard. Phase 6 rejects missing parents with `workflow_not_imported`; callers retry after sync. Cross-tenant/repository IDs cannot bind. Re-uploading identical content for the same report identity returns the original receipt. A corrected report explicitly supersedes its predecessor only after successful processing; both never silently contribute to current metrics. [JUnit setup](junit-setup.md)
 
-Use a hardened XML parser with DTD/external-entity processing disabled and no network resolution. Initial limits: 10 MiB uncompressed body, 100,000 cases, bounded nesting and message lengths. Do not accept archives until decompression limits are implemented. Handle both `testsuite` and `testsuites`, nested suites, skipped cases, failure/error tags, duplicate test names, parameterization and retries. Preserve parse/quality warnings and compare declared counts to derived leaf counts.
+The Expat callback parser rejects DTD/custom/external entities with no file/network resolver. Limits are 10 MiB uncompressed XML, 100,000 executions including explicit retries, nesting depth 64, 10,000 suites and 500,000 elements, plus bounded identity/attribute fields. Archives and compressed uploads are unsupported. Both `testsuite` and `testsuites` roots, nested suites, skipped/failure/error tags and full parameterized identities are supported. Surefire flaky/rerun tags establish explicit retries; ambiguous repeated names remain separate and unsupported retry metadata produces warnings. Declared counts are checked against final leaf counts.
+
+The existing leased worker parses outside its database transaction and atomically persists normalized records, bounded 2,048-character failure messages and successful correction links after rechecking access. Pending XML is encrypted, removed on terminal processing and subject to one-day expiry; stdout/stderr/properties are discarded. Cancellation appears as a failed receipt with a fixed cancellation reason. Human readers require tenant membership; machine upload credentials cannot read evidence. No browser-proxy XML upload is provided. [ADR 014](adr/014-test-intelligence.md)
 
 Artifact retrieval from Actions can be added after direct upload, with provider-expiry and archive-size checks. CI success without an uploaded report does not imply tests passed.
 

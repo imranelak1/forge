@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="5" failures="1" errors="1" skipped="1">
+  <testsuite name="root" tests="5" failures="1" errors="1" skipped="1">
+    <properties><property name="private-key" value="not returned"/></properties>
+    <testcase classname="Root" name="works" time="0.0"/>
+    <testsuite name="parameterized" tests="4" failures="1" errors="1" skipped="1">
+      <testcase classname="Search" file="tests/search.py" name="query[alpha]" time="0.125"/>
+      <testcase classname="Search" file="tests/search.py" name="query[beta]" time="1.25">
+        <failure message="expected a match">assertion failed</failure>
+      </testcase>
+      <testcase classname="Search" name="unavailable" time="0.03"><error>connection failed</error></testcase>
+      <testcase classname="Search" name="disabled"><skipped message="platform-specific"/></testcase>
+    </testsuite>
+    <system-out>PRIVATE CAPTURED OUTPUT MUST NEVER BE RETURNED</system-out>
+  </testsuite>
+</testsuites>

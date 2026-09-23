@@ -46,6 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         { href: "/app/pull-requests", label: "Pull requests", icon: GitPullRequest },
         { href: "/app/commits", label: "Commits", icon: GitCommitHorizontal },
         { href: "/app/ci", label: "CI workflows", icon: Workflow },
+        { href: "/app/tests", label: "Tests", icon: ShieldCheck },
         { href: "/app/deployments", label: "Deployments", icon: Rocket },
         { href: "/app/integrations", label: "Integrations", icon: Plug },
         ...navigation.slice(1),
@@ -146,10 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <p>
             Engineering tools <span>Planned</span>
           </p>
-          {[
-            { icon: ShieldCheck, label: "Test intelligence" },
-            { icon: Boxes, label: "Errors & automation" },
-          ].map(({ icon: Icon, label }) => (
+          {[{ icon: Boxes, label: "Errors & automation" }].map(({ icon: Icon, label }) => (
             <div className="planned-link" key={label}>
               <Icon size={17} aria-hidden="true" />
               {label}
@@ -174,7 +172,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ChevronRight size={14} aria-hidden="true" />
             <span>{current}</span>
           </div>
-          <span className="build-label">Phase 5 · CI & deployments</span>
+          <span className="build-label">Phase 6 · Test intelligence</span>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>
           {children}

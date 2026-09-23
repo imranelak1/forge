@@ -17,10 +17,12 @@ from forge.integrations.github import GitHubApp, GitHubFailure
 from forge.observability.logging import configure_logging
 from forge.repositories.database import create_database_engine
 from forge.repositories.pipeline import Lease, LostLease, PipelineRepository, Work
+from forge.repositories.tests import TestRepository
 from forge.workers.cicd import EVENTS as CICD_EVENTS
 from forge.workers.cicd import KINDS as CICD_KINDS
 from forge.workers.cicd import CICDPage, CICDWorker
 from forge.workers.enrichment import EnrichmentWorker, EvidencePage
+from forge.workers.tests import TestWorker
 
 MAX_ATTEMPTS = 8
 MAX_PAGES = 100
@@ -54,11 +56,17 @@ class Page:
 
 
 class GitHubWorker:
-    def __init__(self, repository: PipelineRepository, provider: GitHubApp) -> None:
+    def __init__(
+        self, repository: PipelineRepository, provider: GitHubApp, test_secret: str | None = None
+    ) -> None:
         self.repository = repository
         self.provider = provider
         self.enrichment = EnrichmentWorker(repository, provider)
         self.cicd = CICDWorker(repository, provider)
+        self.test_repository = TestRepository(repository.engine)
+        if test_secret is None and isinstance(provider, GitHubApp):
+            test_secret = provider.settings.auth_secret.get_secret_value()
+        self.tests = TestWorker(self.test_repository, test_secret) if test_secret else None
 
     @staticmethod
     def log(event: str, lease: Lease, error_code: str | None = None) -> None:
@@ -73,9 +81,15 @@ class GitHubWorker:
         )
 
     async def run_once(self) -> bool:
+        await self.test_repository.clear_payloads()
         lease = await self.repository.claim()
         if lease is None:
             return False
+        if await self.test_repository.is_report(lease):
+            if self.tests is None:
+                raise RuntimeError("Test report worker is not configured.")
+            await self.tests.run(lease)
+            return True
         try:
             async with asyncio.timeout(JOB_TIMEOUT_SECONDS):
                 work = await self.repository.load(lease)

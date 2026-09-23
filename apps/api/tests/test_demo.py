@@ -11,6 +11,7 @@ from test_auth import auth as auth_fixture
 from forge.domain.demo import TABLES, history, identifier
 from forge.domain.demo_delivery import TABLES as DELIVERY_TABLES
 from forge.domain.demo_delivery import history as delivery_history
+from forge.domain.demo_tests import TABLES as TEST_TABLES
 from forge.domain.identity import Actor
 from forge.repositories.demo import DemoRepository
 
@@ -67,6 +68,9 @@ async def test_seed_is_idempotent_scoped_and_cannot_queue_live_work(auth: AuthHa
     ordinary = await auth.organization(owner)
     counts = await seeder.seed(user_id, first["id"], 1)
     assert counts["pull_requests"] == 90
+    assert counts["workflow_runs"] == 136
+    assert counts["test_reports"] == 30
+    assert counts["test_executions"] > 270
     await seeder.seed(user_id, second["id"], 2)
 
     async def snapshot(tenant: UUID) -> dict[str, object]:
@@ -79,7 +83,14 @@ async def test_seed_is_idempotent_scoped_and_cannot_queue_live_work(auth: AuthHa
                     f"AS digest FROM forge.{table} t WHERE organization_id=:org",
                     org=tenant,
                 )
-                for table in (*TABLES, *DELIVERY_TABLES, "events", "integrations", "jobs")
+                for table in (
+                    *TABLES,
+                    *DELIVERY_TABLES,
+                    *TEST_TABLES,
+                    "events",
+                    "integrations",
+                    "jobs",
+                )
             }
 
     before = await snapshot(first["id"])
@@ -133,6 +144,29 @@ async def test_seed_is_idempotent_scoped_and_cannot_queue_live_work(auth: AuthHa
     assert deployments.status_code == 200, deployments.text
     assert deployments.json()["successful_count"] > 5
     assert deployments.json()["observed_success_count"] > deployments.json()["successful_count"]
+    tests = await owner.client.get(f"/api/v1/organizations/{first['id']}/metrics/tests")
+    assert tests.status_code == 200, tests.text
+    assert 0 < tests.json()["pass_fraction"] < 1
+    assert tests.json()["skipped_count"] == 28
+    candidates = await owner.client.get(
+        f"/api/v1/organizations/{first['id']}/tests?potential_only=true"
+    )
+    assert candidates.status_code == 200, candidates.text
+    assert any(
+        item["name"] == "refreshes_entry" and item["sample_count"] == 14 and item["potential_flaky"]
+        for item in candidates.json()["items"]
+    )
+    async with repository.transaction(user_id) as connection:
+        await repository.tenant(connection, first["id"])
+        summary = await repository.one(
+            connection,
+            """SELECT count(*) FILTER(WHERE status='completed') AS completed,
+                count(*) FILTER(WHERE superseded_by_id IS NOT NULL) AS superseded,
+                count(*) FILTER(WHERE payload IS NOT NULL OR service_token_id IS NOT NULL) AS unsafe
+                FROM forge.test_reports WHERE organization_id=:org""",
+            org=first["id"],
+        )
+        assert summary == {"completed": 30, "superseded": 2, "unsafe": 0}
 
 
 def test_delivery_demo_retries_and_deployments_preserve_evidence_grain() -> None:

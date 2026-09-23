@@ -2,26 +2,27 @@
 
 **Follow a code change. Understand the evidence behind its delivery.**
 
-Forge brings GitHub pull requests, commits, CI attempts and deployment history into one engineering workspace. Start with a metric, open the records behind it, and inspect the reviews, jobs or deployment statuses that explain it. Missing evidence stays visible through sample counts, exclusions and source coverage.
+Forge brings GitHub pull requests, commits, CI attempts, JUnit tests and deployment history into one engineering workspace. Start with a metric, open the records behind it, and inspect the reviews, jobs, test executions or deployment statuses that explain it. Missing evidence stays visible through sample counts, exclusions and source coverage.
 
 [![Forge landing-page recording: a code packet follows an animated delivery track through connected tools](docs/media/forge-landing.gif)](docs/media/forge-landing.gif)
 
-The landing page uses Anime.js to draw a scroll-driven SVG track and animate the accompanying explanations and code previews. Its story includes planned test, production-error and automation capabilities; those examples are illustrative. [About the animation](docs/landing-page.md)
+The landing page uses Anime.js to draw a scroll-driven SVG track and animate the accompanying explanations and code previews. Its examples are illustrative; test ingestion is implemented, while production-error and automation capabilities remain planned. [About the animation](docs/landing-page.md)
 
-**Current milestone: Phase 5 — CI/CD intelligence.** Accounts, organizations, GitHub ingestion, PR/commit analytics and CI/deployment evidence are implemented. This repository runs locally; production deployment, test intelligence, Sentry and automated responses remain on the roadmap.
+**Current milestone: Phase 6 — Test intelligence.** Accounts, organizations, GitHub ingestion, PR/commit analytics, CI/deployment evidence and scoped JUnit ingestion/test histories are implemented. This repository runs locally; production deployment, Sentry and automated responses remain on the roadmap.
 
 [Quick start](#quick-start) · [Explore the demo](#explore-without-connecting-github) · [Connect GitHub](#connect-your-tools) · [Architecture](#how-it-works) · [Roadmap](#whats-next)
 
 ## What you can do today
 
-| Surface                           | What it answers                                                                                                                                                           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Engineering overview              | How long from PR creation to merge, creation to first review, and approval to merge? Inspect mean, median, P75 and P95 with included and excluded samples.                |
-| Pull requests and commits         | Which reviews, lifecycle events, changed files and explicit associations support a change's history? Open the imported evidence and available GitHub source links.        |
-| CI workflows                      | Which workflow attempts succeed or fail, how long do they take, and which jobs contributed? Retries remain separate attempts with their own outcomes and timing evidence. |
-| Deployments                       | Which provider-reported deployments first succeeded, and which environments are production? Inspect status history, commit associations and classification provenance.    |
-| Repositories and integrations     | Which repositories are selected, what has been imported, and where is synchronization incomplete? Inspect progress, source windows, retries and permission errors.        |
-| Organization and account settings | Manage members, invitations, roles, sessions and linked sign-in providers. Verified owners/admins can set audited environment-classification overrides.                   |
+| Surface                           | What it answers                                                                                                                                                                     |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Engineering overview              | How long from PR creation to merge, creation to first review, and approval to merge? Inspect mean, median, P75 and P95 with included and excluded samples.                          |
+| Pull requests and commits         | Which reviews, lifecycle events, changed files and explicit associations support a change's history? Open the imported evidence and available GitHub source links.                  |
+| CI workflows                      | Which workflow attempts succeed or fail, how long do they take, and which jobs contributed? Retries remain separate attempts with their own outcomes and timing evidence.           |
+| Tests and reports                 | Which uploaded tests pass, fail, error or skip? Inspect nested suites, explicit retries, corrections and policy-based potential-flakiness evidence with sample and coverage limits. |
+| Deployments                       | Which provider-reported deployments first succeeded, and which environments are production? Inspect status history, commit associations and classification provenance.              |
+| Repositories and integrations     | Which repositories are selected, what has been imported, and where is synchronization incomplete? Inspect progress, source windows, retries and permission errors.                  |
+| Organization and account settings | Manage members, invitations, roles, sessions and linked sign-in providers. Verified owners/admins can set audited environment-classification overrides.                             |
 
 Choose an organization, repository and UTC window, then follow a metric's cohort link into the matching records. Filters and pagination preserve that scope. The **Refresh data** action reloads evidence after background imports finish.
 
@@ -31,6 +32,7 @@ Choose an organization, repository and UTC window, then follow a metric's cohort
 - **A retry is another CI attempt.** Non-decisive conclusions stay separate from success/failure rates. When exact run completion is unavailable, the UI labels the last-job completion proxy; unknown rerun queue times remain unknown.
 - **A green workflow is not a deployment.** Deployment metrics use GitHub deployment objects and status histories. A deployment's first success counts once, even if later statuses repeat success.
 - **An environment name is not a production flag.** Classification uses a provider flag or an explicit Forge override. Deployment frequency stays unavailable when the requested window lacks complete coverage.
+- **Uploaded tests are a partial view.** Final explicit outcomes determine pass rate; skipped cases, missing reports and warnings stay separate. Potential flakiness requires enough comparable history and transitions, and is not proof of a flaky defect.
 
 The backend calculates metric distributions from persisted records. The browser formats results and links to evidence; it does not invent missing values. [Metric definitions and limitations](docs/analytics.md)
 
@@ -69,7 +71,7 @@ docker compose exec -T backend python -m forge.seed
 
 The command creates two isolated demonstration organizations and prints their generated sign-in credentials **only on first creation**. Sign in with a printed account to explore the workspace.
 
-Demo One contains two repositories, 90 PRs, related reviews/commits/files, **108 workflow attempts and 36 deployments**. Retry attempts, incomplete evidence and repeated successful statuses exercise the same database queries used for live history. Demo Two supplies a separate organization with its own sign-in account.
+Demo One contains two repositories, 90 PRs, related reviews/commits/files, **136 workflow attempts, 36 deployments and 30 parsed JUnit reports with 278 test executions**. Demo Two supplies a separate organization with 68 attempts, 18 deployments and 15 reports/139 executions. Each repository includes 14 explicitly synthetic main-branch test observations and one report correction, using the same parser and normalized persistence as real uploads. Nested suites, parameters, skipped/error cases, explicit retries, quality warnings and potential-flakiness samples exercise the actual database queries.
 
 Demo records are visibly labeled, have no fabricated GitHub source links and cannot trigger live synchronization. Repeating the seed preserves existing credentials, records and environment overrides. It does not seed customer organizations and is disabled in production. [Demo details](docs/development.md#synthetic-demo-identities)
 
@@ -81,6 +83,7 @@ Sign-in and repository access are separate integrations:
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | GitHub or Google sign-in | Register the OAuth applications and configure their client IDs/secrets. Optional providers stay unavailable until configured. [Social sign-in guide](docs/social-login.md)                                                          |
 | GitHub repository access | Register and install a **GitHub App**, authorize it from Forge, bind its installation to an organization and select repositories. Signing in with GitHub does not grant repository access. [GitHub App guide](docs/github-setup.md) |
+| JUnit test reports       | Create a repository-scoped upload token, import the matching workflow attempt, and send uncompressed XML directly to the API. No artifact download or browser upload proxy. [JUnit guide](docs/junit-setup.md)                      |
 
 For repository imports, the App needs Metadata, Contents and Pull requests read access. Organization installations also require Members read access to verify ownership. Issues read access enables optional issue evidence; **Actions read** and **Deployments read** enable their respective histories. Existing installations must accept newly requested permissions.
 
@@ -141,15 +144,14 @@ node scripts/test-backend.mjs
 
 The backend runner creates and removes an isolated temporary PostgreSQL database; it does not clear the application database. Native backend tooling uses Python 3.13 and uv. The [development guide](docs/development.md#automated-checks) includes installation, production builds and browser-test commands for the Compose stack.
 
-The [Phase 5 handoff](docs/phase-5-review.md) records the completed validation: 312 backend tests, 159 frontend unit tests, 68 desktop/mobile browser checks, and 22 affected browser checks repeated after the final layout correction. These are recorded results for that milestone, not a claim that external provider credentials or every deployment are configured.
+The [Phase 6 handoff](docs/phase-6-review.md) records validation and current limitations; earlier CI/deployment checks remain in the [Phase 5 handoff](docs/phase-5-review.md). Recorded results describe those milestone snapshots, not a claim that external provider credentials or every deployment are configured.
 
 For changes, start with the relevant [API contract](docs/apis.md), [metric definition](docs/analytics.md) and [architecture decision](docs/adr/README.md). Preserve tenant boundaries and distinguish absent evidence from a measured zero. The [frontend design reference](apps/web/DESIGN.md) documents the existing workspace and landing behavior.
 
 ## What's next
 
-Phases 0–5 establish architecture, the application foundation, identity and organizations, GitHub ingestion, PR analytics and CI/deployment intelligence. The next planned milestones are:
+Phases 0–6 establish architecture, the application foundation, identity and organizations, GitHub ingestion, PR analytics, CI/deployment intelligence and JUnit test intelligence. After the Phase 6 gate, the next planned milestones are:
 
-- **Test intelligence:** JUnit ingestion, test histories and evidence for potential flakiness.
 - **Production errors:** Sentry integration with release and environment mappings.
 - **Lifecycle correlation and automation:** explicit associations, labeled candidates, evidence-based rules and auditable action delivery.
 - **Operations and scale:** scheduled reconciliation, analytical models and production deployment; additional infrastructure only when justified.

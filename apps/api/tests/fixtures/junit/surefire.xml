@@ -1,0 +1,13 @@
+<testsuite name="RetrySuite" tests="3" failures="1" errors="0" skipped="0">
+  <testcase classname="Retry" name="recovers" time="0.1">
+    <flakyFailure message="first failure"><stackTrace>assertion stack</stackTrace><system-out>SECRET LOG</system-out></flakyFailure>
+    <flakyError message="second error"><stackTrace>error stack</stackTrace></flakyError>
+    <system-out>SUCCESS LOG</system-out>
+  </testcase>
+  <testcase classname="Retry" name="still_fails" time="0.3">
+    <failure message="initial failure"/>
+    <rerunFailure message="retry one"/>
+    <rerunFailure message="retry two"/>
+  </testcase>
+  <testcase classname="Retry" name="always_passes" time="0.02"/>
+</testsuite>

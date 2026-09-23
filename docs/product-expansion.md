@@ -1,6 +1,6 @@
 # Planned product expansion
 
-Status: six product directions accepted for planning; none is implemented or enabled by this document. Phases 0–13 retain their order and approval gates in the [roadmap](roadmap.md). **Phase 6, test intelligence, remains the next implementation phase.** The milestones below identify prerequisites and possible small pilots, not permission to start them, change integration scopes, publish customer data or send messages.
+Status: six product directions accepted for planning; none is implemented or enabled by this document. Phases 0–13 retain their order and approval gates in the [roadmap](roadmap.md). **Phase 6, test intelligence, is the current milestone; Phase 7 Sentry integration is next after its gate.** The milestones below identify prerequisites and possible small pilots, not permission to start them, change integration scopes, publish customer data or send messages.
 
 Forge can become useful to open-source users and individual developers before they need a team workspace. Start with evidence people can inspect and share, then offer personal reflection and small-project monitoring. A public repository page is a discovery surface and a useful product in its own right; team adoption is optional.
 

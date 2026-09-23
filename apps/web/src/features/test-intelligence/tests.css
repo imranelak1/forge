@@ -1,0 +1,118 @@
+.tests-failure {
+  margin-top: 8px;
+}
+.tests-failure summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+.tests-failure pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 70ch;
+  margin-block: 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.tests-case-filter {
+  margin-block: 24px;
+}
+.tests-report-status {
+  margin-block: 20px;
+  font-size: 13px;
+}
+.tests-policy-form,
+.tests-token-form {
+  margin-block: 20px 28px;
+}
+.tests-policy-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.tests-policy-fields label,
+.tests-token-form label,
+.tests-issued label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  min-width: 0;
+}
+.tests-policy-fields input,
+.tests-policy-fields textarea,
+.tests-token-form input,
+.tests-issued textarea {
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid #666666;
+  border-radius: 6px;
+  min-height: 38px;
+  min-width: 0;
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+}
+.tests-policy-fields input:disabled,
+.tests-policy-fields textarea:disabled,
+.tests-token-form input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.tests-policy-fields input:focus-visible,
+.tests-policy-fields textarea:focus-visible,
+.tests-token-form input:focus-visible,
+.tests-issued textarea:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.tests-token-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px auto;
+  gap: 20px;
+  align-items: end;
+  max-width: 780px;
+}
+.tests-issued {
+  border-block: 1px solid var(--border);
+  padding-block: 20px;
+  margin-block: 24px;
+  max-width: 780px;
+}
+.tests-issued h3 {
+  margin-top: 0;
+}
+.tests-issued textarea {
+  margin-block: 8px 16px;
+  overflow-wrap: anywhere;
+  font-family: monospace;
+  resize: vertical;
+}
+.tests-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.tests-confirm p {
+  flex-basis: 100%;
+  margin: 0;
+}
+@media (max-width: 1100px) {
+  .tests-policy-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .tests-policy-fields,
+  .tests-token-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tests-token-form button {
+    justify-self: start;
+  }
+  .tests-policy-fields input,
+  .tests-token-form input {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}

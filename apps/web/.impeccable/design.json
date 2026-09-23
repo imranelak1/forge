@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T21:00:19.107Z",
+  "generatedAt": "2026-09-23T17:54:55.689Z",
   "title": "Design System: Forge",
   "extensions": {
     "colorMeta": {
@@ -523,7 +523,7 @@
       "name": "Workspace access build badge",
       "kind": "chip",
       "description": "Static context label, not a filter or action.",
-      "html": "<span class=\"ds-build\">Phase 5 · CI & deployments</span>",
+      "html": "<span class=\"ds-build\">Phase 6 · Test intelligence</span>",
       "css": ".ds-build{display:inline-block;border:1px solid var(--border,#303030);padding:2px 7px;border-radius:4px;color:var(--muted-foreground,#a6a6a6);font:11px/1.55 var(--font-sans,\"Geist Variable\",sans-serif)}"
     },
     {
@@ -600,11 +600,18 @@
       "description": "CI attempts and deployment statuses retain explicit coverage, timing provenance and classification source. Missing read permission never becomes a healthy zero. Policy edits use verified-manager controls and refresh server-calculated metrics.",
       "html": "<div class=\"ds-delivery\"><strong>Source coverage</strong><span>Observations unavailable</span><p>Actions read permission is required before CI evidence can be imported.</p></div>",
       "css": ".ds-delivery{display:grid;gap:8px;border-block:1px solid #303030;padding:16px 0;font:12px/1.65 \"Geist Variable\",sans-serif;color:#a6a6a6}.ds-delivery strong{font-size:15px;font-weight:600;color:#ededed}.ds-delivery span{color:#dfba7b}.ds-delivery p{margin:0}"
+    },
+    {
+      "name": "Uploaded test evidence",
+      "kind": "custom",
+      "description": "Server-calculated test outcomes retain denominators, skipped results, missing reports and retry provenance. Potential-flakiness evidence appears before report history. Repository policy and one-time CI credential controls use verified-manager access.",
+      "html": "<div class=\"ds-tests\"><strong>Uploaded report coverage</strong><span>Partial observations</span><p>Missing reports remain unknown. Skipped outcomes are outside the pass-rate denominator.</p><details><summary>Method and coverage details</summary><p>Inspect the samples, outcome flips and current repository policy before investigating a potential flaky test.</p></details></div>",
+      "css": ".ds-tests{display:grid;gap:8px;border-block:1px solid #303030;padding:16px 0;font:12px/1.65 \"Geist Variable\",sans-serif;color:#a6a6a6}.ds-tests strong{font-size:15px;font-weight:600;color:#ededed}.ds-tests span{color:#dfba7b}.ds-tests p{margin:0}.ds-tests summary{cursor:pointer;color:#ededed}.ds-tests summary:focus-visible{outline:2px solid #737373;outline-offset:4px}"
     }
   ],
   "narrative": {
     "northStar": "The Engineering Workbench",
-    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access, GitHub ingestion, pull request analytics and Phase 5 CI/deployment evidence in `apps/web`: accounts and social sign-in, organizations and permissions, selected repositories, synchronization, PR and commit history, workflow attempts/jobs, deployment status histories and explicit environment classification. System status and the setup guide remain public. Test intelligence, production-error analytics and automation remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
+    "overview": "Forge uses neutral charcoal surfaces, fine gray rules, compact controls, and readable operational detail. The approved dark developer-tool brief is the visual authority. Color communicates state; typography and spacing establish hierarchy.\n\nThis document records the implemented foundation, workspace access, GitHub ingestion, pull request analytics, CI/deployment evidence and Phase 6 test intelligence in `apps/web`: accounts and social sign-in, organizations and permissions, selected repositories, synchronization, PR and commit history, workflow attempts/jobs, deployment status histories, explicit environment classification, uploaded test reports, outcome histories and repository test policy. System status and the setup guide remain public. Production-error analytics and automation remain future work.\n\nThe public landing page at `/` follows one illustrative checkout commit along a centered SVG path. Anime.js draws a 4-unit line between GitHub, Actions, JUnit and Sentry logos and moves a coral code packet with an authored bracket glyph along it. The packet traces delivery, returns to the regression test and related code, then ends at a human review request. Headings and explanations animate into view, stay readable through a reading interval and animate out as the visitor scrolls on. Scrolling back reverses the same sequence. Each chapter retains its realistic code preview. The Anime.js palette remains warm charcoal, off-white, coral controls and warm stone integrations. The application retains its compact neutral foundation. The wordmark remains; a future 3D logo is deferred.",
     "keyCharacteristics": [
       "Flat charcoal surfaces with subtle borders.",
       "Geist interface text with system monospace for commands and versions.",
@@ -612,6 +619,7 @@
       "Responsive navigation and locally scrollable technical content.",
       "Persistent form labels, visible access roles, and divided settings sections.",
       "Table-based timing distributions with sample counts, exclusions, coverage and direct evidence links.",
+      "Uploaded test outcomes and potential-flakiness evidence with explicit retry, coverage and policy context.",
       "A scoped public landing with a continuous delivery track, tool checkpoints and five code examples."
     ],
     "rules": [

@@ -60,6 +60,13 @@ const routes: [RegExp, string[]][] = [
   [new RegExp(`^organizations/${uuid}/deployments/${uuid}/(statuses|commits)$`), ["GET"]],
   [new RegExp(`^organizations/${uuid}/repositories/${uuid}/environments$`), ["GET"]],
   [new RegExp(`^organizations/${uuid}/repositories/${uuid}/environments/classification$`), ["PUT"]],
+  [new RegExp(`^organizations/${uuid}/(metrics/tests|test-runs|tests)$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/test-runs/${uuid}$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/test-runs/${uuid}/(suites|cases)$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/tests/${uuid}/history$`), ["GET"]],
+  [new RegExp(`^organizations/${uuid}/repositories/${uuid}/test-policy$`), ["GET", "PATCH"]],
+  [new RegExp(`^organizations/${uuid}/repositories/${uuid}/service-tokens$`), ["GET", "POST"]],
+  [new RegExp(`^organizations/${uuid}/service-tokens/${uuid}$`), ["DELETE"]],
   [/^integrations\/github\/callback$/, ["GET"]],
   [/^invitations\/accept$/, ["POST"]],
 ];
@@ -165,6 +172,12 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
   ).test(target);
   const workflowCollection = new RegExp(`^organizations/${uuid}/workflow-runs$`).test(target);
   const deploymentCollection = new RegExp(`^organizations/${uuid}/deployments$`).test(target);
+  const testMetrics = new RegExp(`^organizations/${uuid}/metrics/tests$`).test(target);
+  const testReports = new RegExp(`^organizations/${uuid}/test-runs$`).test(target);
+  const testCandidates = new RegExp(`^organizations/${uuid}/tests$`).test(target);
+  const testHistory = new RegExp(`^organizations/${uuid}/tests/${uuid}/history$`).test(target);
+  const testCases = new RegExp(`^organizations/${uuid}/test-runs/${uuid}/cases$`).test(target);
+  const testAnalytics = testMetrics || testReports || testCandidates || testHistory || testCases;
   const analyticsParameters: Record<string, number> = analyticsList
     ? {
         from: 40,
@@ -184,6 +197,17 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       ...(workflowCollection ? { cohort: 12, outcome: 12, metric: 12, eligibility: 12 } : {}),
       ...(deploymentCollection ? { cohort: 12, eligibility: 12 } : {}),
     });
+  if (testMetrics || testReports || testCandidates || testHistory)
+    Object.assign(analyticsParameters, {
+      branch: 255,
+      environment: 255,
+      to: 40,
+      ...(!testCandidates ? { from: 40 } : {}),
+      ...(!testHistory ? { repository: 36 } : {}),
+      ...(testReports ? { status: 12 } : {}),
+      ...(testCandidates ? { potential_only: 5 } : {}),
+    });
+  if (testCases) Object.assign(analyticsParameters, { status: 12 });
   const upstream = new URL(
     `/api/v1/${target}`,
     process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000",
@@ -222,40 +246,50 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       upstream.searchParams.has(key)
     )
       return reply(400, "Unsupported query parameters.");
-    if ((analyticsList || ciList || deploymentList) && Object.hasOwn(analyticsParameters, key)) {
+    if (
+      (analyticsList || ciList || deploymentList || testAnalytics) &&
+      Object.hasOwn(analyticsParameters, key)
+    ) {
       const valid =
-        key === "repository"
-          ? new RegExp(`^${uuid}$`).test(value)
-          : key === "from" || key === "to"
-            ? /^\d{4}-\d{2}-\d{2}T/.test(value) &&
-              /(?:Z|[+-]\d{2}:\d{2})$/.test(value) &&
-              Number.isFinite(Date.parse(value))
-            : key === "state"
-              ? (issueList
-                  ? ["all", "open", "closed"]
-                  : ["all", "open", "closed", "merged"]
-                ).includes(value)
-              : key === "cohort"
-                ? (ciList
-                    ? ["activity", "completed"]
-                    : deploymentList
-                      ? ["created", "success"]
-                      : ["activity", "merged"]
-                  ).includes(value)
-                : key === "metric"
-                  ? (ciList
-                      ? ["duration", "queue"]
-                      : ["cycle_time", "review_wait", "approval_to_merge"]
+        key === "status"
+          ? (testCases
+              ? ["passed", "failed", "error", "skipped"]
+              : ["queued", "processing", "completed", "failed"]
+            ).includes(value)
+          : key === "potential_only"
+            ? ["true", "false"].includes(value)
+            : key === "repository"
+              ? new RegExp(`^${uuid}$`).test(value)
+              : key === "from" || key === "to"
+                ? /^\d{4}-\d{2}-\d{2}T/.test(value) &&
+                  /(?:Z|[+-]\d{2}:\d{2})$/.test(value) &&
+                  Number.isFinite(Date.parse(value))
+                : key === "state"
+                  ? (issueList
+                      ? ["all", "open", "closed"]
+                      : ["all", "open", "closed", "merged"]
                     ).includes(value)
-                  : key === "eligibility"
-                    ? ["eligible", "excluded", "all"].includes(value)
-                    : key === "outcome"
-                      ? ["all", "success", "failure", "other"].includes(value)
-                      : key === "classification"
-                        ? ["production", "nonproduction", "unknown", "all"].includes(value)
-                        : key === "workflow"
-                          ? /^[1-9]\d{0,18}$/.test(value)
-                          : !/[\u0000-\u001f\u007f]/.test(value);
+                  : key === "cohort"
+                    ? (ciList
+                        ? ["activity", "completed"]
+                        : deploymentList
+                          ? ["created", "success"]
+                          : ["activity", "merged"]
+                      ).includes(value)
+                    : key === "metric"
+                      ? (ciList
+                          ? ["duration", "queue"]
+                          : ["cycle_time", "review_wait", "approval_to_merge"]
+                        ).includes(value)
+                      : key === "eligibility"
+                        ? ["eligible", "excluded", "all"].includes(value)
+                        : key === "outcome"
+                          ? ["all", "success", "failure", "other"].includes(value)
+                          : key === "classification"
+                            ? ["production", "nonproduction", "unknown", "all"].includes(value)
+                            : key === "workflow"
+                              ? /^[1-9]\d{0,18}$/.test(value)
+                              : !/[\u0000-\u001f\u007f]/.test(value);
       if (!valid) return reply(400, "Unsupported query parameters.");
     }
     upstream.searchParams.set(key, value);

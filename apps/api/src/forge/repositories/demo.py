@@ -8,7 +8,11 @@ from sqlalchemy import text
 from forge.domain.demo import TABLES, VERSION, history, identifier
 from forge.domain.demo_delivery import TABLES as DELIVERY_TABLES
 from forge.domain.demo_delivery import history as delivery_history
+from forge.domain.demo_tests import TABLES as TEST_TABLES
+from forge.domain.demo_tests import history as test_history
+from forge.integrations.junit import parse_junit
 from forge.repositories.identity import IdentityRepository
+from forge.repositories.tests import TestRepository
 
 
 class DemoRepository:
@@ -70,6 +74,9 @@ class DemoRepository:
                 organization_id, integration, event["occurred_at"], 2 if number == 1 else 1
             )
             rows.update(delivery_history(organization_id, event["occurred_at"], rows))
+            tests = test_history(organization_id, event["occurred_at"], rows)
+            rows["workflow_runs"].extend(tests.workflow_runs)
+            rows["workflow_jobs"].extend(tests.workflow_jobs)
             for table in (*TABLES, *DELIVERY_TABLES):
                 items = rows[table]
                 if not items:
@@ -84,6 +91,27 @@ class DemoRepository:
                     ),
                     items,
                 )
+            test_repository = TestRepository(self.repository.engine)
+            for report in tests.reports:
+                columns = ",".join(report.receipt)
+                values = ",".join(f":{column}" for column in report.receipt)
+                inserted = await self.repository.one(
+                    connection,
+                    f"INSERT INTO forge.test_reports ({columns}) VALUES ({values}) "
+                    "ON CONFLICT (organization_id,id) DO NOTHING RETURNING *",
+                    **report.receipt,
+                )
+                if inserted is not None:
+                    parsed = parse_junit(report.xml, framework=report.receipt["framework"])
+                    await test_repository.persist_report(connection, inserted, parsed)
+                    await self.repository.execute(
+                        connection,
+                        "UPDATE forge.test_reports SET processed_at=:received "
+                        "WHERE organization_id=:org AND id=:id",
+                        org=organization_id,
+                        id=report.receipt["id"],
+                        received=report.receipt["received_at"],
+                    )
             # Upgrade already-seeded Phase 4 repositories without replacing their identities.
             for item in rows["repositories"]:
                 await self.repository.execute(
@@ -99,4 +127,13 @@ class DemoRepository:
                     id=item["id"],
                     anchor=event["occurred_at"],
                 )
-            return {table: len(items) for table, items in rows.items()}
+            counts = {table: len(items) for table, items in rows.items()}
+            for table in TEST_TABLES:
+                count = await self.repository.one(
+                    connection,
+                    f"SELECT count(*) AS count FROM forge.{table} WHERE organization_id=:org",
+                    org=organization_id,
+                )
+                assert count is not None
+                counts[table] = count["count"]
+            return counts

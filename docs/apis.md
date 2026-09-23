@@ -1,6 +1,31 @@
 # API architecture
 
-Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Phase 4 adds PR/commit/issue records, paginated evidence and PR timing metrics. Phase 5 adds CI/deployment metrics, workflow/job and deployment/status evidence, and audited environment classification. Test/error analytics and automation remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
+Status: Health, identity/session, organization, social-login and Phase 3 GitHub integration routes are implemented under `/api/v1`. Phase 4 adds PR/commit/issue records, paginated evidence and PR timing metrics. Phase 5 adds CI/deployment metrics, workflow/job and deployment/status evidence, and audited environment classification. Phase 6 adds scoped JUnit uploads, token/policy management and test evidence/analytics. Error analytics and automation remain planned. Development OpenAPI at `/api/v1/openapi.json` is the executable schema; interactive documentation is at `/docs`.
+
+## Implemented test intelligence routes
+
+Routes below follow `/api/v1/organizations/{organization}`. Read access requires active tenant membership. Human mutations require a verified owner/admin and CSRF; upload is a separate machine-only operation. Unknown or inaccessible resources return 404. Read lists use signed, filter-bound pagination, default 30 and maximum 100 rows.
+
+| Method     | Route                               | Purpose                                                                                                              |
+| ---------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| GET, POST  | `/repositories/{id}/service-tokens` | List credentials or create a repository-scoped, expiring upload token; raw credential returned only on creation      |
+| DELETE     | `/service-tokens/{id}`              | Revoke the token and pending ingestion                                                                               |
+| GET, PATCH | `/repositories/{id}/test-policy`    | Read or audit/version potential-flakiness thresholds and excluded branches                                           |
+| POST       | `/repositories/{id}/test-reports`   | Machine bearer token, raw uncompressed XML; 202 receipt, asynchronous parsing                                        |
+| GET        | `/metrics/tests`                    | Final-outcome pass rate, UTC daily trend, sample counts and upload/timestamp coverage                                |
+| GET        | `/test-runs`                        | Report receipts, including pending/failed/superseded evidence                                                        |
+| GET        | `/test-runs/{id}`                   | Report details, warnings, timing provenance and child counts                                                         |
+| GET        | `/test-runs/{id}/{suites,cases}`    | Paginated nested-suite metadata and executions, including explicit retries and bounded messages                      |
+| GET        | `/tests`                            | Potential-flakiness candidates and policy evidence; `potential_only=false` includes non-flagged comparable histories |
+| GET        | `/tests/{id}/history`               | Scoped identity history with preserved report and retry evidence                                                     |
+
+Upload query fields are `workflow_run_id` (numeric GitHub provider ID), `run_attempt`, `report_key`, optional `shard` (default `default`), `framework` (default `junit`), `environment`, full lowercase `commit_sha` and correction `supersedes` (receipt UUID). The exact attempt must already exist in the same repository; otherwise `workflow_not_imported` returns 422. Branch/SHA are copied from that parent. A supplied mismatched SHA returns 409. Machine credentials cannot read report content and browser session cookies do not authorize upload. The browser proxy deliberately rejects XML; use the backend API origin. [Upload commands and limits](junit-setup.md)
+
+Receipts expose `queued`, `processing`, `completed` or `failed`, fixed errors, timestamps and supersession references. Cancellation is `failed` with an explicit reason. An identical report identity/digest reuses its receipt; changed content requires the current `supersedes` ID. Old metrics remain until the correction completes. Failed corrections and pending uploads do not become zero-test successes.
+
+Metrics/report lists accept repository UUID, exact branch/environment and UTC `[from,to)` bounds. Potential-flakiness queries use each repository's policy lookback ending at `to`; report details remain available outside eligible metric cohorts. Case lists may filter `passed|failed|error|skipped`. Source completion provenance, unknown timing, missing reports and unknown expected-shard inventory remain explicit.
+
+Policy fields are `window_days` (2–90), `min_executions` (2–1000), `failure_rate_low/high` (`0 < low < high < 1`), `min_transitions` (1–100) and up to 50 exact `excluded_branches`. Defaults are 14 days, 10 observations, 0.05–0.95 failure fraction and two transitions. API policy management uses these storage names; candidate evidence labels them `lookback_days`, `failure_rate_min/max` and `min_flips`, alongside the version. Test evidence is tenant data, including source-authored failure messages; no endpoint returns raw XML, stdout/stderr or token hashes.
 
 ## Implemented CI/CD routes
 

@@ -2,7 +2,7 @@
 
 Work one phase at a time. Each phase begins with its scope and ends with changed files, migrations, routes, checks, exact local/manual-test commands, known limitations and a **PHASE COMPLETE** summary. Stop for the user's next instruction at every gate.
 
-Current next implementation phase: **Phase 6 — Test intelligence**. The six [planned product expansion tracks](product-expansion.md) add product direction and dependency milestones only; they do not reorder Phases 0–13 or authorize implementation at an existing gate.
+Current milestone: **Phase 6 — Test intelligence**. The next planned implementation phase is **Phase 7 — Sentry integration**, after the Phase 6 gate. The six [planned product expansion tracks](product-expansion.md) add product direction and dependency milestones only; they do not reorder Phases 0–13 or authorize implementation at an existing gate.
 
 ## Phase 0 — Architecture and modeling
 
@@ -44,7 +44,9 @@ Acceptance: retries are distinct attempts; excluded conclusions visible; duplica
 
 ## Phase 6 — Test intelligence
 
-Implement scoped CI tokens, hardened JUnit upload/parser, test identity/suite/execution persistence, quality warnings, pass rate and configurable potential-flakiness evidence. Seed report fixtures/history.
+Implementation includes scoped CI tokens, hardened direct JUnit upload/parser, test identity/suite/execution persistence, quality warnings, pass rate and configurable potential-flakiness evidence. Synthetic report history uses the real parser and persistence path. [Setup and limits](junit-setup.md), [ADR 014](adr/014-test-intelligence.md), [Phase 6 handoff](phase-6-review.md).
+
+The initial upload requires an already imported exact workflow attempt; standalone reports, artifact fetching and expected-shard manifests are not included. Bounded failure messages remain tenant-readable evidence. Potential flakiness is a sample/transition signal, not a proven diagnosis.
 
 Acceptance: nested/duplicate/retried/parameterized/skipped cases handled; malformed/oversized/entity-expansion input rejected; same report replay does not inflate totals; selected retry denominator and sample thresholds tested.
 

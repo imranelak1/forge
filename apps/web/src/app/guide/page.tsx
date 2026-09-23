@@ -97,6 +97,50 @@ export default function GuidePage() {
             <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </section>
+        <section id="test-reports">
+          <h2>Upload JUnit test reports</h2>
+          <p>
+            Open Tests, then Report uploads and policy. Select a connected repository. A verified
+            organization owner or admin can issue a repository-scoped CI token. Copy its credential
+            into your CI secret store immediately; Forge shows it only once. Demo repositories
+            cannot receive live reports.
+          </p>
+          <p>
+            Import the GitHub workflow attempt before uploading its report. Submit raw JUnit XML
+            directly to the backend API, using the provider workflow run ID and attempt number. The
+            example below uses shell environment variables for the API origin, organization,
+            repository, run and credential.
+          </p>
+          <pre>
+            <code>
+              {
+                'curl --fail-with-body \\\n  -H "Authorization: Bearer $FORGE_CI_TOKEN" \\\n  -H "Content-Type: application/xml" \\\n  --data-binary @report.xml \\\n  "$FORGE_API_ORIGIN/api/v1/organizations/$FORGE_ORGANIZATION/repositories/$FORGE_REPOSITORY/test-reports?workflow_run_id=$GITHUB_RUN_ID&run_attempt=$GITHUB_RUN_ATTEMPT&report_key=unit-tests&shard=default"'
+              }
+            </code>
+          </pre>
+          <p>
+            For a local command, the backend origin is http://localhost:8000. Hosted CI needs a
+            reachable API origin. Reports are processed in the background; use Refresh data in Tests
+            to inspect results. Tokens can upload only, so inspect reports with your Forge account.
+          </p>
+          <p>
+            Keep report key and shard stable across replay. Corrected content requires an explicit
+            supersedes report ID; it does not silently add a second result. Send XML up to 10 MiB,
+            not an archive. Failure messages and test metadata can contain source-authored sensitive
+            details: upload only intended report content. See <code>docs/junit-setup.md</code> for
+            limits, corrections and CI integration.
+          </p>
+          <p>
+            Pass rate excludes skipped cases and uses final explicit retries from the latest
+            completed workflow attempts. Missing reports remain unknown. Potential-flakiness results
+            expose their sample counts, transitions and repository policy; they are evidence for
+            investigation rather than a diagnosis.
+          </p>
+          <Link className="text-link" href="/app/tests/settings">
+            Open report upload settings
+            <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </section>
         <section id="troubleshooting">
           <h2>When a service is unavailable</h2>
           <p>
@@ -123,7 +167,7 @@ export default function GuidePage() {
           <p>
             Forge is being implemented one phase at a time. This installation contains the
             foundation, account access, organizations, GitHub repository ingestion, pull request
-            analytics, and CI and deployment evidence.
+            analytics, CI and deployment evidence, and uploaded test intelligence.
           </p>
           <ol className="phase-list">
             <li>
@@ -166,13 +210,25 @@ export default function GuidePage() {
                   first-success deployments and explicit environment classification.
                 </p>
               </div>
+            </li>
+            <li>
+              <span>Phase 6</span>
+              <div>
+                <strong>Test intelligence</strong>
+                <p>
+                  JUnit reports, suite and case evidence, pass rates, potential-flakiness policies
+                  and scoped CI upload credentials.
+                </p>
+              </div>
               <span className="current-phase">Current</span>
             </li>
             <li>
-              <span>Phases 6–9</span>
+              <span>Phases 7–9</span>
               <div>
                 <strong>Intelligence & automation</strong>
-                <p>Test and error analytics, alerts and pipeline responses.</p>
+                <p>
+                  Production-error analytics, lifecycle correlation, alerts and pipeline responses.
+                </p>
               </div>
             </li>
           </ol>
